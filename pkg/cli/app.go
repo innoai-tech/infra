@@ -3,113 +3,135 @@ package cli
 import (
 	"context"
 	"fmt"
+	"go/ast"
 	"os"
 	"reflect"
-	"strconv"
 	"strings"
 
-	"github.com/pkg/errors"
-	"github.com/spf13/cobra"
 	"github.com/spf13/pflag"
+
+	"github.com/innoai-tech/infra/pkg/configuration"
+	"github.com/spf13/cobra"
 )
 
-func Execute(ctx context.Context, c Command, args []string) error {
-	if inputs, ok := c.(interface{ Init(args []string) }); ok {
-		inputs.Init(args)
+func NewApp(name string, version string, fns ...AppOptionFunc) Command {
+	a := &app{
+		a: &App{
+			Name:    name,
+			Version: version,
+		},
+		C: C{
+			i: Info{
+				Name: name,
+			},
+		},
 	}
-	if e, ok := c.(interface {
-		ExecuteContext(ctx context.Context) error
-	}); ok {
-		return e.ExecuteContext(ctx)
+
+	for i := range fns {
+		fns[i](a.a)
 	}
-	return nil
+
+	return a
 }
 
-func NewApp(name string, version string, flags ...any) Command {
-	return &app{
-		Name:    Name{Name: name},
-		version: version,
-		flags:   flags,
-	}
-}
-
-type app struct {
-	Name
-
-	version string
-	c       *cobra.Command
-	flags   []any
+func (a *app) ParseArgs(args []string) {
+	a.root = a.newFrom(a, nil)
+	a.root.SetArgs(args)
 }
 
 func (a *app) ExecuteContext(ctx context.Context) error {
-	return a.c.ExecuteContext(ctx)
+	return a.root.ExecuteContext(ctx)
 }
 
-func (a *app) Init(args []string) {
-	a.c = a.newCmdFrom(a, nil)
-	a.c.SetArgs(args)
-	// bind global flags
-	for i := range a.flags {
-		a.bindCommand(a.c, a.flags[i], a.Naming())
-	}
+type app struct {
+	C
+	a       *App
+	root    *cobra.Command
+	version string
 }
 
-func (a *app) PreRun(ctx context.Context) context.Context {
-	for i := range a.flags {
-		if preRun, ok := a.flags[i].(CanPreRun); ok {
-			ctx = preRun.PreRun(ctx)
-		}
-	}
-	return ctx
-}
+func (a *app) newFrom(cc Command, parent Command) *cobra.Command {
+	c := cc.Cmd()
+	c.i.App = a.a
 
-func (a *app) newCmdFrom(cc Command, parent Command) *cobra.Command {
-	n := cc.Naming()
-	n.parent = parent
-
-	c := &cobra.Command{
+	cmd := &cobra.Command{
 		Version: a.version,
 	}
 
-	a.bindCommand(c, cc, n)
+	a.bindCommand(cmd, c, cc)
 
-	c.Args = func(cmd *cobra.Command, args []string) error {
-		if n.ValidArgs == nil {
-			return nil
-		}
-		return errors.Wrapf(n.ValidArgs.Validate(args), "%s: wrong args", n.Name)
+	if parent != nil {
+		c.cmdPath = append(parent.Cmd().cmdPath, c.i.Name)
 	}
 
-	c.RunE = func(cmd *cobra.Command, args []string) error {
-		n.Args = args
+	for i := range c.subcommands {
+		cmd.AddCommand(a.newFrom(c.subcommands[i], cc))
+	}
+
+	dumpK8s := false
+	showConfiguration := false
+
+	cmd.Flags().BoolVarP(&showConfiguration, "list-configuration", "c", os.Getenv("ENV") == "DEV", "show configuration")
+
+	if c.i.Component != "" {
+		cmd.Flags().BoolVarP(&dumpK8s, "dump-k8s", "", false, "dump k8s component")
+	}
+
+	cmd.RunE = func(cmd *cobra.Command, args []string) error {
+		if len(c.configurators) == 0 {
+			return cmd.Help()
+		}
+
+		if err := c.args.Validate(args); err != nil {
+			return err
+		}
 
 		ctx := cmd.Context()
-		// run parent PreRun if exists
-		parents := make([]Command, 0)
-		for p := parent; p != nil; p = p.Naming().parent {
-			parents = append(parents, p)
+
+		configuration.SetDefaults(ctx, c.configurators...)
+
+		if dumpK8s {
+			return c.dumpK8sConfiguration(ctx, "./cuepkg/component")
 		}
-		for i := range parents {
-			if canPreRun, ok := parents[len(parents)-1-i].(CanPreRun); ok {
-				ctx = canPreRun.PreRun(ctx)
+
+		envVars := make(map[string]string)
+
+		for _, kv := range os.Environ() {
+			parts := strings.SplitN(kv, "=", 2)
+			envVars[strings.ToUpper(parts[0])] = parts[1]
+		}
+
+		for i := range c.flagVars {
+			f := c.flagVars[i]
+			if err := f.FromEnvVars(envVars); err != nil {
+				return err
+			}
+
+			if showConfiguration {
+				fmt.Println(f.Info())
 			}
 		}
 
-		if preRun, ok := cc.(CanPreRun); ok {
-			ctx = preRun.PreRun(ctx)
+		configurators := append(
+			[]any{c.i},
+			c.configurators...,
+		)
+
+		ci := configuration.ComposeContextInjector(configurators...)
+
+		ctx = configuration.ContextWithContextInjector(ctx, ci)
+
+		if err := configuration.Init(ctx, c.configurators...); err != nil {
+			return err
 		}
 
-		return cc.Run(ctx)
+		return configuration.RunOrServe(ctx, c.configurators...)
 	}
 
-	for i := range n.subcommands {
-		c.AddCommand(a.newCmdFrom(n.subcommands[i], cc))
-	}
-
-	return c
+	return cmd
 }
 
-func (a *app) bindCommand(c *cobra.Command, v any, n *Name) {
+func (a *app) bindCommand(c *cobra.Command, info *C, v any) {
 	rv := reflect.ValueOf(v)
 
 	if rv.Kind() != reflect.Ptr || rv.Elem().Kind() != reflect.Struct {
@@ -118,155 +140,58 @@ func (a *app) bindCommand(c *cobra.Command, v any, n *Name) {
 
 	rv = rv.Elem()
 
-	if n.Name == "" {
-		n.Name = strings.ToLower(rv.Type().Name())
+	if info.i.Name == "" {
+		info.i.Name = strings.ToLower(rv.Type().Name())
 	}
 
-	a.bindFromReflectValue(c, rv)
+	a.bindCommandFromStruct(info, rv, c.Flags())
 
-	if validArgs := n.ValidArgs; validArgs != nil {
-		c.Use = fmt.Sprintf("%s [flags] %s", n.Name, strings.Join(*validArgs, " "))
+	if len(info.args) > 0 {
+		c.Use = fmt.Sprintf("%s [flags] %s", info.i.Name, info.args)
 	} else {
-		c.Use = n.Name
+		c.Use = info.i.Name
 	}
 
-	c.Short = n.Desc
+	c.Short = info.i.Desc
 }
 
-func (a *app) bindFromReflectValue(c *cobra.Command, rv reflect.Value) {
-	t := rv.Type()
+func (a *app) bindCommandFromStruct(c *C, rv reflect.Value, flags *pflag.FlagSet) {
+	st := rv.Type()
 
-	for i := 0; i < t.NumField(); i++ {
-		ft := t.Field(i)
-		fv := rv.Field(i)
+	if v, ok := rv.Interface().(CanRuntimeDoc); ok {
+		lines, ok := v.RuntimeDoc()
+		if ok && len(lines) > 0 {
+			c.i.Desc = lines[0]
+		}
+	}
 
-		if ft.Anonymous && ft.Type.Kind() == reflect.Struct {
-			if n, ok := fv.Addr().Interface().(*Name); ok {
-				n.Desc = ft.Tag.Get("desc")
-				if v, ok := ft.Tag.Lookup("args"); ok {
-					n.ValidArgs = ParseValidArgs(v)
-				}
-				continue
-			}
-			a.bindFromReflectValue(c, fv)
+	for i := 0; i < st.NumField(); i++ {
+		ft := st.Field(i)
+
+		if !ast.IsExported(ft.Name) {
 			continue
 		}
 
-		if n, ok := ft.Tag.Lookup("flag"); ok {
-			parts := strings.SplitN(n, ",", 2)
+		fv := rv.Field(i)
 
-			name, alias := parts[0], strings.Join(parts[1:], "")
-
-			persistent := false
-
-			if len(name) > 0 && name[0] == '!' {
-				persistent = true
-				name = name[1:]
+		if n, ok := fv.Addr().Interface().(*C); ok {
+			if name, ok := ft.Tag.Lookup("name"); ok {
+				n.i.Name = name
 			}
-
-			var envVars []string
-			if tagEnv, ok := ft.Tag.Lookup("env"); ok {
-				envVars = strings.Split(tagEnv, ",")
+			if component, ok := ft.Tag.Lookup("component"); ok {
+				n.i.Component = component
 			}
+			continue
+		}
 
-			defaultText, defaultExists := ft.Tag.Lookup("default")
+		name := ft.Name
 
-			ff := &flagVar{
-				Name:        name,
-				Alias:       alias,
-				EnvVars:     envVars,
-				Default:     defaultText,
-				Required:    !defaultExists,
-				Desc:        ft.Tag.Get("desc"),
-				Destination: fv.Addr().Interface(),
-			}
+		if ft.Anonymous {
+			name = ""
+		}
 
-			if persistent {
-				if err := ff.Apply(c.PersistentFlags()); err != nil {
-					panic(err)
-				}
-			} else {
-				if err := ff.Apply(c.Flags()); err != nil {
-					panic(err)
-				}
-			}
-
+		if ft.Type.Kind() == reflect.Struct {
+			addConfigurator(c, fv, flags, name, a.i.Name)
 		}
 	}
-}
-
-type flagVar struct {
-	Name        string
-	Desc        string
-	Default     string
-	Required    bool
-	Alias       string
-	EnvVars     []string
-	Destination any
-}
-
-func (f *flagVar) DefaultValue() string {
-	v := f.Default
-	for i := range f.EnvVars {
-		if found, ok := os.LookupEnv(f.EnvVars[i]); ok {
-			v = found
-			break
-		}
-	}
-	return v
-}
-
-func (f *flagVar) Usage() string {
-	if len(f.EnvVars) > 0 {
-		s := strings.Builder{}
-		s.WriteString(f.Desc)
-		s.WriteString(" [")
-
-		for i, envVar := range f.EnvVars {
-			if i > 0 {
-				s.WriteString(",")
-			}
-			s.WriteString("$")
-			s.WriteString(envVar)
-		}
-
-		s.WriteString("]")
-		return s.String()
-	}
-	return f.Desc
-}
-
-func (f *flagVar) Apply(flags *pflag.FlagSet) error {
-	switch d := f.Destination.(type) {
-	case *[]bool:
-		var v []bool
-		if sv := f.DefaultValue(); sv != "" {
-			v = make([]bool, len(strings.Split(sv, ",")))
-		}
-		flags.BoolSliceVarP(d, f.Name, f.Alias, v, f.Usage())
-	case *[]string:
-		var v []string
-		if sv := f.DefaultValue(); sv != "" {
-			v = strings.Split(sv, ",")
-		}
-		flags.StringSliceVarP(d, f.Name, f.Alias, v, f.Usage())
-	case *string:
-		v := f.DefaultValue()
-		flags.StringVarP(d, f.Name, f.Alias, v, f.Usage())
-	case *int:
-		var v int
-		if sv := f.DefaultValue(); sv != "" {
-			v, _ = strconv.Atoi(sv)
-		}
-		flags.IntVarP(d, f.Name, f.Alias, v, f.Usage())
-	case *bool:
-		var v bool
-		if sv := f.DefaultValue(); sv != "" {
-			v, _ = strconv.ParseBool(sv)
-		}
-		flags.BoolVarP(d, f.Name, f.Alias, v, f.Usage())
-	default:
-		return fmt.Errorf("unsupported flags type %T", d)
-	}
-	return nil
 }

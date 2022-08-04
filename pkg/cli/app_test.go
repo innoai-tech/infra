@@ -5,45 +5,34 @@ import (
 	"testing"
 
 	"github.com/innoai-tech/infra/pkg/cli"
-	. "github.com/smartystreets/goconvey/convey"
+	. "github.com/octohelm/x/testing"
 )
 
-type DoFlags struct {
-	Force  bool   `flag:"force" desc:"Do force"`
-	Output string `flag:"output,o" desc:"Output dir"`
-}
-
 type Do struct {
-	cli.Name `args:"INPUT" desc:"do something"`
-	DoFlags
+	cli.C `args:"INPUT"`
+
+	X
 }
 
-type VerboseFlags struct {
-	V int `flag:"!verbose,v" desc:"verbose level"`
-}
-
-func (v *VerboseFlags) PreRun(ctx context.Context) context.Context {
-	return ctx
+type X struct {
+	Src    []string `arg:""`
+	Force  bool     `flag:",omitempty"`
+	Output string   `flag:",omitempty"`
 }
 
 func TestApp(t *testing.T) {
-	Convey("Setup cli app", t, func() {
-		vflags := &VerboseFlags{}
+	t.Run("Setup cli app", func(t *testing.T) {
+		a := cli.NewApp("app", "1.0.0")
+		do := cli.AddTo(a, &Do{})
 
-		a := cli.NewApp("app", "1.0.0", vflags)
-		d := cli.Add(a, &Do{})
+		t.Run("When execute `do` with flags and args", func(t *testing.T) {
+			err := cli.Execute(context.Background(), a, []string{"do", "--force", "--output", "build", "src"})
+			Expect(t, err, Be[error](nil))
 
-		Convey("When execute `do` with flags and args", func() {
-			err := cli.Execute(context.Background(), a, []string{"do", "-v1", "--force", "-o", "build", "src"})
-			So(err, ShouldBeNil)
-
-			Convey("Flags should be parsed correct", func() {
-				So(d.Force, ShouldEqual, true)
-				So(d.Output, ShouldEqual, "build")
-			})
-
-			Convey("Args should be set", func() {
-				So(d.Args, ShouldResemble, []string{"src"})
+			t.Run("Flags should be parsed correct", func(t *testing.T) {
+				Expect(t, do.Force, Be(true))
+				Expect(t, do.Output, Be("build"))
+				Expect(t, do.Src, Equal([]string{"src"}))
 			})
 		})
 	})
