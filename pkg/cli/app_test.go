@@ -5,7 +5,7 @@ import (
 	"testing"
 
 	"github.com/innoai-tech/infra/pkg/cli"
-	. "github.com/smartystreets/goconvey/convey"
+	. "github.com/octohelm/x/testing"
 )
 
 type DoFlags struct {
@@ -27,23 +27,23 @@ func (v *VerboseFlags) PreRun(ctx context.Context) context.Context {
 }
 
 func TestApp(t *testing.T) {
-	Convey("Setup cli app", t, func() {
+	t.Run("Setup cli app", func(t *testing.T) {
 		vflags := &VerboseFlags{}
 
 		a := cli.NewApp("app", "1.0.0", vflags)
 		d := cli.Add(a, &Do{})
 
-		Convey("When execute `do` with flags and args", func() {
+		t.Run("When execute `do` with flags and args", func(t *testing.T) {
 			err := cli.Execute(context.Background(), a, []string{"do", "-v1", "--force", "-o", "build", "src"})
-			So(err, ShouldBeNil)
+			Expect(t, err, Be[error](nil))
 
-			Convey("Flags should be parsed correct", func() {
-				So(d.Force, ShouldEqual, true)
-				So(d.Output, ShouldEqual, "build")
+			t.Run("Flags should be parsed correct", func(t *testing.T) {
+				Expect(t, d.Force, Be(true))
+				Expect(t, d.Output, Be("build"))
 			})
 
-			Convey("Args should be set", func() {
-				So(d.Args, ShouldResemble, []string{"src"})
+			t.Run("Args should be set", func(t *testing.T) {
+				Expect(t, d.Args, Equal([]string{"src"}))
 			})
 		})
 	})
