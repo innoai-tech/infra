@@ -6,7 +6,7 @@ require (
 	github.com/go-courier/logr v0.0.2
 	github.com/octohelm/x v0.0.0-20220721104447-6248adcd9f3f
 	github.com/pkg/errors v0.9.1
-	github.com/spf13/cobra v1.4.0
+	github.com/spf13/cobra v1.5.0
 	github.com/spf13/pflag v1.0.5
 	go.opentelemetry.io/otel v1.9.0
 	go.opentelemetry.io/otel/exporters/otlp/otlptrace v1.9.0
