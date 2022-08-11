@@ -1,8 +1,9 @@
 package middleware
 
 import (
-	"github.com/innoai-tech/infra/pkg/http/compress"
 	"net/http"
+
+	"github.com/innoai-tech/infra/pkg/http/compress"
 )
 
 func CompressLevelHandlerMiddleware(level int) func(h http.Handler) http.Handler {

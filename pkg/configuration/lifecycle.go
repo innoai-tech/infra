@@ -39,9 +39,9 @@ func RunOrServe(ctx context.Context, configurators ...any) error {
 		return Shutdown(cc, configurators...)
 	}
 
-	g.Go(func() error {
-		stopCh := make(chan os.Signal, 1)
+	stopCh := make(chan os.Signal, 1)
 
+	g.Go(func() error {
 		signal.Notify(stopCh, os.Interrupt, syscall.SIGTERM)
 		<-stopCh
 
@@ -58,7 +58,7 @@ func RunOrServe(ctx context.Context, configurators ...any) error {
 	})
 
 	g.Go(func() error {
-		return serve(c, configuratorServers...)
+		return serve(c, stopCh, configuratorServers...)
 	})
 
 	return g.Wait()
@@ -73,14 +73,18 @@ func run(ctx context.Context, configuratorRunners ...Runner) error {
 	return nil
 }
 
-func serve(ctx context.Context, configuratorServers ...Server) error {
+func serve(ctx context.Context, stopCh chan os.Signal, configuratorServers ...Server) error {
 	g, c := errgroup.WithContext(ctx)
 
 	for i := range configuratorServers {
 		server := configuratorServers[i]
 
 		g.Go(func() error {
-			return server.Serve(c)
+			err := server.Serve(c)
+			go func() {
+				stopCh <- syscall.SIGTERM
+			}()
+			return err
 		})
 	}
 

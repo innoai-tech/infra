@@ -1,23 +1,16 @@
-<!doctype html>
+<!DOCTYPE html>
 <html lang="en">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport"
-          content="width=device-width, user-scalable=no, initial-scale=1.0, maximum-scale=1.0, minimum-scale=1.0">
-    <meta http-equiv="X-UA-Compatible" content="ie=edge">
-    <title>Document</title>
+    <base href="__APP_BASE_HREF__">
+    <meta name="webapp:base" content="name=kubepkg-agent,env=__ENV__,version=0.0.0">
+    <meta name="webapp:config" content="__APP_CONFIG__">
+
+    <meta name="viewport" content="initial-scale=1, width=device-width"/>
+    <meta http-equiv="X-UA-Compatible" content="ie=edge"/>
+    <title>KubePkg Agent</title>
+    <script type="module" crossorigin src="__APP_BASE_HREF__assets/index.0c15a522.js"></script>
 </head>
 <body>
-<pre>
-    <code id="code"></code>
-</pre>
+<div id="root"></div>
 </body>
-
-<script>
-    (async () => {
-        const res = await fetch("/api/example")
-        const data = await res.json();
-        document.querySelector("#code").innerHTML = JSON.stringify(data, null, 2)
-    })()
-</script>
 </html>

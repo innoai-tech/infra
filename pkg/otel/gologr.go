@@ -2,6 +2,7 @@ package otel
 
 import (
 	"context"
+
 	"github.com/go-courier/logr"
 	gologr "github.com/go-logr/logr"
 	"github.com/pkg/errors"

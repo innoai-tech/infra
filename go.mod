@@ -7,10 +7,10 @@ require (
 	github.com/felixge/httpsnoop v1.0.3
 	github.com/go-courier/logr v0.0.2
 	github.com/go-logr/logr v1.2.3
-	github.com/octohelm/courier v0.0.0-20220809094457-063e45541abe
-	github.com/octohelm/gengo v0.0.0-20220810092330-d6389636888c
-	github.com/octohelm/storage v0.0.0-20220805083736-06d8e1545f9f
-	github.com/octohelm/x v0.0.0-20220721104447-6248adcd9f3f
+	github.com/octohelm/courier v0.0.0-20220811041336-b89435f4fd06
+	github.com/octohelm/gengo v0.0.0-20220811021221-965156f1bc59
+	github.com/octohelm/storage v0.0.0-20220811023141-be451aebc0a0
+	github.com/octohelm/x v0.0.0-20220811034253-019992077a5d
 	github.com/pkg/errors v0.9.1
 	github.com/spf13/cobra v1.5.0
 	github.com/spf13/pflag v1.0.5
@@ -34,14 +34,14 @@ require (
 	github.com/onsi/gomega v1.20.0 // indirect
 	go.opentelemetry.io/otel/exporters/otlp/internal/retry v1.9.0 // indirect
 	go.opentelemetry.io/proto/otlp v0.18.0 // indirect
-	go.uber.org/atomic v1.9.0 // indirect
+	go.uber.org/atomic v1.10.0 // indirect
 	go.uber.org/multierr v1.8.0 // indirect
 	golang.org/x/mod v0.6.0-dev.0.20220419223038-86c51ed26bb4 // indirect
-	golang.org/x/net v0.0.0-20220809184613-07c6da5e1ced // indirect
-	golang.org/x/sys v0.0.0-20220808155132-1c4a2a72c664 // indirect
+	golang.org/x/net v0.0.0-20220811182439-13a9a731de15 // indirect
+	golang.org/x/sys v0.0.0-20220811171246-fbc7d0a398ab // indirect
 	golang.org/x/text v0.3.7 // indirect
 	golang.org/x/tools v0.1.12 // indirect
-	google.golang.org/genproto v0.0.0-20220808204814-fd01256a5276 // indirect
+	google.golang.org/genproto v0.0.0-20220810155839-1856144b1d9c // indirect
 	google.golang.org/grpc v1.48.0 // indirect
 	google.golang.org/protobuf v1.28.1 // indirect
 )

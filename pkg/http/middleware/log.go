@@ -172,6 +172,10 @@ func (rw *loggerResponseWriter) WriteHeader(statusCode int) {
 }
 
 func (rw *loggerResponseWriter) Write(data []byte) (int, error) {
+	if rw.statusCode == 0 {
+		rw.WriteHeader(http.StatusOK)
+	}
+
 	if rw.err == nil && rw.statusCode >= http.StatusBadRequest {
 		rw.err = errors.New(string(data))
 	}

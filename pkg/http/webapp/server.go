@@ -5,9 +5,6 @@ import (
 	"compress/gzip"
 	"context"
 	"fmt"
-	"github.com/go-courier/logr"
-	"github.com/innoai-tech/infra/pkg/http/webapp/appconfig"
-	"github.com/pkg/errors"
 	"io"
 	"io/fs"
 	"mime"
@@ -19,6 +16,10 @@ import (
 	"sync"
 	"time"
 
+	"github.com/go-courier/logr"
+	"github.com/innoai-tech/infra/pkg/http/webapp/appconfig"
+	"github.com/pkg/errors"
+
 	"github.com/innoai-tech/infra/pkg/http/compress"
 	"github.com/octohelm/courier/pkg/courierhttp/handler"
 
@@ -27,9 +28,11 @@ import (
 
 type Server struct {
 	// app env name
-	AppEnv string `flag:",omitempty"`
+	Env string `flag:",omitempty"`
 	// base href
 	BaseHref string `flag:",omitempty"`
+	// config
+	Config string `flag:",omitempty"`
 	// Disable http history fallback, only used for static pages
 	DisableHistoryFallback bool `flag:",omitempty"`
 	// AppRoot for host in fs
@@ -54,6 +57,10 @@ func (s *Server) SetDefaults() {
 	if s.Addr == "" {
 		s.Addr = ":80"
 	}
+
+	if s.Env == "" {
+		s.Env = os.Getenv("ENV")
+	}
 }
 
 func (s *Server) Init(ctx context.Context) error {
@@ -66,10 +73,9 @@ func (s *Server) Init(ctx context.Context) error {
 		if _, err := fs.Stat(s.fs, "index.html"); err != nil {
 			return errors.Wrapf(err, "index.html not found in root dir %s", s.Root)
 		}
-
 	}
 
-	ac := appconfig.AppConfig{}
+	ac := appconfig.ParseAppConfig(s.Config)
 	ac.LoadFromEnviron(os.Environ())
 
 	s.svc = &http.Server{
@@ -78,7 +84,7 @@ func (s *Server) Init(ctx context.Context) error {
 			compress.CompressHandlerLevel(gzip.DefaultCompression),
 		)(ServeFS(
 			s.fs,
-			WithAppEnv(s.AppEnv),
+			WithAppEnv(s.Env),
 			WithAppConfig(ac),
 			WithBaseHref(s.BaseHref),
 			DisableHistoryFallback(s.DisableHistoryFallback)),
@@ -245,18 +251,18 @@ func ServeFS(f fs.FS, optFns ...OptFunc) http.Handler {
 			return
 		}
 
-		ext := path.Ext(requestPath)
-
-		if ext != ".html" {
-			if _, err := fs.Stat(f, requestPath); err == nil {
-				if requestPath == "/favicon.ico" {
-					expires(w.Header(), 24*time.Hour)
-				} else if ext != ".json" {
+		if ext := path.Ext(requestPath); ext != "" && ext != ".html" {
+			switch requestPath {
+			case "/favicon.ico":
+				expires(w.Header(), 24*time.Hour)
+			case "/sw.js":
+			default:
+				if ext != ".json" {
 					expires(w.Header(), 30*24*time.Hour)
 				}
-				static.ServeHTTP(w, r)
-				return
 			}
+			static.ServeHTTP(w, r)
+			return
 		}
 		html.ServeHTTP(w, r)
 	})

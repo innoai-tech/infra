@@ -1,9 +1,10 @@
 package main
 
 import (
-	"github.com/innoai-tech/infra/cmd/example/ui"
 	nethttp "net/http"
 	"strings"
+
+	"github.com/innoai-tech/infra/cmd/example/ui"
 
 	"github.com/innoai-tech/infra/cmd/example/apis"
 	"github.com/innoai-tech/infra/pkg/cli"

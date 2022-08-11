@@ -3,12 +3,12 @@ package otel
 import (
 	"context"
 	"os"
-
-	"go.uber.org/zap/zapcore"
+	_ "time/tzdata"
 
 	"github.com/go-courier/logr"
 	sdktrace "go.opentelemetry.io/otel/sdk/trace"
 	"go.uber.org/zap"
+	"go.uber.org/zap/zapcore"
 )
 
 func NewZapCore() zapcore.Core {
@@ -19,8 +19,12 @@ func NewZapCore() zapcore.Core {
 			zap.DebugLevel,
 		)
 	}
+
+	c := zap.NewProductionEncoderConfig()
+	c.EncodeTime = zapcore.ISO8601TimeEncoder
+
 	return zapcore.NewCore(
-		zapcore.NewJSONEncoder(zap.NewProductionEncoderConfig()),
+		zapcore.NewJSONEncoder(c),
 		os.Stdout,
 		zap.DebugLevel,
 	)
@@ -44,7 +48,7 @@ func (e *stdoutSpanExporter) ExportSpans(ctx context.Context, spans []sdktrace.R
 		span := spans[i]
 
 		for _, event := range span.Events() {
-			fields := make([]zap.Field, 0, len(event.Attributes)+3)
+			fields := make([]zap.Field, 0, len(event.Attributes)+4)
 
 			level := logr.TraceLevel
 
@@ -79,13 +83,12 @@ func (e *stdoutSpanExporter) ExportSpans(ctx context.Context, spans []sdktrace.R
 				if span.Parent().IsValid() {
 					fields = append(fields, zap.Stringer("parentSpanID", span.Parent().SpanID()))
 				}
-
 			}
 
 			entry := zapcore.Entry{}
 			entry.LoggerName = spanName
-			entry.Time = event.Time
 			entry.Message = event.Name
+			entry.Time = event.Time
 
 			switch level {
 			case logr.TraceLevel, logr.DebugLevel:

@@ -2,6 +2,7 @@ package configuration
 
 import (
 	"context"
+
 	contextx "github.com/octohelm/x/context"
 )
 
@@ -41,7 +42,13 @@ func ContextInjectorFromContext(ctx context.Context) ContextInjector {
 	if ci, ok := ctx.Value(contextInjectorCtx{}).(ContextInjector); ok {
 		return ci
 	}
-	return nil
+	return contextInjectorDiscord{}
+}
+
+type contextInjectorDiscord struct{}
+
+func (contextInjectorDiscord) InjectContext(ctx context.Context) context.Context {
+	return ctx
 }
 
 type ContextInjector interface {

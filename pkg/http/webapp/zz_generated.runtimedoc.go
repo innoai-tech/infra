@@ -20,13 +20,17 @@ func (OptFunc) RuntimeDoc(names ...string) ([]string, bool) {
 func (v Server) RuntimeDoc(names ...string) ([]string, bool) {
 	if len(names) > 0 {
 		switch names[0] {
-		case "AppEnv":
+		case "Env":
 			return []string{
 				"app env name",
 			}, true
 		case "BaseHref":
 			return []string{
 				"base href",
+			}, true
+		case "Config":
+			return []string{
+				"config",
 			}, true
 		case "DisableHistoryFallback":
 			return []string{
