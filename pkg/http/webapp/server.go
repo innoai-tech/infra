@@ -5,6 +5,8 @@ import (
 	"compress/gzip"
 	"context"
 	"fmt"
+	"github.com/innoai-tech/infra/pkg/http/compress"
+	"github.com/octohelm/courier/pkg/courierhttp/handler"
 	"io"
 	"io/fs"
 	"mime"
@@ -19,9 +21,6 @@ import (
 	"github.com/go-courier/logr"
 	"github.com/innoai-tech/infra/pkg/http/webapp/appconfig"
 	"github.com/pkg/errors"
-
-	"github.com/innoai-tech/infra/pkg/http/compress"
-	"github.com/octohelm/courier/pkg/courierhttp/handler"
 
 	_ "github.com/innoai-tech/infra/pkg/http/webapp/etc"
 )
@@ -80,14 +79,12 @@ func (s *Server) Init(ctx context.Context) error {
 
 	s.svc = &http.Server{
 		Addr: s.Addr,
-		Handler: handler.ApplyHandlerMiddlewares(
-			compress.CompressHandlerLevel(gzip.DefaultCompression),
-		)(ServeFS(
+		Handler: ServeFS(
 			s.fs,
 			WithAppEnv(s.Env),
 			WithAppConfig(ac),
 			WithBaseHref(s.BaseHref),
-			DisableHistoryFallback(s.DisableHistoryFallback)),
+			DisableHistoryFallback(s.DisableHistoryFallback),
 		),
 	}
 
@@ -223,7 +220,9 @@ func ServeFS(f fs.FS, optFns ...OptFunc) http.Handler {
 	html := o.htmlHandler(f)
 	static := http.FileServer(http.FS(f))
 
-	return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+	return handler.ApplyHandlerMiddlewares(
+		compress.CompressHandlerLevel(gzip.DefaultCompression),
+	)(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 		if r.Method != http.MethodGet {
 			w.WriteHeader(http.StatusNoContent)
 			return
@@ -265,7 +264,7 @@ func ServeFS(f fs.FS, optFns ...OptFunc) http.Handler {
 			return
 		}
 		html.ServeHTTP(w, r)
-	})
+	}))
 }
 
 func expires(header http.Header, d time.Duration) {

@@ -27,12 +27,12 @@ func AddTo[T Command](parent Command, c T) T {
 }
 
 type C struct {
-	i             Info
-	cmdPath       []string
-	args          args
-	flagVars      []*flagVar
-	configurators []any
-	subcommands   []Command
+	i           Info
+	cmdPath     []string
+	args        args
+	flagVars    []*flagVar
+	singletons  configuration.Singletons
+	subcommands []Command
 }
 
 func (c *C) Cmd() *C {
@@ -44,7 +44,7 @@ type CanRuntimeDoc interface {
 }
 
 func addConfigurator(c *C, fv reflect.Value, flags *pflag.FlagSet, name string, appName string) {
-	c.configurators = append(c.configurators, fv.Addr().Interface())
+	c.singletons = append(c.singletons, fv.Addr().Interface())
 	collectFlagsFromConfigurator(c, flags, fv, name, appName)
 }
 

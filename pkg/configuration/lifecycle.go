@@ -105,33 +105,32 @@ func Shutdown(ctx context.Context, configuratorServers ...any) error {
 	return g.Wait()
 }
 
-func SetDefaults(ctx context.Context, configurators ...any) {
-	for i := range configurators {
-		if c, ok := configurators[i].(Defaulter); ok {
-			c.SetDefaults()
-		}
-	}
-}
-
 func Init(ctx context.Context, configurators ...any) error {
-	g, c := errgroup.WithContext(ContextInjectorFromContext(ctx).InjectContext(ctx))
+	ctx = ContextInjectorFromContext(ctx).InjectContext(ctx)
 
 	for i := range configurators {
 		configurator := configurators[i]
 
-		g.Go(func() error {
-			return initConfigurator(c, configurator)
-		})
+		if c, ok := configurator.(Defaulter); ok {
+			c.SetDefaults()
+		}
+
+		if err := initConfigurator(ctx, configurator); err != nil {
+			return err
+		}
+
+		if ci, ok := configurator.(ContextInjector); ok {
+			ctx = ci.InjectContext(ctx)
+		}
 	}
 
-	return g.Wait()
+	return nil
 }
 
 func initConfigurator(ctx context.Context, configurator any) (err error) {
 	if c, ok := configurator.(ConfiguratorInit); ok {
 		return c.Init(ctx)
 	}
-
 	return nil
 }
 

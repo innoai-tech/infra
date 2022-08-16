@@ -116,7 +116,7 @@ func CompressHandlerLevel(level int) func(h http.Handler) http.Handler {
 				compressor: encWriter,
 			}
 
-			w = httpsnoop.Wrap(w, httpsnoop.Hooks{
+			h.ServeHTTP(httpsnoop.Wrap(w, httpsnoop.Hooks{
 				Write: func(httpsnoop.WriteFunc) httpsnoop.WriteFunc {
 					return cw.Write
 				},
@@ -129,9 +129,7 @@ func CompressHandlerLevel(level int) func(h http.Handler) http.Handler {
 				ReadFrom: func(rff httpsnoop.ReadFromFunc) httpsnoop.ReadFromFunc {
 					return cw.ReadFrom
 				},
-			})
-
-			h.ServeHTTP(w, r)
+			}), r)
 		})
 	}
 }

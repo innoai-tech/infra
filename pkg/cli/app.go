@@ -78,7 +78,7 @@ func (a *app) newFrom(cc Command, parent Command) *cobra.Command {
 	}
 
 	cmd.RunE = func(cmd *cobra.Command, args []string) error {
-		if len(c.configurators) == 0 {
+		if len(c.singletons) == 0 {
 			return cmd.Help()
 		}
 
@@ -87,8 +87,6 @@ func (a *app) newFrom(cc Command, parent Command) *cobra.Command {
 		}
 
 		ctx := cmd.Context()
-
-		configuration.SetDefaults(ctx, c.configurators...)
 
 		if dumpK8s {
 			return c.dumpK8sConfiguration(ctx, "./cuepkg/component")
@@ -112,20 +110,17 @@ func (a *app) newFrom(cc Command, parent Command) *cobra.Command {
 			}
 		}
 
-		configurators := append(
-			[]any{c.i},
-			c.configurators...,
+		singletons := append(
+			configuration.Singletons{c.i},
+			c.singletons...,
 		)
 
-		ci := configuration.ComposeContextInjector(configurators...)
-
-		ctx = configuration.ContextWithContextInjector(ctx, ci)
-
-		if err := configuration.Init(ctx, c.configurators...); err != nil {
+		ctx, err := singletons.Init(ctx)
+		if err != nil {
 			return err
 		}
 
-		return configuration.RunOrServe(ctx, c.configurators...)
+		return singletons.RunOrServe(ctx)
 	}
 
 	return cmd

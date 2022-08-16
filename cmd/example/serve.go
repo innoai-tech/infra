@@ -15,7 +15,7 @@ import (
 func init() {
 	s := cli.AddTo(App, &Serve{})
 
-	s.Server.BindRouter(apis.R)
+	s.Server.ApplyRouter(apis.R)
 	s.Server.ApplyHandler(func(handler nethttp.Handler) nethttp.Handler {
 		return nethttp.HandlerFunc(func(rw nethttp.ResponseWriter, req *nethttp.Request) {
 			if strings.HasPrefix(req.URL.Path, "/api/") {

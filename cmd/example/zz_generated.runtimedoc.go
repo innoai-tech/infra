@@ -17,16 +17,11 @@ func runtimeDoc(v any, names ...string) ([]string, bool) {
 func (v Serve) RuntimeDoc(names ...string) ([]string, bool) {
 	if len(names) > 0 {
 		switch names[0] {
-		case "C":
-			return []string{}, true
 		case "Otel":
 			return []string{}, true
 		case "Server":
 			return []string{}, true
 
-		}
-		if doc, ok := runtimeDoc(v.C, names...); ok {
-			return doc, ok
 		}
 		if doc, ok := runtimeDoc(v.Otel, names...); ok {
 			return doc, ok
@@ -42,16 +37,11 @@ func (v Serve) RuntimeDoc(names ...string) ([]string, bool) {
 func (v Webapp) RuntimeDoc(names ...string) ([]string, bool) {
 	if len(names) > 0 {
 		switch names[0] {
-		case "C":
-			return []string{}, true
 		case "Otel":
 			return []string{}, true
 		case "Server":
 			return []string{}, true
 
-		}
-		if doc, ok := runtimeDoc(v.C, names...); ok {
-			return doc, ok
 		}
 		if doc, ok := runtimeDoc(v.Otel, names...); ok {
 			return doc, ok

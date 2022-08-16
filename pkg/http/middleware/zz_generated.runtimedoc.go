@@ -22,17 +22,6 @@ func (CORSOption) RuntimeDoc(names ...string) ([]string, bool) {
 func (FileSize) RuntimeDoc(names ...string) ([]string, bool) {
 	return []string{}, true
 }
-func (v LogRoundTripper) RuntimeDoc(names ...string) ([]string, bool) {
-	if len(names) > 0 {
-		switch names[0] {
-
-		}
-
-		return nil, false
-	}
-	return []string{}, true
-}
-
 func (OriginValidator) RuntimeDoc(names ...string) ([]string, bool) {
 	return []string{
 		"OriginValidator takes an origin string and returns whether or not that origin is allowed.",

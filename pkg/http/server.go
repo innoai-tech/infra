@@ -8,13 +8,14 @@ import (
 	"runtime"
 
 	"github.com/go-courier/logr"
-
 	"github.com/innoai-tech/infra/pkg/cli"
 	"github.com/innoai-tech/infra/pkg/configuration"
 	"github.com/innoai-tech/infra/pkg/http/middleware"
 	"github.com/octohelm/courier/pkg/courier"
 	"github.com/octohelm/courier/pkg/courierhttp/handler"
 	"github.com/octohelm/courier/pkg/courierhttp/handler/httprouter"
+	"golang.org/x/net/http2"
+	"golang.org/x/net/http2/h2c"
 )
 
 type Server struct {
@@ -34,7 +35,7 @@ func (s *Server) SetDefaults() {
 	}
 }
 
-func (s *Server) BindRouter(r courier.Router) {
+func (s *Server) ApplyRouter(r courier.Router) {
 	s.root = r
 }
 
@@ -76,7 +77,7 @@ func (s *Server) Init(ctx context.Context) error {
 
 	s.svc = &http.Server{
 		Addr:    s.Addr,
-		Handler: h,
+		Handler: h2c.NewHandler(h, &http2.Server{}),
 	}
 
 	return nil
