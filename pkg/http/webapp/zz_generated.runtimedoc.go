@@ -36,6 +36,10 @@ func (v Server) RuntimeDoc(names ...string) ([]string, bool) {
 			return []string{
 				"Disable http history fallback, only used for static pages",
 			}, true
+		case "DisableCSP":
+			return []string{
+				"Disable Content-Security-Policy",
+			}, true
 		case "Root":
 			return []string{
 				"AppRoot for host in fs",

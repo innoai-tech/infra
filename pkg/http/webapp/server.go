@@ -34,6 +34,8 @@ type Server struct {
 	Config string `flag:",omitempty"`
 	// Disable http history fallback, only used for static pages
 	DisableHistoryFallback bool `flag:",omitempty"`
+	// Disable Content-Security-Policy
+	DisableCSP bool `flag:",omitempty"`
 	// AppRoot for host in fs
 	Root string `flag:",omitempty"`
 	// Webapp serve on
@@ -85,6 +87,7 @@ func (s *Server) Init(ctx context.Context) error {
 			WithAppConfig(ac),
 			WithBaseHref(s.BaseHref),
 			DisableHistoryFallback(s.DisableHistoryFallback),
+			DisableCSP(s.DisableCSP),
 		),
 	}
 
@@ -137,11 +140,18 @@ func DisableHistoryFallback(disableHistoryFallback bool) OptFunc {
 	}
 }
 
+func DisableCSP(disableCSP bool) OptFunc {
+	return func(o *opt) {
+		o.disableCSP = disableCSP
+	}
+}
+
 type opt struct {
 	appEnv                 string
 	appConfig              appconfig.AppConfig
 	baseHref               string
 	disableHistoryFallback bool
+	disableCSP             bool
 }
 
 func (o *opt) htmlHandler(f fs.FS) http.Handler {
@@ -178,7 +188,10 @@ func (o *opt) htmlHandler(f fs.FS) http.Handler {
 	return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 		w.Header().Set("Content-Type", mime.TypeByExtension(".html"))
 
-		w.Header().Set("X-Frame-Options", "sameorigin")
+		if !o.disableCSP {
+			w.Header().Set("X-Frame-Options", "sameorigin")
+		}
+
 		w.Header().Set("X-Content-Type-Options", "nosniff")
 		w.Header().Set("X-XSS-Protection", "1; mode=block")
 
