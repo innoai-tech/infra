@@ -92,9 +92,6 @@ func LogHandler() func(handler http.Handler) http.Handler {
 			nextHandler.ServeHTTP(loggerRw, req.WithContext(ctx))
 
 			level, _ := logr.ParseLevel(strings.ToLower(req.Header.Get("x-log-level")))
-			if level == logr.PanicLevel {
-				level = logr.TraceLevel
-			}
 
 			duration := time.Since(startAt)
 

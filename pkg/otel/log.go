@@ -23,7 +23,8 @@ type Otel struct {
 	// When set, will collect traces
 	TraceCollectorEndpoint string `flag:",omitempty"`
 
-	tp              *sdktrace.TracerProvider
+	tp *sdktrace.TracerProvider
+
 	enabledLogLevel logr.Level
 }
 

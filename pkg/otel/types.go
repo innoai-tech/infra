@@ -14,11 +14,8 @@ const (
 type LogLevel string
 
 const (
-	PanicLevel LogLevel = "panic"
-	FatalLevel LogLevel = "fatal"
 	ErrorLevel LogLevel = "error"
-	WarnLevel  LogLevel = "warning"
+	WarnLevel  LogLevel = "warn"
 	InfoLevel  LogLevel = "info"
 	DebugLevel LogLevel = "debug"
-	TraceLevel LogLevel = "trace"
 )

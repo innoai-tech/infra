@@ -17,8 +17,8 @@ func newSpanLogger(tp trace.TracerProvider, span trace.Span, levelEnabled logr.L
 type spanLogger struct {
 	enabled    logr.Level
 	tp         trace.TracerProvider
-	span       trace.Span
 	name       string
+	span       trace.Span
 	attributes []attribute.KeyValue
 }
 
@@ -132,10 +132,6 @@ func (t *spanLogger) error(level logr.Level, err error) {
 	)
 }
 
-func (t *spanLogger) Trace(msgOrFormat string, args ...any) {
-	t.info(logr.TraceLevel, Sprintf(msgOrFormat, args...))
-}
-
 func (t *spanLogger) Debug(msgOrFormat string, args ...any) {
 	t.info(logr.DebugLevel, Sprintf(msgOrFormat, args...))
 }
@@ -150,15 +146,6 @@ func (t *spanLogger) Warn(err error) {
 
 func (t *spanLogger) Error(err error) {
 	t.error(logr.ErrorLevel, err)
-}
-
-func (t *spanLogger) Fatal(err error) {
-	t.error(logr.FatalLevel, err)
-}
-
-func (t *spanLogger) Panic(err error) {
-	t.error(logr.PanicLevel, err)
-	panic(err)
 }
 
 func attrsFromKeyAndValues(name string, keysAndValues ...any) (string, []attribute.KeyValue) {

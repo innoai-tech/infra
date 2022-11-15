@@ -50,7 +50,7 @@ func (e *stdoutSpanExporter) ExportSpans(ctx context.Context, spans []sdktrace.R
 		for _, event := range span.Events() {
 			fields := make([]zap.Field, 0, len(event.Attributes)+4)
 
-			level := logr.TraceLevel
+			level := logr.DebugLevel
 
 			for _, kv := range event.Attributes {
 				k := string(kv.Key)
@@ -91,7 +91,7 @@ func (e *stdoutSpanExporter) ExportSpans(ctx context.Context, spans []sdktrace.R
 			entry.Time = event.Time
 
 			switch level {
-			case logr.TraceLevel, logr.DebugLevel:
+			case logr.DebugLevel:
 				entry.Level = zapcore.DebugLevel
 			case logr.InfoLevel:
 				entry.Level = zapcore.InfoLevel
@@ -99,10 +99,6 @@ func (e *stdoutSpanExporter) ExportSpans(ctx context.Context, spans []sdktrace.R
 				entry.Level = zapcore.WarnLevel
 			case logr.ErrorLevel:
 				entry.Level = zapcore.ErrorLevel
-			case logr.PanicLevel:
-				entry.Level = zapcore.PanicLevel
-			case logr.FatalLevel:
-				entry.Level = zapcore.FatalLevel
 			}
 
 			if err := e.log.Write(entry, fields); err != nil {
