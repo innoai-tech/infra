@@ -46,8 +46,13 @@ func (rt *LogRoundTripper) RoundTrip(req *http.Request) (*http.Response, error) 
 		"cost", fmt.Sprintf("%0.3fms", float64(cost/time.Millisecond)),
 		"method", req.Method,
 		"url", omitAuthorization(req.URL),
-		"status", resp.StatusCode,
 	)
+
+	if resp != nil {
+		logger = logger.WithValues(
+			"status", resp.StatusCode,
+		)
+	}
 
 	if req.ContentLength > 0 {
 		logger = logger.WithValues(
