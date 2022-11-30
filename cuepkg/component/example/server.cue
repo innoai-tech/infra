@@ -2,13 +2,14 @@
 package example
 
 import (
-	"github.com/innoai-tech/runtime/cuepkg/kube"
+	kubepkg "github.com/octohelm/kubepkg/cuepkg/kubepkg:v1alpha1"
 )
 
-#Server: kube.#App & {
-	app: {
-		name: string | *"server"
-	}
+#Server: kubepkg.#KubePkg & {
+metadata: {
+	name: string | *"server"
+}
+spec: {
   
 	config: "EXAMPLE_LOG_LEVEL": string | *"info"
   
@@ -18,9 +19,8 @@ import (
   
 	config: "EXAMPLE_SERVER_ENABLE_DEBUG": string | *"false"
 
-	services: "\(app.name)": {
-		selector: "app": app.name
-		ports:     containers."server".ports
+	services: "#": {
+		ports: containers."server".ports
 	}
 
 	containers: "server": {
@@ -39,11 +39,12 @@ import (
 	containers: "server": {
 		image: {
 			name: _ | *"ghcr.io/octohelm/example"
-			tag:  _ | *"\(app.version)"
+			tag:  _ | *"\(version)"
 		}
 
 		args: [
 		"serve",
 		]
 	}
+}
 }

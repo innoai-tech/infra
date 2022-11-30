@@ -27,13 +27,15 @@ func (c *C) dumpK8sConfiguration(ctx context.Context, dest string) error {
 package %s
 
 import (
-	"github.com/innoai-tech/runtime/cuepkg/kube"
+	kubepkg "github.com/octohelm/kubepkg/cuepkg/kubepkg:v1alpha1"
 )
 
-#%s: kube.#App & {
-	app: {
-		name: string | *%q
-	}
+#%s: kubepkg.#KubePkg & {
+metadata: {
+	name: string | *%q
+}
+spec: {
+	version: _
 `,
 		pkgName,
 		gengo.UpperCamelCase(componentName),
@@ -64,9 +66,8 @@ import (
 
 	if len(flagExposes) > 0 {
 		_, _ = fmt.Fprintf(b, `
-	services: "\(app.name)": {
-		selector: "app": app.name
-		ports:     containers.%q.ports
+	services: "#": {
+		ports: containers.%q.ports
 	}
 `, componentName)
 
@@ -92,8 +93,17 @@ import (
 			if i == 0 {
 				// only use first as probe
 				_, _ = fmt.Fprintf(b, `
-		readinessProbe: kube.#ProbeHttpGet & {
-			httpGet: {path: "/", port: ports.%q}
+		readinessProbe: {
+			httpGet: {
+				path: "/", 
+				port: ports.%q
+				scheme: "HTTP"
+			}
+			initialDelaySeconds: _ | *5
+            timeoutSeconds:      _ | *1
+            periodSeconds:       _ | *10
+            successThreshold:    _ | *1
+            failureThreshold:    _ | *3
 		}
 		livenessProbe: readinessProbe
 `, portName)
@@ -108,7 +118,7 @@ import (
 	containers: %q: {
 		image: {
 			name: _ | *"%v/%v"
-			tag:  _ | *"\(app.version)"
+			tag:  _ | *"\(version)"
 		}
 `, componentName, c.i.App.ImageNamespace, c.i.App.Name)
 
@@ -121,6 +131,7 @@ import (
 	_, _ = fmt.Fprintf(b, `
 		]
 	}
+}
 }`)
 
 	if err := os.MkdirAll(dest, os.ModePerm); err != nil {

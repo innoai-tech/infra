@@ -1,6 +1,8 @@
-example:
-	go run ./cmd/example serve --dump-k8s
+example: example.dump
 	go run ./cmd/example serve
+
+example.dump:
+	go run ./cmd/example serve --dump-k8s
 
 webapp:
 	go run ./cmd/example webapp --root ./cmd/example/ui/dist
