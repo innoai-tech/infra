@@ -3,6 +3,7 @@ module github.com/innoai-tech/infra
 go 1.19
 
 require (
+	cuelang.org/go v0.5.0-beta.2
 	github.com/andybalholm/brotli v1.0.4
 	github.com/felixge/httpsnoop v1.0.3
 	github.com/go-courier/logr v0.1.0
@@ -26,12 +27,14 @@ require (
 
 require (
 	github.com/cenkalti/backoff/v4 v4.2.0 // indirect
+	github.com/cockroachdb/apd/v2 v2.0.2 // indirect
 	github.com/go-logr/logr v1.2.3 // indirect
 	github.com/go-logr/stdr v1.2.2 // indirect
 	github.com/golang/protobuf v1.5.2 // indirect
 	github.com/grpc-ecosystem/grpc-gateway/v2 v2.14.0 // indirect
 	github.com/inconshreveable/mousetrap v1.1.0 // indirect
 	github.com/julienschmidt/httprouter v1.3.0 // indirect
+	github.com/mpvl/unique v0.0.0-20150818121801-cbe035fff7de // indirect
 	github.com/onsi/gomega v1.24.1 // indirect
 	go.opentelemetry.io/otel/exporters/otlp/internal/retry v1.11.1 // indirect
 	go.opentelemetry.io/proto/otlp v0.19.0 // indirect

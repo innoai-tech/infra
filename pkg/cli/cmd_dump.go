@@ -8,6 +8,7 @@ import (
 	"path"
 	"strings"
 
+	cueformat "cuelang.org/go/cue/format"
 	"github.com/octohelm/gengo/pkg/camelcase"
 	"github.com/octohelm/gengo/pkg/gengo"
 )
@@ -49,24 +50,29 @@ spec: {
 
 	var flagExposes []*flagVar
 
-	for i := range c.flagVars {
-		f := c.flagVars[i]
-
+	i := 0
+	for _, f := range c.flagVars {
 		if f.Expose != "" {
 			flagExposes = append(flagExposes, f)
 			continue
 		}
 
+		if i == 0 {
+			b.WriteByte('\n')
+		}
+
 		if f.Required {
-			_, _ = fmt.Fprintf(b, `  
-	config: %q: string
+			_, _ = fmt.Fprintf(b,
+				`config: %q: string
 `, f.EnvVar)
 			continue
 		}
 
-		_, _ = fmt.Fprintf(b, `  
-	config: %q: string | *%q
+		_, _ = fmt.Fprintf(b,
+			`config: %q: string | *%q
 `, f.EnvVar, f.string())
+
+		i++
 	}
 
 	if len(flagExposes) > 0 {
@@ -143,5 +149,10 @@ spec: {
 		return err
 	}
 
-	return os.WriteFile(path.Join(dest, fmt.Sprintf("%s.cue", componentName)), b.Bytes(), os.ModePerm)
+	data, err := cueformat.Source(b.Bytes())
+	if err != nil {
+		return err
+	}
+
+	return os.WriteFile(path.Join(dest, fmt.Sprintf("%s.cue", componentName)), data, os.ModePerm)
 }
