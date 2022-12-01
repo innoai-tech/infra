@@ -36,6 +36,11 @@ metadata: {
 }
 spec: {
 	version: _
+
+	deploy: {
+		kind: "Deployment"
+		spec: replicas: _ | *1
+	}
 `,
 		pkgName,
 		gengo.UpperCamelCase(componentName),
