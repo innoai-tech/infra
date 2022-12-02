@@ -149,7 +149,7 @@ spec: {
 		return err
 	}
 
-	data, err := cueformat.Source(b.Bytes())
+	data, err := cueformat.Source(b.Bytes(), cueformat.Simplify())
 	if err != nil {
 		return err
 	}
