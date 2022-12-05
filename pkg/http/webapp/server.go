@@ -124,6 +124,12 @@ func WithAppEnv(appEnv string) OptFunc {
 	}
 }
 
+func WithAppVersion(appVersion string) OptFunc {
+	return func(o *opt) {
+		o.appVersion = appVersion
+	}
+}
+
 func WithBaseHref(baseHref string) OptFunc {
 	return func(o *opt) {
 		o.baseHref = baseHref
@@ -148,6 +154,7 @@ func DisableCSP(disableCSP bool) OptFunc {
 
 type opt struct {
 	appEnv                 string
+	appVersion             string
 	appConfig              appconfig.AppConfig
 	baseHref               string
 	disableHistoryFallback bool
@@ -172,6 +179,7 @@ func (o *opt) htmlHandler(f fs.FS) http.Handler {
 		data, _ := io.ReadAll(file)
 
 		data = bytes.ReplaceAll(data, []byte("__ENV__"), []byte(o.appEnv))
+		data = bytes.ReplaceAll(data, []byte("__VERSION__"), []byte(o.appVersion))
 		data = bytes.ReplaceAll(data, []byte("__APP_CONFIG__"), []byte(o.appConfig.String()))
 		data = bytes.ReplaceAll(data, []byte("__APP_BASE_HREF__"), []byte(o.baseHref))
 
