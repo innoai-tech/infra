@@ -6,7 +6,7 @@ require (
 	cuelang.org/go v0.5.0-beta.2
 	github.com/andybalholm/brotli v1.0.4
 	github.com/felixge/httpsnoop v1.0.3
-	github.com/go-courier/logr v0.1.0
+	github.com/go-courier/logr v0.1.1
 	github.com/octohelm/courier v0.0.0-20230110034437-4f26125f8237
 	github.com/octohelm/gengo v0.0.0-20230129024125-77e846ba1206
 	github.com/octohelm/storage v0.0.0-20230103034019-3817a122e336
