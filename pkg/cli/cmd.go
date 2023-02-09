@@ -113,6 +113,10 @@ func collectFlagsFromConfigurator(c *C, flags *pflag.FlagSet, rv reflect.Value, 
 			ff.Expose = tt.Get("expose")
 			ff.Secret = tt.Has("secret")
 			ff.Volume = tt.Has("volume")
+
+			if alias, ok := ft.Tag.Lookup("alias"); ok {
+				ff.Alias = alias
+			}
 		}
 
 		if prefix != "" {

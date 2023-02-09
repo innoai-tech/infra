@@ -16,8 +16,8 @@ type Do struct {
 
 type X struct {
 	Src    []string `arg:""`
-	Force  bool     `flag:",omitempty"`
-	Output string   `flag:",omitempty"`
+	Force  bool     `flag:",omitempty" alias:"f"`
+	Output string   `flag:",omitempty" alias:"o"`
 }
 
 func TestApp(t *testing.T) {
@@ -26,7 +26,7 @@ func TestApp(t *testing.T) {
 		do := cli.AddTo(a, &Do{})
 
 		t.Run("When execute `do` with flags and args", func(t *testing.T) {
-			err := cli.Execute(context.Background(), a, []string{"do", "--force", "--output", "build", "src"})
+			err := cli.Execute(context.Background(), a, []string{"do", "--force", "-o", "build", "src"})
 			Expect(t, err, Be[error](nil))
 
 			t.Run("Flags should be parsed correct", func(t *testing.T) {
