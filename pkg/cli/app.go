@@ -16,10 +16,12 @@ import (
 
 func NewApp(name string, version string, fns ...AppOptionFunc) Command {
 	a := &app{
+		version: version,
+
 		a: &App{
-			Name:    name,
-			Version: version,
+			Name: name,
 		},
+
 		C: C{
 			i: Info{
 				Name: name,
