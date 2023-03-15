@@ -103,6 +103,10 @@ func collectFlagsFromConfigurator(c *C, flags *pflag.FlagSet, rv reflect.Value, 
 		flagName := ft.Name
 
 		if n, ok := ft.Tag.Lookup("flag"); ok {
+			if n == "-" {
+				continue
+			}
+
 			tt := parseTag(n)
 			if name := tt.Name; name != "" {
 				flagName = name

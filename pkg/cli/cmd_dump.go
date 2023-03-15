@@ -28,7 +28,7 @@ func (c *C) dumpK8sConfiguration(ctx context.Context, dest string) error {
 package %s
 
 import (
-	kubepkg "github.com/octohelm/kubepkg/cuepkg/kubepkg:v1alpha1"
+	kubepkg "github.com/octohelm/kubepkg/cuepkg/kubepkg"
 )
 
 #%s: kubepkg.#KubePkg & {

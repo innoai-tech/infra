@@ -9,8 +9,8 @@ require (
 	github.com/andybalholm/brotli v1.0.5
 	github.com/felixge/httpsnoop v1.0.3
 	github.com/go-courier/logr v0.1.1
-	github.com/octohelm/courier v0.0.0-20230308080753-220c7f0a0c9b
-	github.com/octohelm/gengo v0.0.0-20230203081555-b66e95cb6110
+	github.com/octohelm/courier v0.0.0-20230315083137-7ad3c4b943e7
+	github.com/octohelm/gengo v0.0.0-20230315080452-73cfd15ab4dc
 	github.com/octohelm/storage v0.0.0-20230306100510-1c1a8290ae0c
 	github.com/octohelm/x v0.0.0-20220811034253-019992077a5d
 	github.com/pkg/errors v0.9.1
