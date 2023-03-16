@@ -100,6 +100,10 @@ func (f *flagVar) typ(t reflect.Type) string {
 
 func (f *flagVar) Set(s string) error {
 	if f.Value.Kind() == reflect.Slice {
+		if s == "" && !f.Required {
+			return nil
+		}
+
 		list := strings.Split(s, ",")
 
 		if !f.changed {
