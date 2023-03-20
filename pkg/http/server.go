@@ -4,12 +4,12 @@ import (
 	"compress/gzip"
 	"context"
 	"fmt"
+	"github.com/innoai-tech/infra/pkg/configuration"
 	"net/http"
 	"runtime"
 
 	"github.com/go-courier/logr"
 	"github.com/innoai-tech/infra/pkg/cli"
-	"github.com/innoai-tech/infra/pkg/configuration"
 	"github.com/innoai-tech/infra/pkg/http/middleware"
 	"github.com/octohelm/courier/pkg/courier"
 	"github.com/octohelm/courier/pkg/courierhttp/handler"
@@ -54,11 +54,19 @@ func (s *Server) Init(ctx context.Context) error {
 
 	info := cli.InfoFromContext(ctx)
 
+	baseMiddlewares := []handler.HandlerMiddleware{
+		middleware.ContextInjectorMiddleware(configuration.ContextInjectorFromContext(ctx)),
+		middleware.LogHandler(),
+	}
+
+	if s.h != nil {
+		baseMiddlewares = append(baseMiddlewares, s.h)
+	}
+
 	h, err := httprouter.New(
 		s.root,
 		info.App.String(),
-		middleware.ContextInjectorMiddleware(configuration.ContextInjectorFromContext(ctx)),
-		middleware.LogHandler(),
+		baseMiddlewares...,
 	)
 	if err != nil {
 		return err
@@ -70,10 +78,6 @@ func (s *Server) Init(ctx context.Context) error {
 		middleware.HealthCheckHandler(),
 		middleware.PProfHandler(s.EnableDebug),
 	)(h)
-
-	if s.h != nil {
-		h = s.h(h)
-	}
 
 	s.svc = &http.Server{
 		Addr:    s.Addr,
