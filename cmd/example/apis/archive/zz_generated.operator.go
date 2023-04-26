@@ -13,5 +13,5 @@ func init() {
 }
 
 func (*ArchiveZip) ResponseContent() any {
-	return &ZipFile{}
+	return new(ZipFile)
 }

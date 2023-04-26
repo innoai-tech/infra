@@ -24,6 +24,10 @@ func (v Server) RuntimeDoc(names ...string) ([]string, bool) {
 			return []string{
 				"app env name",
 			}, true
+		case "Ver":
+			return []string{
+				"app display version",
+			}, true
 		case "BaseHref":
 			return []string{
 				"base href",

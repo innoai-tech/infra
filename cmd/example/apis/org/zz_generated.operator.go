@@ -30,7 +30,7 @@ func init() {
 }
 
 func (*GetOrg) ResponseContent() any {
-	return &Detail{}
+	return nil
 }
 
 func (*GetOrg) ResponseErrors() []error {
@@ -48,5 +48,5 @@ func init() {
 }
 
 func (*ListOrg) ResponseContent() any {
-	return &DataList{}
+	return new(DataList)
 }

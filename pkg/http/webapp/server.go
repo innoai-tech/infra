@@ -28,6 +28,8 @@ import (
 type Server struct {
 	// app env name
 	Env string `flag:",omitempty"`
+	// app display version
+	Ver string `flag:",omitempty"`
 	// base href
 	BaseHref string `flag:",omitempty"`
 	// config
@@ -84,6 +86,7 @@ func (s *Server) Init(ctx context.Context) error {
 		Handler: ServeFS(
 			s.fs,
 			WithAppEnv(s.Env),
+			WithAppVersion(s.Ver),
 			WithAppConfig(ac),
 			WithBaseHref(s.BaseHref),
 			DisableHistoryFallback(s.DisableHistoryFallback),
@@ -181,6 +184,8 @@ func (o *opt) htmlHandler(f fs.FS) http.Handler {
 		data = bytes.ReplaceAll(data, []byte("__ENV__"), []byte(o.appEnv))
 		data = bytes.ReplaceAll(data, []byte("__VERSION__"), []byte(o.appVersion))
 		data = bytes.ReplaceAll(data, []byte("__APP_CONFIG__"), []byte(o.appConfig.String()))
+
+		data = bytes.ReplaceAll(data, []byte("/__APP_BASE_HREF__/"), []byte(o.baseHref))
 		data = bytes.ReplaceAll(data, []byte("__APP_BASE_HREF__"), []byte(o.baseHref))
 
 		cache.Store(path, data)

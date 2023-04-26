@@ -5,7 +5,7 @@ example.dump:
 	go run ./cmd/example serve --dump-k8s
 
 webapp:
-	go run ./cmd/example webapp --root ./cmd/example/ui/dist
+	go run ./cmd/example webapp --root ./cmd/example/ui/dist --ver=test
 
 webapp.2:
 	go run ./cmd/example webapp --disable-history-fallback --root ./cmd/example/ui/dist
