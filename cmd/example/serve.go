@@ -16,7 +16,7 @@ func init() {
 	s := cli.AddTo(App, &Serve{})
 
 	s.Server.ApplyRouter(apis.R)
-	s.Server.ApplyHandler(func(handler nethttp.Handler) nethttp.Handler {
+	s.Server.ApplyGlobalHandlers(func(handler nethttp.Handler) nethttp.Handler {
 		return nethttp.HandlerFunc(func(rw nethttp.ResponseWriter, req *nethttp.Request) {
 			if strings.HasPrefix(req.URL.Path, "/api/") {
 				handler.ServeHTTP(rw, req)

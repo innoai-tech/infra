@@ -7,6 +7,7 @@ replace cuelang.org/go => cuelang.org/go v0.5.0-beta.1
 require (
 	cuelang.org/go v0.5.0-beta.1
 	github.com/andybalholm/brotli v1.0.5
+	github.com/davecgh/go-spew v1.1.1
 	github.com/felixge/httpsnoop v1.0.3
 	github.com/go-courier/logr v0.2.0
 	github.com/octohelm/courier v0.0.0-20230414075145-eebc34ecb00a

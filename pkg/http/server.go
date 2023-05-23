@@ -5,6 +5,8 @@ import (
 	"context"
 	"fmt"
 	"github.com/innoai-tech/infra/pkg/configuration"
+	"golang.org/x/net/http2"
+	"golang.org/x/net/http2/h2c"
 	"net/http"
 	"runtime"
 
@@ -14,8 +16,6 @@ import (
 	"github.com/octohelm/courier/pkg/courier"
 	"github.com/octohelm/courier/pkg/courierhttp/handler"
 	"github.com/octohelm/courier/pkg/courierhttp/handler/httprouter"
-	"golang.org/x/net/http2"
-	"golang.org/x/net/http2/h2c"
 )
 
 type Server struct {
@@ -26,7 +26,9 @@ type Server struct {
 
 	root courier.Router
 	svc  *http.Server
-	h    handler.HandlerMiddleware
+
+	routerHandlers []handler.HandlerMiddleware
+	globalHandlers []handler.HandlerMiddleware
 }
 
 func (s *Server) SetDefaults() {
@@ -39,8 +41,12 @@ func (s *Server) ApplyRouter(r courier.Router) {
 	s.root = r
 }
 
-func (s *Server) ApplyHandler(h handler.HandlerMiddleware) {
-	s.h = h
+func (s *Server) ApplyRouterHandlers(handlers ...handler.HandlerMiddleware) {
+	s.routerHandlers = append(s.routerHandlers, handlers...)
+}
+
+func (s *Server) ApplyGlobalHandlers(handlers ...handler.HandlerMiddleware) {
+	s.globalHandlers = append(s.globalHandlers, handlers...)
 }
 
 func (s *Server) Init(ctx context.Context) error {
@@ -54,30 +60,30 @@ func (s *Server) Init(ctx context.Context) error {
 
 	info := cli.InfoFromContext(ctx)
 
-	baseMiddlewares := []handler.HandlerMiddleware{
-		middleware.ContextInjectorMiddleware(configuration.ContextInjectorFromContext(ctx)),
-		middleware.LogHandler(),
-	}
-
-	if s.h != nil {
-		baseMiddlewares = append(baseMiddlewares, s.h)
-	}
-
 	h, err := httprouter.New(
 		s.root,
 		info.App.String(),
-		baseMiddlewares...,
+		append(
+			[]handler.HandlerMiddleware{
+				middleware.ContextInjectorMiddleware(configuration.ContextInjectorFromContext(ctx)),
+				middleware.LogHandler(),
+			},
+			s.routerHandlers...,
+		)...,
 	)
 	if err != nil {
 		return err
 	}
 
-	h = handler.ApplyHandlerMiddlewares(
+	globalHandlers := append([]handler.HandlerMiddleware{
 		middleware.CompressLevelHandlerMiddleware(gzip.DefaultCompression),
 		middleware.DefaultCORS(),
-		middleware.HealthCheckHandler(),
 		middleware.PProfHandler(s.EnableDebug),
-	)(h)
+	}, s.globalHandlers...)
+
+	globalHandlers = append(globalHandlers, middleware.HealthCheckHandler())
+
+	h = handler.ApplyHandlerMiddlewares(globalHandlers...)(h)
 
 	s.svc = &http.Server{
 		Addr:    s.Addr,

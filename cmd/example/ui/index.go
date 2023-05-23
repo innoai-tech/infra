@@ -12,4 +12,4 @@ var content embed.FS
 
 var root, _ = fs.Sub(content, "dist")
 
-var UI = webapp.ServeFS(root, webapp.WithBaseHref("/example"))
+var UI = webapp.ServeFS(root, webapp.WithBaseHref("/"))
