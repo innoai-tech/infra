@@ -89,7 +89,7 @@ spec: {
 		for i := range flagExposes {
 			portName := "http"
 			if i != 0 {
-				portName = gengo.LowerKebabCase("http-" + flagExposes[i].Name)
+				portName = gengo.LowerKebabCase(flagExposes[i].Name)
 			}
 
 			parts := strings.Split(flagExposes[i].String(), ":")
