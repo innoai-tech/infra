@@ -2,7 +2,6 @@ package otel
 
 import (
 	"context"
-
 	sdktrace "go.opentelemetry.io/otel/sdk/trace"
 )
 

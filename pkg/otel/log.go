@@ -51,7 +51,8 @@ func (o *Otel) Init(ctx context.Context) error {
 		if o.TraceCollectorEndpoint != "" {
 			client := otlptracegrpc.NewClient(
 				otlptracegrpc.WithEndpoint(o.TraceCollectorEndpoint),
-				otlptracegrpc.WithTimeout(1*time.Second),
+				otlptracegrpc.WithInsecure(),
+				otlptracegrpc.WithTimeout(3*time.Second),
 			)
 			z, err := otlptrace.New(context.Background(), client)
 			if err != nil {
