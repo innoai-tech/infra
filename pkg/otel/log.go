@@ -73,7 +73,7 @@ func (o *Otel) Init(ctx context.Context) error {
 				opts,
 				sdktrace.WithResource(
 					resource.NewSchemaless(
-						attribute.String("app", info.App.String()),
+						attribute.String("service.name", info.App.String()),
 					),
 				),
 			)
