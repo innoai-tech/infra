@@ -2,6 +2,8 @@ package otel
 
 import (
 	"context"
+	"go.opentelemetry.io/otel/attribute"
+	"go.opentelemetry.io/otel/sdk/resource"
 	"time"
 
 	"github.com/innoai-tech/infra/pkg/cli"
@@ -64,6 +66,17 @@ func (o *Otel) Init(ctx context.Context) error {
 					otel.WithErrIgnoreExporter()(z),
 				),
 			))
+		}
+
+		if info := cli.InfoFromContext(ctx); info != nil {
+			opts = append(
+				opts,
+				sdktrace.WithResource(
+					resource.NewSchemaless(
+						attribute.String("app", info.App.String()),
+					),
+				),
+			)
 		}
 
 		o.enabledLogLevel, _ = logr.ParseLevel(string(o.LogLevel))
