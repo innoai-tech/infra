@@ -19,7 +19,8 @@ func NewApp(name string, version string, fns ...AppOptionFunc) Command {
 		version: version,
 
 		a: &App{
-			Name: name,
+			Name:    name,
+			Version: version,
 		},
 
 		C: C{
