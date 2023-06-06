@@ -42,7 +42,11 @@ func RunOrServe(ctx context.Context, configurators ...any) error {
 	stopCh := make(chan os.Signal, 1)
 
 	g.Go(func() error {
-		signal.Notify(stopCh, os.Interrupt, syscall.SIGTERM)
+		signal.Notify(stopCh,
+			os.Interrupt, os.Kill,
+			syscall.SIGHUP, syscall.SIGINT, syscall.SIGTERM, syscall.SIGQUIT,
+			syscall.SIGSEGV,
+		)
 		<-stopCh
 
 		timeout := 10 * time.Second

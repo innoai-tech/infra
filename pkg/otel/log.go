@@ -81,6 +81,7 @@ func (o *Otel) Init(ctx context.Context) error {
 
 		o.enabledLogLevel, _ = logr.ParseLevel(string(o.LogLevel))
 		o.tp = sdktrace.NewTracerProvider(opts...)
+
 	}
 
 	return nil
@@ -90,6 +91,7 @@ func (o *Otel) Shutdown(ctx context.Context) error {
 	if o.tp == nil {
 		return nil
 	}
+	_ = o.tp.ForceFlush(ctx)
 	return o.tp.Shutdown(ctx)
 }
 
