@@ -3,6 +3,7 @@ package otel
 import (
 	"context"
 	"fmt"
+	"golang.org/x/exp/slog"
 	"time"
 
 	"github.com/go-courier/logr"
@@ -10,23 +11,30 @@ import (
 	"go.opentelemetry.io/otel/trace"
 )
 
-func newSpanLogger(tp trace.TracerProvider, span trace.Span, levelEnabled logr.Level) logr.Logger {
-	return &spanLogger{tp: tp, span: span, enabled: levelEnabled}
+func newSpanLogger(tp trace.TracerProvider, span trace.Span, levelEnabled logr.Level, slog *slog.Logger) logr.Logger {
+	return &spanLogger{
+		tp:      tp,
+		span:    span,
+		enabled: levelEnabled,
+		slog:    slog,
+	}
 }
 
 type spanLogger struct {
 	enabled    logr.Level
 	tp         trace.TracerProvider
-	name       string
+	spanName   string
 	span       trace.Span
 	attributes []attribute.KeyValue
+	slog       *slog.Logger
 }
 
 func (t *spanLogger) withName(name string) *spanLogger {
 	return &spanLogger{
 		tp:         t.tp,
+		slog:       t.slog,
 		span:       t.span,
-		name:       name,
+		spanName:   name,
 		enabled:    t.enabled,
 		attributes: t.attributes,
 	}
@@ -37,13 +45,14 @@ func (t *spanLogger) WithValues(keyAndValues ...any) logr.Logger {
 		return t
 	}
 
-	name, attrs := attrsFromKeyAndValues(t.name, keyAndValues...)
+	name, attrs := attrsFromKeyAndValues(t.spanName, keyAndValues...)
 
 	return &spanLogger{
 		tp:         t.tp,
+		slog:       t.slog,
 		span:       t.span,
 		enabled:    t.enabled,
-		name:       name,
+		spanName:   name,
 		attributes: append(t.attributes, attrs...),
 	}
 }
@@ -51,8 +60,9 @@ func (t *spanLogger) WithValues(keyAndValues ...any) logr.Logger {
 func (t *spanLogger) start(ctx context.Context, spanName string, opts ...trace.SpanStartOption) (context.Context, trace.Span) {
 	return t.tp.Tracer("").Start(ctx, spanName, opts...)
 }
+
 func (t *spanLogger) Start(ctx context.Context, name string, keyAndValues ...any) (context.Context, logr.Logger) {
-	name = appendName(t.name, name)
+	name = appendName(t.spanName, name)
 
 	n, attrs := attrsFromKeyAndValues(name, keyAndValues...)
 
@@ -64,10 +74,12 @@ func (t *spanLogger) Start(ctx context.Context, name string, keyAndValues ...any
 	)
 
 	lgr := &spanLogger{
-		enabled: t.enabled,
-		tp:      t.tp,
-		span:    span,
-		name:    name,
+		enabled:    t.enabled,
+		tp:         t.tp,
+		slog:       t.slog,
+		span:       span,
+		spanName:   name,
+		attributes: attrs,
 	}
 
 	return logr.WithLogger(c, lgr), lgr
@@ -98,11 +110,42 @@ func (t *spanLogger) info(level logr.Level, msg fmt.Stringer) {
 
 	attributes := append(t.attributes, attribute.String("@level", level.String()))
 
+	msgStr := msg.String()
+
 	span.AddEvent(
-		msg.String(),
+		msgStr,
 		trace.WithTimestamp(time.Now()),
 		trace.WithAttributes(attributes...),
 	)
+
+	if l := t.slog; l != nil {
+		attrs := make([]slog.Attr, len(t.attributes))
+		for i := range attrs {
+			a := t.attributes[i]
+			attrs[i] = slog.Any(string(a.Key), a.Value.AsInterface())
+		}
+
+		spanContext := span.SpanContext()
+		attrs = append(attrs, slog.String("traceID", spanContext.TraceID().String()))
+
+		if spanContext.HasSpanID() {
+			attrs = append(
+				attrs,
+				slog.String("spanID", spanContext.SpanID().String()),
+			)
+		}
+
+		if t.spanName != "" {
+			attrs = append(attrs, slog.String("spanName", t.spanName))
+		}
+
+		switch level {
+		case logr.DebugLevel:
+			l.LogAttrs(context.Background(), slog.LevelDebug, msgStr, attrs...)
+		case logr.InfoLevel:
+			l.LogAttrs(context.Background(), slog.LevelInfo, msgStr, attrs...)
+		}
+	}
 }
 
 func (t *spanLogger) error(level logr.Level, err error) {
@@ -120,7 +163,7 @@ func (t *spanLogger) error(level logr.Level, err error) {
 		defer span.End()
 	}
 
-	attributes := append(t.attributes, attribute.String("@level", level.String()))
+	attributes := t.attributes
 
 	if level <= logr.ErrorLevel {
 		attributes = append(attributes, attribute.String("exception.stack", fmt.Sprintf("%+v", err)))
@@ -128,8 +171,39 @@ func (t *spanLogger) error(level logr.Level, err error) {
 
 	span.RecordError(err,
 		trace.WithTimestamp(time.Now()),
-		trace.WithAttributes(attributes...),
+		trace.WithAttributes(append(attributes, attribute.String("@level", level.String()))...),
 	)
+
+	if l := t.slog; l != nil {
+		attrs := make([]slog.Attr, len(attributes))
+		for i := range attrs {
+			a := attributes[i]
+			attrs[i] = slog.Any(string(a.Key), a.Value.AsInterface())
+		}
+
+		spanContext := span.SpanContext()
+		attrs = append(attrs, slog.String("traceID", spanContext.TraceID().String()))
+
+		if spanContext.HasSpanID() {
+			attrs = append(
+				attrs,
+				slog.String("spanID", spanContext.SpanID().String()),
+			)
+		}
+
+		attrs = append(attrs, slog.String("exception.message", err.Error()))
+
+		if t.spanName != "" {
+			attrs = append(attrs, slog.String("spanName", t.spanName))
+		}
+
+		switch level {
+		case logr.WarnLevel:
+			l.LogAttrs(context.Background(), slog.LevelWarn, "", attrs...)
+		case logr.ErrorLevel:
+			l.LogAttrs(context.Background(), slog.LevelError, "", attrs...)
+		}
+	}
 }
 
 func (t *spanLogger) Debug(msgOrFormat string, args ...any) {
@@ -155,7 +229,7 @@ func attrsFromKeyAndValues(name string, keysAndValues ...any) (string, []attribu
 		for i := range fields {
 			k, v := keysAndValues[2*i], keysAndValues[2*i+1]
 
-			if k == "@name" {
+			if k == "@spanName" {
 				name = appendName(name, v.(string))
 				continue
 			}

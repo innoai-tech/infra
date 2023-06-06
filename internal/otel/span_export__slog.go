@@ -7,39 +7,26 @@ import (
 
 	"github.com/go-courier/logr"
 	sdktrace "go.opentelemetry.io/otel/sdk/trace"
-	"go.uber.org/zap"
-	"go.uber.org/zap/zapcore"
+
+	"golang.org/x/exp/slog"
 )
 
-func NewZapCore() zapcore.Core {
+func NewLogger() *slog.Logger {
 	if os.Getenv("GOENV") == "DEV" {
-		return zapcore.NewCore(
-			zapcore.NewConsoleEncoder(zap.NewDevelopmentEncoderConfig()),
-			os.Stdout,
-			zap.DebugLevel,
-		)
+		return slog.New(slog.NewTextHandler(os.Stderr))
 	}
-
-	c := zap.NewProductionEncoderConfig()
-	c.EncodeTime = zapcore.ISO8601TimeEncoder
-
-	return zapcore.NewCore(
-		zapcore.NewJSONEncoder(c),
-		os.Stdout,
-		zap.DebugLevel,
-	)
+	return slog.New(slog.NewJSONHandler(os.Stderr))
 }
 
-func ZapSpanExporter(log zapcore.Core) sdktrace.SpanExporter {
+func SlogSpanExporter(log *slog.Logger) sdktrace.SpanExporter {
 	return &stdoutSpanExporter{log: log}
 }
 
 type stdoutSpanExporter struct {
-	log zapcore.Core
+	log *slog.Logger
 }
 
 func (e *stdoutSpanExporter) Shutdown(ctx context.Context) error {
-	_ = e.log.Sync()
 	return nil
 }
 
@@ -48,7 +35,7 @@ func (e *stdoutSpanExporter) ExportSpans(ctx context.Context, spans []sdktrace.R
 		span := spans[i]
 
 		for _, event := range span.Events() {
-			fields := make([]zap.Field, 0, len(event.Attributes)+4)
+			attrs := make([]slog.Attr, 0, len(event.Attributes)+4)
 
 			level := logr.DebugLevel
 
@@ -63,47 +50,46 @@ func (e *stdoutSpanExporter) ExportSpans(ctx context.Context, spans []sdktrace.R
 					}
 					level = lvl
 				default:
-					fields = append(fields, zap.Any(k, kv.Value.AsInterface()))
+					attrs = append(attrs, slog.Any(k, kv.Value.AsInterface()))
 				}
 			}
 
 			spanName := span.Name()
 
 			if spanName != "" {
-				fields = append(fields, zap.Stringer("traceID", span.SpanContext().TraceID()))
+				attrs = append(attrs, slog.String("traceID", span.SpanContext().TraceID().String()))
 
 				if span.SpanContext().HasSpanID() {
-					fields = append(
-						fields,
-						zap.Stringer("spanID", span.SpanContext().SpanID()),
-						zap.Stringer("spanCost", span.EndTime().Sub(span.StartTime())),
+					attrs = append(
+						attrs,
+						slog.String("spanName", spanName),
+						slog.String("spanID", span.SpanContext().SpanID().String()),
+						slog.String("spanCost", span.EndTime().Sub(span.StartTime()).String()),
 					)
 				}
 
 				if span.Parent().IsValid() {
-					fields = append(fields, zap.Stringer("parentSpanID", span.Parent().SpanID()))
+					attrs = append(attrs, slog.String("parentSpanID", span.Parent().SpanID().String()))
 				}
 			}
 
-			entry := zapcore.Entry{}
-			entry.LoggerName = spanName
-			entry.Message = event.Name
-			entry.Time = event.Time
+			msg := event.Name
+			lvl := slog.LevelDebug
 
 			switch level {
 			case logr.DebugLevel:
-				entry.Level = zapcore.DebugLevel
+				lvl = slog.LevelDebug
 			case logr.InfoLevel:
-				entry.Level = zapcore.InfoLevel
+				lvl = slog.LevelInfo
 			case logr.WarnLevel:
-				entry.Level = zapcore.WarnLevel
+				lvl = slog.LevelWarn
 			case logr.ErrorLevel:
-				entry.Level = zapcore.ErrorLevel
+				lvl = slog.LevelError
 			}
 
-			if err := e.log.Write(entry, fields); err != nil {
-				return err
-			}
+			r := slog.NewRecord(event.Time, lvl, msg, 0)
+			r.AddAttrs(attrs...)
+			_ = e.log.Handler().Handle(ctx, r)
 		}
 	}
 	return nil

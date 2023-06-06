@@ -4,6 +4,7 @@ import (
 	"context"
 	"go.opentelemetry.io/otel/attribute"
 	"go.opentelemetry.io/otel/sdk/resource"
+	"golang.org/x/exp/slog"
 	"time"
 
 	"github.com/innoai-tech/infra/pkg/cli"
@@ -20,13 +21,15 @@ import (
 type Otel struct {
 	// Log level
 	LogLevel LogLevel `flag:",omitempty"`
+	// Log async
+	LogAsync bool `flag:",omitempty"`
 	// Log filter
 	LogFilter OutputFilterType `flag:",omitempty"`
 	// When set, will collect traces
 	TraceCollectorEndpoint string `flag:",omitempty"`
 
-	tp *sdktrace.TracerProvider
-
+	tp              *sdktrace.TracerProvider
+	log             *slog.Logger
 	enabledLogLevel logr.Level
 }
 
@@ -41,13 +44,22 @@ func (o *Otel) SetDefaults() {
 
 func (o *Otel) Init(ctx context.Context) error {
 	if o.tp == nil {
-		logExporter := otel.WithSpanMapExporter(
-			otel.OutputFilter(o.LogFilter),
-		)(otel.ZapSpanExporter(otel.NewZapCore()))
 
 		opts := []sdktrace.TracerProviderOption{
 			sdktrace.WithSampler(sdktrace.AlwaysSample()),
-			sdktrace.WithSyncer(logExporter),
+		}
+
+		if o.LogAsync {
+			logExporter := otel.WithSpanMapExporter(
+				otel.OutputFilter(o.LogFilter),
+			)(otel.SlogSpanExporter(otel.NewLogger()))
+
+			opts = append(
+				opts,
+				sdktrace.WithSyncer(logExporter),
+			)
+		} else {
+			o.log = otel.NewLogger()
 		}
 
 		if o.TraceCollectorEndpoint != "" {
@@ -73,7 +85,7 @@ func (o *Otel) Init(ctx context.Context) error {
 				opts,
 				sdktrace.WithResource(
 					resource.NewSchemaless(
-						attribute.String("service.name", info.App.String()),
+						attribute.String("service.spanName", info.App.String()),
 					),
 				),
 			)
@@ -81,7 +93,6 @@ func (o *Otel) Init(ctx context.Context) error {
 
 		o.enabledLogLevel, _ = logr.ParseLevel(string(o.LogLevel))
 		o.tp = sdktrace.NewTracerProvider(opts...)
-
 	}
 
 	return nil
@@ -96,7 +107,7 @@ func (o *Otel) Shutdown(ctx context.Context) error {
 }
 
 func (o *Otel) InjectContext(ctx context.Context) context.Context {
-	log := newSpanLogger(o.tp, nil, o.enabledLogLevel)
+	log := newSpanLogger(o.tp, nil, o.enabledLogLevel, o.log)
 
 	if info := cli.InfoFromContext(ctx); info != nil {
 		log = log.WithValues("app", info.App)
