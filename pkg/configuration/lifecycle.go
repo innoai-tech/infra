@@ -45,7 +45,7 @@ func RunOrServe(ctx context.Context, configurators ...any) error {
 		signal.Notify(stopCh,
 			os.Interrupt, os.Kill,
 			syscall.SIGHUP, syscall.SIGINT, syscall.SIGTERM, syscall.SIGQUIT,
-			syscall.SIGSEGV, syscall.SIGABRT,
+			syscall.SIGILL, syscall.SIGABRT, syscall.SIGFPE, syscall.SIGSEGV,
 		)
 		<-stopCh
 
