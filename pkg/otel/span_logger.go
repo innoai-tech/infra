@@ -13,31 +13,66 @@ import (
 
 func newSpanLogger(tp trace.TracerProvider, span trace.Span, levelEnabled logr.Level, slog *slog.Logger) logr.Logger {
 	return &spanLogger{
-		tp:      tp,
-		span:    span,
-		enabled: levelEnabled,
-		slog:    slog,
+		tp:          tp,
+		slog:        slog,
+		enabled:     levelEnabled,
+		spanContext: &spanContext{span: span},
 	}
 }
 
 type spanLogger struct {
-	enabled    logr.Level
-	tp         trace.TracerProvider
-	spanName   string
-	span       trace.Span
-	attributes []attribute.KeyValue
-	slog       *slog.Logger
+	enabled     logr.Level
+	tp          trace.TracerProvider
+	slog        *slog.Logger
+	spanContext *spanContext
+	attributes  []attribute.KeyValue
 }
 
-func (t *spanLogger) withName(name string) *spanLogger {
-	return &spanLogger{
-		tp:         t.tp,
-		slog:       t.slog,
-		span:       t.span,
-		spanName:   name,
-		enabled:    t.enabled,
-		attributes: t.attributes,
+type spanContext struct {
+	span      trace.Span
+	name      string
+	startedAt time.Time
+}
+
+func (c *spanContext) toAttrs(attributes []attribute.KeyValue) []slog.Attr {
+	attrs := make([]slog.Attr, len(attributes))
+	for i := range attrs {
+		a := attributes[i]
+		attrs[i] = slog.Any(string(a.Key), a.Value.AsInterface())
 	}
+
+	spanCtx := c.span.SpanContext()
+	attrs = append(attrs, slog.String("traceID", spanCtx.TraceID().String()))
+
+	if spanCtx.HasSpanID() {
+		attrs = append(
+			attrs,
+			slog.String("spanID", spanCtx.SpanID().String()),
+		)
+	}
+
+	if c.name != "" {
+		attrs = append(attrs, slog.String("spanName", c.name))
+	}
+
+	return attrs
+}
+
+func (c spanContext) withName(name string) *spanContext {
+	c.name = name
+	return &c
+}
+
+func (c spanContext) start(ctx context.Context, tp trace.TracerProvider, spanName string, keyAndValues ...any) (context.Context, []attribute.KeyValue, *spanContext) {
+	c.startedAt = time.Now()
+	c.name = appendName(c.name, spanName)
+
+	n, attrs := attrsFromKeyAndValues(c.name, keyAndValues...)
+	c.name = n
+
+	cc, span := tp.Tracer("").Start(ctx, c.name, trace.WithTimestamp(c.startedAt))
+	c.span = span
+	return cc, attrs, &c
 }
 
 func (t *spanLogger) WithValues(keyAndValues ...any) logr.Logger {
@@ -45,41 +80,26 @@ func (t *spanLogger) WithValues(keyAndValues ...any) logr.Logger {
 		return t
 	}
 
-	name, attrs := attrsFromKeyAndValues(t.spanName, keyAndValues...)
+	name, attrs := attrsFromKeyAndValues(t.spanContext.name, keyAndValues...)
 
 	return &spanLogger{
-		tp:         t.tp,
-		slog:       t.slog,
-		span:       t.span,
-		enabled:    t.enabled,
-		spanName:   name,
-		attributes: append(t.attributes, attrs...),
+		enabled:     t.enabled,
+		tp:          t.tp,
+		slog:        t.slog,
+		spanContext: t.spanContext.withName(name),
+		attributes:  append(t.attributes, attrs...),
 	}
 }
 
-func (t *spanLogger) start(ctx context.Context, spanName string, opts ...trace.SpanStartOption) (context.Context, trace.Span) {
-	return t.tp.Tracer("").Start(ctx, spanName, opts...)
-}
-
 func (t *spanLogger) Start(ctx context.Context, name string, keyAndValues ...any) (context.Context, logr.Logger) {
-	name = appendName(t.spanName, name)
-
-	n, attrs := attrsFromKeyAndValues(name, keyAndValues...)
-
-	c, span := t.start(
-		ctx,
-		n,
-		trace.WithAttributes(attrs...),
-		trace.WithTimestamp(time.Now()),
-	)
+	c, attrs, spanCtx := t.spanContext.start(ctx, t.tp, name, keyAndValues...)
 
 	lgr := &spanLogger{
-		enabled:    t.enabled,
-		tp:         t.tp,
-		slog:       t.slog,
-		span:       span,
-		spanName:   name,
-		attributes: attrs,
+		enabled:     t.enabled,
+		tp:          t.tp,
+		slog:        t.slog,
+		spanContext: spanCtx,
+		attributes:  append(t.attributes, attrs...),
 	}
 
 	return logr.WithLogger(c, lgr), lgr
@@ -93,7 +113,15 @@ func appendName(name string, name2 string) string {
 }
 
 func (t *spanLogger) End() {
-	t.span.End(trace.WithTimestamp(time.Now()))
+	endAt := time.Now()
+
+	t.spanContext.span.End(trace.WithTimestamp(endAt))
+
+	if l := t.slog; l != nil {
+		attrs := t.spanContext.toAttrs(t.attributes)
+		attrs = append(attrs, slog.String("spanCost", endAt.Sub(t.spanContext.startedAt).String()))
+		l.LogAttrs(context.Background(), slog.LevelInfo, "done", attrs...)
+	}
 }
 
 func (t *spanLogger) info(level logr.Level, msg fmt.Stringer) {
@@ -101,43 +129,18 @@ func (t *spanLogger) info(level logr.Level, msg fmt.Stringer) {
 		return
 	}
 
-	span := t.span
-
-	if span == nil {
-		_, span = t.start(context.Background(), "")
-		defer span.End()
-	}
-
-	attributes := append(t.attributes, attribute.String("@level", level.String()))
+	span := t.spanContext.span
 
 	msgStr := msg.String()
 
 	span.AddEvent(
 		msgStr,
 		trace.WithTimestamp(time.Now()),
-		trace.WithAttributes(attributes...),
+		trace.WithAttributes(append(t.attributes, attribute.String("@level", level.String()))...),
 	)
 
 	if l := t.slog; l != nil {
-		attrs := make([]slog.Attr, len(t.attributes))
-		for i := range attrs {
-			a := t.attributes[i]
-			attrs[i] = slog.Any(string(a.Key), a.Value.AsInterface())
-		}
-
-		spanContext := span.SpanContext()
-		attrs = append(attrs, slog.String("traceID", spanContext.TraceID().String()))
-
-		if spanContext.HasSpanID() {
-			attrs = append(
-				attrs,
-				slog.String("spanID", spanContext.SpanID().String()),
-			)
-		}
-
-		if t.spanName != "" {
-			attrs = append(attrs, slog.String("spanName", t.spanName))
-		}
+		attrs := t.spanContext.toAttrs(t.attributes)
 
 		switch level {
 		case logr.DebugLevel:
@@ -157,11 +160,7 @@ func (t *spanLogger) error(level logr.Level, err error) {
 		return
 	}
 
-	span := t.span
-	if span == nil {
-		_, span = t.start(context.Background(), "")
-		defer span.End()
-	}
+	span := t.spanContext.span
 
 	attributes := t.attributes
 
@@ -175,27 +174,9 @@ func (t *spanLogger) error(level logr.Level, err error) {
 	)
 
 	if l := t.slog; l != nil {
-		attrs := make([]slog.Attr, len(attributes))
-		for i := range attrs {
-			a := attributes[i]
-			attrs[i] = slog.Any(string(a.Key), a.Value.AsInterface())
-		}
-
-		spanContext := span.SpanContext()
-		attrs = append(attrs, slog.String("traceID", spanContext.TraceID().String()))
-
-		if spanContext.HasSpanID() {
-			attrs = append(
-				attrs,
-				slog.String("spanID", spanContext.SpanID().String()),
-			)
-		}
+		attrs := t.spanContext.toAttrs(attributes)
 
 		attrs = append(attrs, slog.String("exception.message", err.Error()))
-
-		if t.spanName != "" {
-			attrs = append(attrs, slog.String("spanName", t.spanName))
-		}
 
 		switch level {
 		case logr.WarnLevel:
@@ -229,7 +210,7 @@ func attrsFromKeyAndValues(name string, keysAndValues ...any) (string, []attribu
 		for i := range fields {
 			k, v := keysAndValues[2*i], keysAndValues[2*i+1]
 
-			if k == "@spanName" {
+			if k == "@name" {
 				name = appendName(name, v.(string))
 				continue
 			}
