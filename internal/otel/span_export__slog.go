@@ -13,9 +13,9 @@ import (
 
 func NewLogger() *slog.Logger {
 	if os.Getenv("GOENV") == "DEV" {
-		return slog.New(slog.NewTextHandler(os.Stderr))
+		return slog.New(slog.NewTextHandler(os.Stderr, nil))
 	}
-	return slog.New(slog.NewJSONHandler(os.Stderr))
+	return slog.New(slog.NewJSONHandler(os.Stderr, nil))
 }
 
 func SlogSpanExporter(log *slog.Logger) sdktrace.SpanExporter {

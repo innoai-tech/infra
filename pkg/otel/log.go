@@ -107,7 +107,7 @@ func (o *Otel) Shutdown(ctx context.Context) error {
 }
 
 func (o *Otel) InjectContext(ctx context.Context) context.Context {
-	log := newSpanLogger(o.tp, nil, o.enabledLogLevel, o.log)
+	log := newSpanLogger(o.tp, trace.SpanFromContext(ctx), o.enabledLogLevel, o.log)
 
 	if info := cli.InfoFromContext(ctx); info != nil {
 		log = log.WithValues("app", info.App)
