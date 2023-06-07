@@ -46,7 +46,13 @@ type composeContextInjector struct {
 
 func (c *composeContextInjector) InjectContext(ctx context.Context) context.Context {
 	for contextInjector := range c.injectors {
-		ctx = contextInjector.InjectContext(ctx)
+		enabled := true
+		if canDisabled, ok := contextInjector.(CanDisabled); ok {
+			enabled = !canDisabled.Disabled(ctx)
+		}
+		if enabled {
+			ctx = contextInjector.InjectContext(ctx)
+		}
 	}
 	return ctx
 }
