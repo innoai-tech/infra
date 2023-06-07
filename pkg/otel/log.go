@@ -2,20 +2,20 @@ package otel
 
 import (
 	"context"
-	"go.opentelemetry.io/otel/attribute"
-	"go.opentelemetry.io/otel/sdk/resource"
 	"golang.org/x/exp/slog"
 	"time"
 
-	"github.com/innoai-tech/infra/pkg/cli"
-
 	"github.com/go-courier/logr"
-	"github.com/innoai-tech/infra/internal/otel"
-	"github.com/innoai-tech/infra/pkg/configuration"
 	"go.opentelemetry.io/otel/exporters/otlp/otlptrace"
 	"go.opentelemetry.io/otel/exporters/otlp/otlptrace/otlptracegrpc"
+	"go.opentelemetry.io/otel/sdk/resource"
 	sdktrace "go.opentelemetry.io/otel/sdk/trace"
+	semconv "go.opentelemetry.io/otel/semconv/v1.20.0"
 	"go.opentelemetry.io/otel/trace"
+
+	"github.com/innoai-tech/infra/internal/otel"
+	"github.com/innoai-tech/infra/pkg/cli"
+	"github.com/innoai-tech/infra/pkg/configuration"
 )
 
 type Otel struct {
@@ -85,7 +85,8 @@ func (o *Otel) Init(ctx context.Context) error {
 				opts,
 				sdktrace.WithResource(
 					resource.NewSchemaless(
-						attribute.String("service.spanName", info.App.String()),
+						semconv.ServiceName(info.App.Name),
+						semconv.ServiceVersion(info.App.Version),
 					),
 				),
 			)

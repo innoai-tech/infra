@@ -18,7 +18,7 @@ func init() {
 	s.Server.ApplyRouter(apis.R)
 	s.Server.ApplyGlobalHandlers(func(handler nethttp.Handler) nethttp.Handler {
 		return nethttp.HandlerFunc(func(rw nethttp.ResponseWriter, req *nethttp.Request) {
-			if strings.HasPrefix(req.URL.Path, "/api/") {
+			if strings.HasPrefix(req.URL.Path, "/api/") || strings.HasPrefix(req.URL.Path, "/.sys/") {
 				handler.ServeHTTP(rw, req)
 				return
 			}
@@ -31,5 +31,6 @@ func init() {
 type Serve struct {
 	cli.C `component:"server"`
 	otel.Otel
+	Metric otel.Metric
 	Server http.Server
 }

@@ -4,7 +4,7 @@ import (
 	"compress/gzip"
 	"context"
 	"fmt"
-	"github.com/innoai-tech/infra/pkg/configuration"
+	"github.com/innoai-tech/infra/internal/otel"
 	"golang.org/x/net/http2"
 	"golang.org/x/net/http2/h2c"
 	"net/http"
@@ -12,6 +12,7 @@ import (
 
 	"github.com/go-courier/logr"
 	"github.com/innoai-tech/infra/pkg/cli"
+	"github.com/innoai-tech/infra/pkg/configuration"
 	"github.com/innoai-tech/infra/pkg/http/middleware"
 	"github.com/octohelm/courier/pkg/courier"
 	"github.com/octohelm/courier/pkg/courierhttp/handler"
@@ -66,7 +67,7 @@ func (s *Server) Init(ctx context.Context) error {
 		append(
 			[]handler.HandlerMiddleware{
 				middleware.ContextInjectorMiddleware(configuration.ContextInjectorFromContext(ctx)),
-				middleware.LogHandler(),
+				middleware.LogAndMetricHandler(info.App.Name, otel.MeterProviderFromContext(ctx)),
 			},
 			s.routerHandlers...,
 		)...,
@@ -78,6 +79,7 @@ func (s *Server) Init(ctx context.Context) error {
 	globalHandlers := append([]handler.HandlerMiddleware{
 		middleware.CompressLevelHandlerMiddleware(gzip.DefaultCompression),
 		middleware.DefaultCORS(),
+		middleware.MetricHandler(otel.GathererFromContext(ctx)),
 		middleware.PProfHandler(s.EnableDebug),
 	}, s.globalHandlers...)
 

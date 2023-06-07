@@ -42,7 +42,9 @@ func (c *spanContext) toAttrs(attributes []attribute.KeyValue) []slog.Attr {
 	}
 
 	spanCtx := c.span.SpanContext()
-	attrs = append(attrs, slog.String("traceID", spanCtx.TraceID().String()))
+	if traceID := spanCtx.TraceID(); traceID.IsValid() {
+		attrs = append(attrs, slog.String("traceID", traceID.String()))
+	}
 
 	if spanCtx.HasSpanID() {
 		attrs = append(
@@ -204,37 +206,46 @@ func (t *spanLogger) Error(err error) {
 }
 
 func attrsFromKeyAndValues(name string, keysAndValues ...any) (string, []attribute.KeyValue) {
-	n := len(keysAndValues)
-	if n > 0 && n%2 == 0 {
-		fields := make([]attribute.KeyValue, len(keysAndValues)/2)
-		for i := range fields {
-			k, v := keysAndValues[2*i], keysAndValues[2*i+1]
+	fields := make([]attribute.KeyValue, 0, len(keysAndValues))
 
-			if k == "@name" {
-				name = appendName(name, v.(string))
-				continue
-			}
+	i := 0
+	for i < len(keysAndValues) {
+		k := keysAndValues[i]
 
-			if key, ok := k.(string); ok {
+		switch key := k.(type) {
+		case attribute.KeyValue:
+			fields = append(fields, key)
+			i++
+		case string:
+			if i+1 < len(keysAndValues) {
+				i++
+				v := keysAndValues[i]
+				i++
+
+				if key == "@name" {
+					name = appendName(name, v.(string))
+					continue
+				}
+
 				switch x := v.(type) {
 				case fmt.Stringer:
-					fields[i] = attribute.Stringer(key, x)
+					fields = append(fields, attribute.Stringer(key, x))
 				case string:
-					fields[i] = attribute.String(key, x)
+					fields = append(fields, attribute.String(key, x))
 				case int:
-					fields[i] = attribute.Int(key, x)
+					fields = append(fields, attribute.Int(key, x))
 				case float64:
-					fields[i] = attribute.Float64(key, x)
+					fields = append(fields, attribute.Float64(key, x))
 				case bool:
-					fields[i] = attribute.Bool(key, x)
+					fields = append(fields, attribute.Bool(key, x))
 				default:
-					fields[i] = attribute.String(key, fmt.Sprintf("%v", x))
+					fields = append(fields, attribute.String(key, fmt.Sprintf("%v", x)))
 				}
 			}
 		}
-		return name, fields
 	}
-	return name, nil
+
+	return name, fields
 }
 
 func Sprintf(format string, args ...any) fmt.Stringer {

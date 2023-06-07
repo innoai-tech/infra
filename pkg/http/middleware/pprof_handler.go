@@ -21,18 +21,18 @@ type pprofHandler struct {
 }
 
 func (h *pprofHandler) ServeHTTP(rw http.ResponseWriter, req *http.Request) {
-	if h.enabled && strings.HasPrefix(req.URL.Path, "/debug/pprof") {
+	if h.enabled && strings.HasPrefix(req.URL.Path, "/.sys/debug/pprof") {
 		switch req.URL.Path {
-		case "/debug/pprof/cmdline":
+		case "/.sys/debug/pprof/cmdline":
 			pprof.Cmdline(rw, req)
 			return
-		case "/debug/pprof/profile":
+		case "/.sys/debug/pprof/profile":
 			pprof.Profile(rw, req)
 			return
-		case "/debug/pprof/symbol":
+		case "/.sys/debug/pprof/symbol":
 			pprof.Symbol(rw, req)
 			return
-		case "/debug/pprof/trace":
+		case "/.sys/debug/pprof/trace":
 			pprof.Trace(rw, req)
 			return
 		default:
