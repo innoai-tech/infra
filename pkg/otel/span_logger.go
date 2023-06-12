@@ -213,6 +213,9 @@ func attrsFromKeyAndValues(name string, keysAndValues ...any) (string, []attribu
 		k := keysAndValues[i]
 
 		switch key := k.(type) {
+		case []attribute.KeyValue:
+			fields = append(fields, key...)
+			i++
 		case attribute.KeyValue:
 			fields = append(fields, key)
 			i++
