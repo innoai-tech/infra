@@ -10,6 +10,7 @@ import (
 	"go.opentelemetry.io/otel/exporters/prometheus"
 	"go.opentelemetry.io/otel/metric"
 	sdkmetric "go.opentelemetry.io/otel/sdk/metric"
+	"go.opentelemetry.io/otel/sdk/metric/aggregation"
 	"go.opentelemetry.io/otel/sdk/resource"
 	semconv "go.opentelemetry.io/otel/semconv/v1.20.0"
 )
@@ -17,6 +18,11 @@ import (
 type Metric struct {
 	mp     *sdkmetric.MeterProvider
 	gather prometheusclient.Gatherer
+	views  []sdkmetric.View
+}
+
+func (o *Metric) RegisterViews(views ...sdkmetric.View) {
+	o.views = views
 }
 
 func (o *Metric) Init(ctx context.Context) error {
@@ -53,6 +59,30 @@ func (o *Metric) Init(ctx context.Context) error {
 				),
 			)
 		}
+
+		opts = append(opts, sdkmetric.WithView(
+			append(o.views,
+				sdkmetric.NewView(
+					sdkmetric.Instrument{
+						Name: "http.server.duration",
+					},
+					sdkmetric.Stream{
+						Aggregation: aggregation.ExplicitBucketHistogram{
+							Boundaries: []float64{0, 0.005, 0.01, 0.025, 0.05, 0.075, 0.1, 0.25, 0.5, 0.75, 1, 2.5, 5, 7.5, 10},
+						},
+					},
+				),
+				sdkmetric.NewView(
+					sdkmetric.Instrument{
+						Name: "http.client.duration",
+					},
+					sdkmetric.Stream{
+						Aggregation: aggregation.ExplicitBucketHistogram{
+							Boundaries: []float64{0, 0.005, 0.01, 0.025, 0.05, 0.075, 0.1, 0.25, 0.5, 0.75, 1, 2.5, 5, 7.5, 10},
+						},
+					},
+				))...,
+		))
 
 		o.mp = sdkmetric.NewMeterProvider(opts...)
 		o.gather = registry
