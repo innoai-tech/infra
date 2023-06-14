@@ -2,42 +2,52 @@ package otel
 
 import (
 	"context"
-	"github.com/innoai-tech/infra/internal/otel"
-	"github.com/innoai-tech/infra/pkg/cli"
-	"github.com/innoai-tech/infra/pkg/configuration"
+
+	"github.com/octohelm/x/ptr"
 	prometheusclient "github.com/prometheus/client_golang/prometheus"
 	"github.com/prometheus/client_golang/prometheus/collectors"
 	"go.opentelemetry.io/otel/exporters/prometheus"
-	"go.opentelemetry.io/otel/metric"
+	otelmetric "go.opentelemetry.io/otel/metric"
 	sdkmetric "go.opentelemetry.io/otel/sdk/metric"
-	"go.opentelemetry.io/otel/sdk/metric/aggregation"
-	"go.opentelemetry.io/otel/sdk/resource"
+	sdkresource "go.opentelemetry.io/otel/sdk/resource"
 	semconv "go.opentelemetry.io/otel/semconv/v1.20.0"
+
+	"github.com/innoai-tech/infra/internal/otel"
+	"github.com/innoai-tech/infra/pkg/cli"
+	"github.com/innoai-tech/infra/pkg/configuration"
+	"github.com/innoai-tech/infra/pkg/otel/metric"
+	"github.com/innoai-tech/infra/pkg/otel/metric/aggregation"
 )
 
 type Metric struct {
-	mp     *sdkmetric.MeterProvider
-	gather prometheusclient.Gatherer
-	views  []sdkmetric.View
+	EnableSimpleAggregation *bool `flag:"omitempty"`
+
+	gather   prometheusclient.Gatherer
+	registry metric.Registry
+	mp       *sdkmetric.MeterProvider
 }
 
-func (o *Metric) RegisterViews(views ...sdkmetric.View) {
-	o.views = views
+func (o *Metric) SetDefaults() {
+	if o.EnableSimpleAggregation == nil {
+		o.EnableSimpleAggregation = ptr.Ptr(true)
+	}
 }
 
 func (o *Metric) Init(ctx context.Context) error {
-	if o.mp == nil {
-		registry := prometheusclient.NewRegistry()
+	if o.registry == nil {
+		pr := prometheusclient.NewRegistry()
 
-		if err := registry.Register(collectors.NewProcessCollector(collectors.ProcessCollectorOpts{})); err != nil {
+		if err := pr.Register(collectors.NewProcessCollector(collectors.ProcessCollectorOpts{})); err != nil {
 			return err
 		}
-		if err := registry.Register(collectors.NewGoCollector()); err != nil {
+		if err := pr.Register(collectors.NewGoCollector()); err != nil {
 			return err
 		}
+
+		o.gather = pr
 
 		prometheusReader, err := prometheus.New(
-			prometheus.WithRegisterer(registry),
+			prometheus.WithRegisterer(pr),
 			prometheus.WithoutScopeInfo(),
 		)
 		if err != nil {
@@ -48,11 +58,15 @@ func (o *Metric) Init(ctx context.Context) error {
 			sdkmetric.WithReader(prometheusReader),
 		}
 
+		appName := ""
+
 		if info := cli.InfoFromContext(ctx); info != nil {
+			appName = info.Name
+
 			opts = append(
 				opts,
 				sdkmetric.WithResource(
-					resource.NewSchemaless(
+					sdkresource.NewSchemaless(
 						semconv.ServiceName(info.App.Name),
 						semconv.ServiceVersion(info.App.Version),
 					),
@@ -60,32 +74,33 @@ func (o *Metric) Init(ctx context.Context) error {
 			)
 		}
 
-		opts = append(opts, sdkmetric.WithView(
-			append(o.views,
-				sdkmetric.NewView(
-					sdkmetric.Instrument{
-						Name: "http.server.duration",
-					},
-					sdkmetric.Stream{
-						Aggregation: aggregation.ExplicitBucketHistogram{
-							Boundaries: []float64{0, 0.005, 0.01, 0.025, 0.05, 0.075, 0.1, 0.25, 0.5, 0.75, 1, 2.5, 5, 7.5, 10},
-						},
-					},
-				),
-				sdkmetric.NewView(
-					sdkmetric.Instrument{
-						Name: "http.client.duration",
-					},
-					sdkmetric.Stream{
-						Aggregation: aggregation.ExplicitBucketHistogram{
-							Boundaries: []float64{0, 0.005, 0.01, 0.025, 0.05, 0.075, 0.1, 0.25, 0.5, 0.75, 1, 2.5, 5, 7.5, 10},
-						},
-					},
-				))...,
-		))
+		if *o.EnableSimpleAggregation {
+			aggrReader, err := aggregation.NewReader(metric.RegisteredViews(), func() otelmetric.Meter {
+				return o.mp.Meter(appName)
+			})
+			if err != nil {
+				return err
+			}
+
+			opts = append(
+				opts,
+				sdkmetric.WithReader(aggrReader),
+			)
+		}
+
+		for _, v := range metric.RegisteredViews() {
+			opts = append(opts, sdkmetric.WithView(sdkmetric.NewView(v.Instrument, v.Stream)))
+		}
 
 		o.mp = sdkmetric.NewMeterProvider(opts...)
-		o.gather = registry
+		m := o.mp.Meter(appName)
+
+		r, err := metric.NewRegistry(m, metric.AddToRegistry)
+		if err != nil {
+			return err
+		}
+		o.registry = r
+
 	}
 	return nil
 }
@@ -101,10 +116,6 @@ func (o *Metric) Shutdown(ctx context.Context) error {
 func (o *Metric) InjectContext(ctx context.Context) context.Context {
 	return configuration.InjectContext(ctx,
 		configuration.InjectContextFunc(otel.ContextWithGatherer, o.gather),
-		configuration.InjectContextFunc(otel.ContextWithMeterProvider, metric.MeterProvider(o.mp)),
+		configuration.InjectContextFunc(metric.ContextWithRegistry, o.registry),
 	)
-}
-
-func Meter(ctx context.Context, name string, opts ...metric.MeterOption) metric.Meter {
-	return otel.MeterProviderFromContext(ctx).Meter(name, opts...)
 }

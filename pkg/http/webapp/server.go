@@ -5,8 +5,6 @@ import (
 	"compress/gzip"
 	"context"
 	"fmt"
-	"github.com/innoai-tech/infra/pkg/http/compress"
-	"github.com/octohelm/courier/pkg/courierhttp/handler"
 	"io"
 	"io/fs"
 	"mime"
@@ -17,6 +15,9 @@ import (
 	"strings"
 	"sync"
 	"time"
+
+	"github.com/innoai-tech/infra/pkg/http/compress"
+	"github.com/octohelm/courier/pkg/courierhttp/handler"
 
 	"github.com/go-courier/logr"
 	"github.com/innoai-tech/infra/pkg/http/webapp/appconfig"

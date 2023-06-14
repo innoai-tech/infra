@@ -30,3 +30,6 @@ gen:
 
 gen.debug:
 	go run ./internal/cmd/tool gen --log-level=debug ./cmd/example
+
+hey:
+	hey -z 5m http://localhost:8081/api/example/v0/orgs

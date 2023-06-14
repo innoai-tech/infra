@@ -2,8 +2,9 @@ package otel
 
 import (
 	"context"
-	"golang.org/x/exp/slog"
 	"time"
+
+	"golang.org/x/exp/slog"
 
 	"github.com/go-courier/logr"
 	"go.opentelemetry.io/otel/exporters/otlp/otlptrace"
@@ -44,7 +45,6 @@ func (o *Otel) SetDefaults() {
 
 func (o *Otel) Init(ctx context.Context) error {
 	if o.tp == nil {
-
 		opts := []sdktrace.TracerProviderOption{
 			sdktrace.WithSampler(sdktrace.AlwaysSample()),
 		}

@@ -3,8 +3,10 @@ package otel
 import (
 	"context"
 	"fmt"
-	"golang.org/x/exp/slog"
 	"time"
+
+	"github.com/innoai-tech/infra/internal/otel"
+	"golang.org/x/exp/slog"
 
 	"github.com/go-courier/logr"
 	"go.opentelemetry.io/otel/attribute"
@@ -143,6 +145,7 @@ func (t *spanLogger) info(level logr.Level, msg fmt.Stringer) {
 
 	if l := t.slog; l != nil {
 		attrs := t.spanContext.toAttrs(t.attributes)
+		attrs = append(attrs, slog.Any("source", otel.Source(3)))
 
 		switch level {
 		case logr.DebugLevel:
@@ -179,6 +182,7 @@ func (t *spanLogger) error(level logr.Level, err error) {
 		attrs := t.spanContext.toAttrs(attributes)
 
 		attrs = append(attrs, slog.String("exception.message", err.Error()))
+		attrs = append(attrs, slog.Any("source", otel.Source(3)))
 
 		switch level {
 		case logr.WarnLevel:

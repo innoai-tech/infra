@@ -2,6 +2,7 @@ package otel
 
 import (
 	"context"
+
 	"github.com/prometheus/client_golang/prometheus"
 	"go.opentelemetry.io/otel/metric"
 	"go.opentelemetry.io/otel/metric/noop"

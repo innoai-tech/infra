@@ -5,9 +5,10 @@ import (
 	"bytes"
 	"context"
 	"fmt"
-	"github.com/octohelm/courier/pkg/courierhttp"
 	"io"
 	"net/http"
+
+	"github.com/octohelm/courier/pkg/courierhttp"
 )
 
 type ArchiveZip struct {

@@ -2,7 +2,6 @@ package middleware
 
 import (
 	"fmt"
-	"go.opentelemetry.io/otel/attribute"
 	"net/http"
 	"net/url"
 	"strconv"
@@ -10,12 +9,14 @@ import (
 	"time"
 
 	"github.com/go-courier/logr"
+	"github.com/innoai-tech/infra/pkg/http/middleware/metrichttp"
 	"github.com/octohelm/courier/pkg/courierhttp"
 	"github.com/octohelm/courier/pkg/courierhttp/util"
 	"github.com/pkg/errors"
 	"github.com/prometheus/client_golang/prometheus"
 	"github.com/prometheus/client_golang/prometheus/promhttp"
 	"go.opentelemetry.io/contrib/propagators/b3"
+	"go.opentelemetry.io/otel/attribute"
 	"go.opentelemetry.io/otel/metric"
 	"go.opentelemetry.io/otel/propagation"
 	semconv "go.opentelemetry.io/otel/semconv/v1.20.0"
@@ -60,32 +61,12 @@ func httpRouteAttrs(statusCode int, info courierhttp.OperationInfo, req *http.Re
 		attribute.Key("http.route").String(info.Route),
 		attribute.Key("http.request.method").String(req.Method),
 		attribute.Key("http.response.status_code").Int(statusCode),
-		attribute.Key("network.protocol.name").String(strings.Split(req.Proto, "/")[0]),
+		attribute.Key("network.protocol.name").String(strings.ToLower(strings.Split(req.Proto, "/")[0])),
 		attribute.Key("network.protocol.version").String(fmt.Sprintf("%d.%d", req.ProtoMajor, req.ProtoMinor)),
 	}
 }
 
-func LogAndMetricHandler(server string, mp metric.MeterProvider) func(handler http.Handler) http.Handler {
-	m := mp.Meter(server)
-
-	// https://opentelemetry.io/docs/specs/otel/metrics/semantic_conventions/http-metrics/#http-server
-	httpServerDuration, err := m.Float64Histogram("http.server.duration", metric.WithUnit("s"))
-	if err != nil {
-		panic(err)
-	}
-	httpActiveRequests, err := m.Int64UpDownCounter("http.server.active_requests")
-	if err != nil {
-		panic(err)
-	}
-	httpServerRequestSize, err := m.Int64Histogram("http.server.request.size", metric.WithUnit("By"))
-	if err != nil {
-		panic(err)
-	}
-	httpServerResponseSize, err := m.Int64Histogram("http.server.response.size", metric.WithUnit("By"))
-	if err != nil {
-		panic(err)
-	}
-
+func LogAndMetricHandler() func(handler http.Handler) http.Handler {
 	return func(nextHandler http.Handler) http.Handler {
 		return http.HandlerFunc(func(rw http.ResponseWriter, req *http.Request) {
 			ctx := req.Context()
@@ -101,9 +82,9 @@ func LogAndMetricHandler(server string, mp metric.MeterProvider) func(handler ht
 
 			metricBasicAttrs := httpBasicAttrs(req)
 
-			httpActiveRequests.Add(ctx, 1, metric.WithAttributes(metricBasicAttrs...))
+			metrichttp.ServerActiveRequest.Add(ctx, 1, metric.WithAttributes(metricBasicAttrs...))
 			defer func() {
-				httpActiveRequests.Add(ctx, -1, metric.WithAttributes(metricBasicAttrs...))
+				metrichttp.ServerActiveRequest.Add(ctx, -1, metric.WithAttributes(metricBasicAttrs...))
 			}()
 
 			loggerRw := newLoggerResponseWriter(rw)
@@ -114,7 +95,7 @@ func LogAndMetricHandler(server string, mp metric.MeterProvider) func(handler ht
 
 			enabledLevel, _ := logr.ParseLevel(strings.ToLower(req.Header.Get("x-log-level")))
 
-			requestCost := float64(time.Since(startAt)) / float64(time.Second)
+			requestCost := time.Since(startAt)
 			requestHeader := req.Header
 
 			keyAndValues := []any{
@@ -123,7 +104,7 @@ func LogAndMetricHandler(server string, mp metric.MeterProvider) func(handler ht
 				semconv.HTTPURL(omitAuthorization(req.URL)),
 				semconv.HTTPStatusCode(loggerRw.statusCode),
 				semconv.UserAgentOriginal(requestHeader.Get("User-Agent")),
-				"http.server.duration", fmt.Sprintf("%0.3fs", requestCost),
+				"http.server.duration", fmt.Sprintf("%s", requestCost),
 			}
 
 			l := logr.FromContext(ctx)
@@ -143,18 +124,10 @@ func LogAndMetricHandler(server string, mp metric.MeterProvider) func(handler ht
 			}
 
 			metricsAttrs := append(metricBasicAttrs, httpRouteAttrs(loggerRw.statusCode, info, req)...)
-			httpServerDuration.Record(ctx,
-				requestCost,
-				metric.WithAttributes(metricsAttrs...),
-			)
-			httpServerRequestSize.Record(ctx,
-				req.ContentLength,
-				metric.WithAttributes(metricsAttrs...),
-			)
-			httpServerResponseSize.Record(ctx,
-				loggerRw.contentLength,
-				metric.WithAttributes(metricsAttrs...),
-			)
+
+			metrichttp.ServerDuration.Record(ctx, requestCost.Seconds(), metric.WithAttributes(metricsAttrs...))
+			metrichttp.ServerRequestSize.Record(ctx, req.ContentLength, metric.WithAttributes(metricsAttrs...))
+			metrichttp.ServerResponseSize.Record(ctx, loggerRw.written, metric.WithAttributes(metricsAttrs...))
 		})
 	}
 }
@@ -184,7 +157,7 @@ type loggerResponseWriter struct {
 
 	headerWritten bool
 	statusCode    int
-	contentLength int64
+	written       int64
 	err           error
 }
 
@@ -208,7 +181,7 @@ func (rw *loggerResponseWriter) Write(data []byte) (int, error) {
 		rw.err = errors.New(string(data))
 	}
 	n, err := rw.ResponseWriter.Write(data)
-	rw.contentLength += int64(n)
+	rw.written += int64(n)
 	return n, err
 }
 

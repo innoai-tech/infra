@@ -3,6 +3,7 @@ package otel
 import (
 	"context"
 	"os"
+	"runtime"
 	_ "time/tzdata"
 
 	"github.com/go-courier/logr"
@@ -10,6 +11,18 @@ import (
 
 	"golang.org/x/exp/slog"
 )
+
+func Source(skip int) *slog.Source {
+	pc, _, _, _ := runtime.Caller(skip)
+	fs := runtime.CallersFrames([]uintptr{pc})
+	f, _ := fs.Next()
+
+	return &slog.Source{
+		Function: f.Function,
+		File:     f.File,
+		Line:     f.Line,
+	}
+}
 
 func NewLogger() *slog.Logger {
 	if os.Getenv("GOENV") == "DEV" {
