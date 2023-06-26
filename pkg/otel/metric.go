@@ -20,7 +20,7 @@ import (
 )
 
 type Metric struct {
-	EnableSimpleAggregation *bool `flag:"omitempty"`
+	EnableSimpleAggregation *bool `flag:",omitempty"`
 
 	gather   prometheusclient.Gatherer
 	registry metric.Registry
