@@ -50,11 +50,6 @@ func (rt *LogRoundTripper) RoundTrip(req *http.Request) (*http.Response, error) 
 		attribute.Key("http.client.duration").String(fmt.Sprintf("%s", cost)),
 	)
 
-	metrichttp.ClientDuration.Record(ctx, cost.Seconds(), metric.WithAttributes(
-		semconv.HTTPMethod(req.Method),
-		semconv.HTTPURL(omitAuthorization(req.URL)),
-	))
-
 	if resp != nil {
 		p, _ := strconv.ParseInt(req.URL.Port(), 10, 64)
 
@@ -65,6 +60,7 @@ func (rt *LogRoundTripper) RoundTrip(req *http.Request) (*http.Response, error) 
 			attribute.Key("server.port").Int(int(p)),
 		}
 
+		metrichttp.ClientDuration.Record(ctx, cost.Seconds(), metric.WithAttributes(attrs...))
 		metrichttp.ClientRequestSize.Record(ctx, req.ContentLength, metric.WithAttributes(attrs...))
 		metrichttp.ClientResponseSize.Record(ctx, resp.ContentLength, metric.WithAttributes(attrs...))
 
