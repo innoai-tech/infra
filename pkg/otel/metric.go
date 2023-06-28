@@ -2,25 +2,28 @@ package otel
 
 import (
 	"context"
-
-	"github.com/octohelm/x/ptr"
-	prometheusclient "github.com/prometheus/client_golang/prometheus"
-	"github.com/prometheus/client_golang/prometheus/collectors"
-	"go.opentelemetry.io/otel/exporters/prometheus"
-	otelmetric "go.opentelemetry.io/otel/metric"
-	sdkmetric "go.opentelemetry.io/otel/sdk/metric"
-	sdkresource "go.opentelemetry.io/otel/sdk/resource"
-	semconv "go.opentelemetry.io/otel/semconv/v1.20.0"
-
 	"github.com/innoai-tech/infra/internal/otel"
 	"github.com/innoai-tech/infra/pkg/cli"
 	"github.com/innoai-tech/infra/pkg/configuration"
 	"github.com/innoai-tech/infra/pkg/otel/metric"
 	"github.com/innoai-tech/infra/pkg/otel/metric/aggregation"
+	"github.com/octohelm/x/ptr"
+	prometheusclient "github.com/prometheus/client_golang/prometheus"
+	"github.com/prometheus/client_golang/prometheus/collectors"
+	"go.opentelemetry.io/otel/exporters/otlp/otlpmetric/otlpmetricgrpc"
+	"go.opentelemetry.io/otel/exporters/prometheus"
+	otelmetric "go.opentelemetry.io/otel/metric"
+	sdkmetric "go.opentelemetry.io/otel/sdk/metric"
+	sdkresource "go.opentelemetry.io/otel/sdk/resource"
+	semconv "go.opentelemetry.io/otel/semconv/v1.20.0"
+	"time"
 )
 
 type Metric struct {
 	EnableSimpleAggregation *bool `flag:",omitempty"`
+
+	CollectorEndpoint      string `flag:",omitempty"`
+	CollectIntervalSeconds int    `flag:",omitempty"`
 
 	gather   prometheusclient.Gatherer
 	registry metric.Registry
@@ -29,7 +32,13 @@ type Metric struct {
 
 func (o *Metric) SetDefaults() {
 	if o.EnableSimpleAggregation == nil {
-		o.EnableSimpleAggregation = ptr.Ptr(true)
+		o.EnableSimpleAggregation = ptr.Ptr(false)
+	}
+
+	if o.CollectorEndpoint != "" {
+		if o.CollectIntervalSeconds == 0 {
+			o.CollectIntervalSeconds = 60
+		}
 	}
 }
 
@@ -86,6 +95,14 @@ func (o *Metric) Init(ctx context.Context) error {
 				opts,
 				sdkmetric.WithReader(aggrReader),
 			)
+		}
+
+		if o.CollectorEndpoint != "" {
+			exporter, err := otlpmetricgrpc.New(ctx, otlpmetricgrpc.WithEndpoint(o.CollectorEndpoint))
+			if err != nil {
+				return err
+			}
+			opts = append(opts, sdkmetric.WithReader(sdkmetric.NewPeriodicReader(exporter, sdkmetric.WithInterval(time.Duration(o.CollectIntervalSeconds)*time.Second))))
 		}
 
 		for _, v := range metric.RegisteredViews() {

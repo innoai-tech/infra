@@ -1,5 +1,5 @@
 example:
-	go run ./cmd/example serve --server-addr=:8081
+	go run ./cmd/example serve -c --server-addr=:8081
 
 example.dump:
 	go run ./cmd/example serve --dump-k8s
