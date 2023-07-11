@@ -31,7 +31,6 @@ func TestLog(t *testing.T) {
 			ctx := Setup(t, &Otel{
 				LogFilter: OutputFilterAlways,
 				LogLevel:  DebugLevel,
-				LogAsync:  true,
 			})
 			doLog(ctx)
 		})

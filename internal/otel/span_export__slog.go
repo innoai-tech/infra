@@ -8,7 +8,6 @@ import (
 
 	"github.com/go-courier/logr"
 	sdktrace "go.opentelemetry.io/otel/sdk/trace"
-
 	"golang.org/x/exp/slog"
 )
 
@@ -26,9 +25,9 @@ func Source(skip int) *slog.Source {
 
 func NewLogger() *slog.Logger {
 	if os.Getenv("GOENV") == "DEV" {
-		return slog.New(slog.NewTextHandler(os.Stderr, nil))
+		return slog.New(slog.NewTextHandler(os.Stderr, &slog.HandlerOptions{}))
 	}
-	return slog.New(slog.NewJSONHandler(os.Stderr, nil))
+	return slog.New(slog.NewJSONHandler(os.Stderr, &slog.HandlerOptions{}))
 }
 
 func SlogSpanExporter(log *slog.Logger) sdktrace.SpanExporter {

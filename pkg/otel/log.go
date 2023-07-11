@@ -22,8 +22,6 @@ import (
 type Otel struct {
 	// Log level
 	LogLevel LogLevel `flag:",omitempty"`
-	// Log async
-	LogAsync bool `flag:",omitempty"`
 	// Log filter
 	LogFilter OutputFilterType `flag:",omitempty"`
 	// When set, will collect traces
@@ -45,21 +43,10 @@ func (o *Otel) SetDefaults() {
 
 func (o *Otel) Init(ctx context.Context) error {
 	if o.tp == nil {
+		o.log = otel.NewLogger()
+
 		opts := []sdktrace.TracerProviderOption{
 			sdktrace.WithSampler(sdktrace.AlwaysSample()),
-		}
-
-		if o.LogAsync {
-			logExporter := otel.WithSpanMapExporter(
-				otel.OutputFilter(o.LogFilter),
-			)(otel.SlogSpanExporter(otel.NewLogger()))
-
-			opts = append(
-				opts,
-				sdktrace.WithSyncer(logExporter),
-			)
-		} else {
-			o.log = otel.NewLogger()
 		}
 
 		if o.TraceCollectorEndpoint != "" {
@@ -108,7 +95,7 @@ func (o *Otel) Shutdown(ctx context.Context) error {
 }
 
 func (o *Otel) InjectContext(ctx context.Context) context.Context {
-	log := newSpanLogger(o.tp, trace.SpanFromContext(ctx), o.enabledLogLevel, o.log)
+	log := newLogger(ctx, o.tp, o.log, o.enabledLogLevel)
 
 	if info := cli.InfoFromContext(ctx); info != nil {
 		log = log.WithValues("app", info.App)
