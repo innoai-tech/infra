@@ -29,8 +29,8 @@ func DefaultCORS() func(http.Handler) http.Handler {
 		ExposedHeaders([]string{
 			"Content-Type",
 			"Origin",
-			"b3",
-			"User-Agent",
+			"B3",
+			"WWW-Authenticate",
 			"X-Requested-With",
 			"X-RateLimit-Limit", // follow https://developer.github.com/v3/rate_limit/
 			"X-RateLimit-Remaining",
