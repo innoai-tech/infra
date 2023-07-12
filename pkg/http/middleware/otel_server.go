@@ -195,7 +195,10 @@ func (rw *loggerResponseWriter) writeHeader(statusCode int) {
 
 func omitAuthorization(u *url.URL) string {
 	query := u.Query()
+
 	query.Del("authorization")
+	query.Del("x-param-header-Authorization")
+
 	u.RawQuery = query.Encode()
 	return u.String()
 }
