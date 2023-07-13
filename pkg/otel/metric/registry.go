@@ -13,7 +13,37 @@ func ContextWithRegistry(ctx context.Context, r Registry) context.Context {
 }
 
 func RegistryFromContext(ctx context.Context) Registry {
-	return ctx.Value(registryContext{}).(Registry)
+	if r, ok := ctx.Value(registryContext{}).(Registry); ok {
+		return r
+	}
+	return &discord{}
+}
+
+type discord struct {
+}
+
+func (discord) Int64Counter(name string) (Int64Counter, bool) {
+	return nil, false
+}
+
+func (discord) Int64Histogram(name string) (Int64Recorder, bool) {
+	return nil, false
+}
+
+func (discord) Int64Observable(name string) (Int64Observable, bool) {
+	return nil, false
+}
+
+func (discord) Float64Counter(name string) (Float64Counter, bool) {
+	return nil, false
+}
+
+func (discord) Float64Histogram(name string) (Float64Recorder, bool) {
+	return nil, false
+}
+
+func (discord) Float64Observable(name string) (Float64Observable, bool) {
+	return nil, false
 }
 
 type Registry interface {
