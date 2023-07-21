@@ -113,12 +113,12 @@ func LogAndMetricHandler() func(handler http.Handler) http.Handler {
 				if loggerRw.statusCode >= http.StatusInternalServerError {
 					l.WithValues(keyAndValues...).Error(loggerRw.err)
 				} else {
-					if enabledLevel <= logr.WarnLevel {
+					if isLevelEnabled(logr.WarnLevel)(enabledLevel) {
 						l.WithValues(keyAndValues...).Warn(loggerRw.err)
 					}
 				}
 			} else {
-				if enabledLevel <= logr.InfoLevel {
+				if isLevelEnabled(logr.InfoLevel)(enabledLevel) {
 					l.WithValues(keyAndValues...).Info("success")
 				}
 			}
@@ -129,6 +129,12 @@ func LogAndMetricHandler() func(handler http.Handler) http.Handler {
 			metrichttp.ServerRequestSize.Record(ctx, req.ContentLength, metric.WithAttributes(metricsAttrs...))
 			metrichttp.ServerResponseSize.Record(ctx, loggerRw.written, metric.WithAttributes(metricsAttrs...))
 		})
+	}
+}
+
+func isLevelEnabled(l logr.Level) func(e logr.Level) bool {
+	return func(e logr.Level) bool {
+		return e >= l
 	}
 }
 
