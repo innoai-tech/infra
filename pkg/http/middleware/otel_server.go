@@ -93,7 +93,13 @@ func LogAndMetricHandler() func(handler http.Handler) http.Handler {
 
 			nextHandler.ServeHTTP(loggerRw, req.WithContext(ctx))
 
-			enabledLevel, _ := logr.ParseLevel(strings.ToLower(req.Header.Get("x-log-level")))
+			enabledLevel := logr.InfoLevel
+			if logLevel := req.Header.Get("x-log-level"); logLevel != "" {
+				lvl, err := logr.ParseLevel(strings.ToLower(logLevel))
+				if err == nil {
+					enabledLevel = lvl
+				}
+			}
 
 			requestCost := time.Since(startAt)
 			requestHeader := req.Header
