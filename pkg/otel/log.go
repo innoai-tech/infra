@@ -2,11 +2,11 @@ package otel
 
 import (
 	"context"
+	"log/slog"
 	"time"
 
-	"golang.org/x/exp/slog"
-
 	"github.com/go-courier/logr"
+
 	"go.opentelemetry.io/otel/exporters/otlp/otlptrace"
 	"go.opentelemetry.io/otel/exporters/otlp/otlptrace/otlptracegrpc"
 	"go.opentelemetry.io/otel/sdk/resource"

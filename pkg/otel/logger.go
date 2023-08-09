@@ -3,14 +3,14 @@ package otel
 import (
 	"context"
 	"fmt"
+	"log/slog"
 	"time"
-
-	"github.com/innoai-tech/infra/internal/otel"
-	"golang.org/x/exp/slog"
 
 	"github.com/go-courier/logr"
 	"go.opentelemetry.io/otel/attribute"
 	"go.opentelemetry.io/otel/trace"
+
+	"github.com/innoai-tech/infra/internal/otel"
 )
 
 func newLogger(

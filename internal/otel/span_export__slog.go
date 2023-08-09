@@ -2,13 +2,14 @@ package otel
 
 import (
 	"context"
+	"log/slog"
 	"os"
 	"runtime"
+
 	_ "time/tzdata"
 
 	"github.com/go-courier/logr"
 	sdktrace "go.opentelemetry.io/otel/sdk/trace"
-	"golang.org/x/exp/slog"
 )
 
 func Source(skip int) *slog.Source {
