@@ -26,9 +26,13 @@ func Source(skip int) *slog.Source {
 
 func NewLogger() *slog.Logger {
 	if os.Getenv("GOENV") == "DEV" {
-		return slog.New(slog.NewTextHandler(os.Stderr, &slog.HandlerOptions{}))
+		return slog.New(slog.NewTextHandler(os.Stderr, &slog.HandlerOptions{
+			Level: slog.LevelDebug,
+		}))
 	}
-	return slog.New(slog.NewJSONHandler(os.Stderr, &slog.HandlerOptions{}))
+	return slog.New(slog.NewJSONHandler(os.Stderr, &slog.HandlerOptions{
+		Level: slog.LevelDebug,
+	}))
 }
 
 func SlogSpanExporter(log *slog.Logger) sdktrace.SpanExporter {
