@@ -24,6 +24,10 @@ func (as args) String() string {
 	s := strings.Builder{}
 
 	for i := range as {
+		if i > 0 {
+			s.WriteString(" ")
+		}
+
 		s.WriteString(camelcase.UpperSnakeCase(as[i].Name))
 
 		if as[i].HasVariadic() {
