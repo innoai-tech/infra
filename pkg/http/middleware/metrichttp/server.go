@@ -2,7 +2,7 @@ package metrichttp
 
 import (
 	"github.com/innoai-tech/infra/pkg/otel/metric"
-	"go.opentelemetry.io/otel/sdk/metric/aggregation"
+	sdkmetric "go.opentelemetry.io/otel/sdk/metric"
 )
 
 var (
@@ -10,7 +10,7 @@ var (
 		"http.server.duration",
 		metric.WithUnit("s"),
 		metric.WithDescription("Measures the duration of inbound HTTP requests"),
-		metric.WithAggregation(aggregation.ExplicitBucketHistogram{
+		metric.WithAggregation(sdkmetric.AggregationExplicitBucketHistogram{
 			Boundaries: DurationHistogramBoundaries,
 		}),
 	)
@@ -24,7 +24,7 @@ var (
 		"http.server.request.size",
 		metric.WithUnit("By"),
 		metric.WithDescription("Measures the size of HTTP response messages"),
-		metric.WithAggregation(aggregation.ExplicitBucketHistogram{
+		metric.WithAggregation(sdkmetric.AggregationExplicitBucketHistogram{
 			Boundaries: SizeHistogramBoundaries,
 		}),
 	)
@@ -33,7 +33,7 @@ var (
 		"http.server.response.size",
 		metric.WithUnit("By"),
 		metric.WithDescription("Measures the size of HTTP response messages"),
-		metric.WithAggregation(aggregation.ExplicitBucketHistogram{
+		metric.WithAggregation(sdkmetric.AggregationExplicitBucketHistogram{
 			Boundaries: SizeHistogramBoundaries,
 		}),
 		//metric.WithAggregationFunc("increase", 1*time.Minute),

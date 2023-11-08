@@ -3,6 +3,7 @@ package aggregation
 import (
 	"context"
 	"fmt"
+	"github.com/prometheus/prometheus/tsdb/chunks"
 	"testing"
 	"time"
 
@@ -12,7 +13,6 @@ import (
 	"github.com/prometheus/prometheus/model/labels"
 	"github.com/prometheus/prometheus/promql"
 	"github.com/prometheus/prometheus/storage"
-	"github.com/prometheus/prometheus/tsdb/tsdbutil"
 	"go.opentelemetry.io/otel/sdk/metric/metricdata"
 )
 
@@ -21,7 +21,7 @@ func TestPromQL(t *testing.T) {
 
 	s := storage.NewListSeries(labels.FromMap(map[string]string{
 		"__name__": "http_server_response_size_bytes",
-	}), []tsdbutil.Sample{
+	}), []chunks.Sample{
 		&SampleData{
 			at:        now.Add(-30 * time.Second),
 			valueType: chunkenc.ValHistogram,

@@ -15,7 +15,6 @@ import (
 	"github.com/innoai-tech/infra/pkg/otel/metric"
 	otelmetric "go.opentelemetry.io/otel/metric"
 	sdkmetric "go.opentelemetry.io/otel/sdk/metric"
-	"go.opentelemetry.io/otel/sdk/metric/aggregation"
 	"go.opentelemetry.io/otel/sdk/metric/metricdata"
 )
 
@@ -62,7 +61,7 @@ func (e *aggregationOverTime) Temporality(kind sdkmetric.InstrumentKind) metricd
 	return e.temporalitySelector(kind)
 }
 
-func (e *aggregationOverTime) Aggregation(kind sdkmetric.InstrumentKind) aggregation.Aggregation {
+func (e *aggregationOverTime) Aggregation(kind sdkmetric.InstrumentKind) sdkmetric.Aggregation {
 	return e.aggregationSelector(kind)
 }
 

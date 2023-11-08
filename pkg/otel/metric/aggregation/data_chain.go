@@ -8,7 +8,7 @@ import (
 	"github.com/prometheus/prometheus/model/labels"
 	"github.com/prometheus/prometheus/storage"
 	"github.com/prometheus/prometheus/tsdb/chunkenc"
-	"github.com/prometheus/prometheus/tsdb/tsdbutil"
+	"github.com/prometheus/prometheus/tsdb/chunks"
 	"go.opentelemetry.io/otel/attribute"
 	"go.opentelemetry.io/otel/sdk/metric/metricdata"
 )
@@ -52,11 +52,11 @@ func (d *DataChain) SeriesSet() storage.SeriesSet {
 
 	series := make([]storage.Series, len(d.DataPoints))
 
-	max := d.Len()
+	n := d.Len()
 
 	// use latest data points as entry
 	for i, dp := range d.DataPoints {
-		samples := make([]tsdbutil.Sample, 0, max)
+		samples := make([]chunks.Sample, 0, n)
 
 		labelMap := map[string]string{
 			"__name__": d.Name,
@@ -69,7 +69,7 @@ func (d *DataChain) SeriesSet() storage.SeriesSet {
 			samples = append(samples, dp2)
 		}
 
-		reversedSamples := make([]tsdbutil.Sample, len(samples))
+		reversedSamples := make([]chunks.Sample, len(samples))
 
 		for j := range reversedSamples {
 			reversedSamples[j] = samples[len(samples)-1-j]
@@ -81,7 +81,7 @@ func (d *DataChain) SeriesSet() storage.SeriesSet {
 	return NewMockSeriesSet(series...)
 }
 
-var _ tsdbutil.Sample = &DataPoint{}
+var _ chunks.Sample = &DataPoint{}
 
 type DataPoint struct {
 	Attributes attribute.Set

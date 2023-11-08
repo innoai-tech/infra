@@ -4,8 +4,7 @@ import (
 	"fmt"
 	"time"
 
-	sdkmetric "go.opentelemetry.io/otel/sdk/metric"
-	"go.opentelemetry.io/otel/sdk/metric/aggregation"
+	"go.opentelemetry.io/otel/sdk/metric"
 )
 
 func newOption(name string, optFuncs ...OptionFunc) *option {
@@ -47,15 +46,15 @@ func WithView(view func(m Metric) View) OptionFunc {
 	}
 }
 
-func WithAggregation(aggregation aggregation.Aggregation) OptionFunc {
+func WithAggregation(aggregation metric.Aggregation) OptionFunc {
 	return WithView(func(m Metric) View {
 		return View{
-			Instrument: sdkmetric.Instrument{
+			Instrument: metric.Instrument{
 				Name:        m.Name,
 				Unit:        m.Unit,
 				Description: m.Description,
 			},
-			Stream: sdkmetric.Stream{
+			Stream: metric.Stream{
 				Name:        m.Name,
 				Aggregation: aggregation,
 			},
@@ -66,8 +65,8 @@ func WithAggregation(aggregation aggregation.Aggregation) OptionFunc {
 func WithAggregationFunc(typ string, d time.Duration) OptionFunc {
 	return WithView(func(m Metric) View {
 		return View{
-			Instrument: sdkmetric.Instrument{
-				Kind: sdkmetric.InstrumentKindObservableGauge,
+			Instrument: metric.Instrument{
+				Kind: metric.InstrumentKindObservableGauge,
 				Name: fmt.Sprintf("%s__%s.%0.0fs", m.Name, typ, d.Seconds()),
 				Unit: m.Unit,
 			},
