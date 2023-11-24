@@ -36,6 +36,8 @@ func (h *pprofHandler) ServeHTTP(rw http.ResponseWriter, req *http.Request) {
 			pprof.Trace(rw, req)
 			return
 		default:
+			// trim /.sys for make pprof.Index work
+			req.URL.Path = req.URL.Path[len("/.sys"):]
 			pprof.Index(rw, req)
 			return
 		}
