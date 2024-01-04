@@ -2,6 +2,7 @@ package aggregation
 
 import (
 	"context"
+	"github.com/prometheus/prometheus/util/annotations"
 	"time"
 
 	"github.com/prometheus/prometheus/model/histogram"
@@ -278,4 +279,4 @@ func (m *mockSeriesSet) At() storage.Series { return m.series[m.idx] }
 
 func (m *mockSeriesSet) Err() error { return nil }
 
-func (m *mockSeriesSet) Warnings() storage.Warnings { return nil }
+func (m *mockSeriesSet) Warnings() annotations.Annotations { return nil }
