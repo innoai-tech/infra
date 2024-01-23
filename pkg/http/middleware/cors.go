@@ -31,6 +31,7 @@ func DefaultCORS() func(http.Handler) http.Handler {
 			"Origin",
 			"B3",
 			"WWW-Authenticate",
+			"Location",
 			"X-Requested-With",
 			"X-RateLimit-Limit", // follow https://developer.github.com/v3/rate_limit/
 			"X-RateLimit-Remaining",
@@ -135,7 +136,11 @@ func (ch *cors) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 			w.Header().Set(corsAllowMethodsHeader, method)
 		}
 	} else {
-		if len(ch.exposedHeaders) > 0 {
+		exposedHeaders := ch.exposedHeaders
+		if v := w.Header().Get(corsExposeHeadersHeader); v != "" {
+			exposedHeaders = append(exposedHeaders, strings.SplitN(v, ",", -1)...)
+		}
+		if len(exposedHeaders) > 0 {
 			w.Header().Set(corsExposeHeadersHeader, strings.Join(ch.exposedHeaders, ","))
 		}
 	}
