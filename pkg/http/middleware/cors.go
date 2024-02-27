@@ -8,36 +8,38 @@ import (
 	"strings"
 )
 
-func DefaultCORS() func(http.Handler) http.Handler {
+func DefaultCORS(opts ...CORSOption) func(http.Handler) http.Handler {
 	return CORS(
-		AllowedOrigins([]string{"*"}),
-		AllowedMethods(append(defaultCorsMethods, []string{
-			http.MethodConnect,
-			http.MethodPut,
-			http.MethodPatch,
-			http.MethodDelete,
-			http.MethodOptions,
-		}...)),
-		AllowCredentials(),
-		AllowedHeaders(append(defaultCorsHeaders, []string{
-			corsRequestMethodHeader,
-			corsRequestHeadersHeader,
-			"Content-Type",
-			"Authorization",
-			"User-Agent",
-		}...)),
-		ExposedHeaders([]string{
-			"Content-Type",
-			"Origin",
-			"B3",
-			"WWW-Authenticate",
-			"Location",
-			"X-Requested-With",
-			"X-RateLimit-Limit", // follow https://developer.github.com/v3/rate_limit/
-			"X-RateLimit-Remaining",
-			"X-RateLimit-Reset",
-		}),
-		OptionStatusCode(http.StatusNoContent),
+		append([]CORSOption{
+			AllowedOrigins([]string{"*"}),
+			AllowedMethods([]string{
+				http.MethodConnect,
+				http.MethodPut,
+				http.MethodPatch,
+				http.MethodDelete,
+				http.MethodOptions,
+			}),
+			AllowCredentials(),
+			AllowedHeaders([]string{
+				CorsRequestMethodHeader,
+				CorsRequestHeadersHeader,
+				"Content-Type",
+				"Authorization",
+				"User-Agent",
+			}),
+			ExposedHeaders([]string{
+				"Content-Type",
+				"Origin",
+				"B3",
+				"WWW-Authenticate",
+				"Location",
+				"X-Requested-With",
+				"X-RateLimit-Limit", // follow https://developer.github.com/v3/rate_limit/
+				"X-RateLimit-Remaining",
+				"X-RateLimit-Reset",
+			}),
+			OptionStatusCode(http.StatusNoContent),
+		}, opts...)...,
 	)
 }
 
@@ -68,47 +70,47 @@ var (
 )
 
 const (
-	corsOptionMethod           string = "OPTIONS"
-	corsAllowOriginHeader      string = "Access-Control-Allow-Origin"
-	corsExposeHeadersHeader    string = "Access-Control-Expose-Headers"
-	corsMaxAgeHeader           string = "Access-Control-Max-Age"
-	corsAllowMethodsHeader     string = "Access-Control-Allow-Methods"
-	corsAllowHeadersHeader     string = "Access-Control-Allow-Headers"
-	corsAllowCredentialsHeader string = "Access-Control-Allow-Credentials"
-	corsRequestMethodHeader    string = "Access-Control-Request-Method"
-	corsRequestHeadersHeader   string = "Access-Control-Request-Headers"
-	corsOriginHeader           string = "Origin"
-	corsVaryHeader             string = "Vary"
-	corsOriginMatchAll         string = "*"
+	CorsOptionMethod           string = "OPTIONS"
+	CorsAllowOriginHeader      string = "Access-Control-Allow-Origin"
+	CorsExposeHeadersHeader    string = "Access-Control-Expose-Headers"
+	CorsMaxAgeHeader           string = "Access-Control-Max-Age"
+	CorsAllowMethodsHeader     string = "Access-Control-Allow-Methods"
+	CorsAllowHeadersHeader     string = "Access-Control-Allow-Headers"
+	CorsAllowCredentialsHeader string = "Access-Control-Allow-Credentials"
+	CorsRequestMethodHeader    string = "Access-Control-Request-Method"
+	CorsRequestHeadersHeader   string = "Access-Control-Request-Headers"
+	CorsOriginHeader           string = "Origin"
+	CorsVaryHeader             string = "Vary"
+	CorsOriginMatchAll         string = "*"
 )
 
 func (ch *cors) ServeHTTP(w http.ResponseWriter, r *http.Request) {
-	origin := r.Header.Get(corsOriginHeader)
+	origin := r.Header.Get(CorsOriginHeader)
 	if !ch.isOriginAllowed(origin) {
-		if r.Method != corsOptionMethod || ch.ignoreOptions {
+		if r.Method != CorsOptionMethod || ch.ignoreOptions {
 			ch.h.ServeHTTP(w, r)
 		}
 		return
 	}
 
-	if r.Method == corsOptionMethod {
+	if r.Method == CorsOptionMethod {
 		if ch.ignoreOptions {
 			ch.h.ServeHTTP(w, r)
 			return
 		}
 
-		if _, ok := r.Header[corsRequestMethodHeader]; !ok {
+		if _, ok := r.Header[CorsRequestMethodHeader]; !ok {
 			w.WriteHeader(http.StatusBadRequest)
 			return
 		}
 
-		method := r.Header.Get(corsRequestMethodHeader)
+		method := r.Header.Get(CorsRequestMethodHeader)
 		if !ch.isMatch(method, ch.allowedMethods) {
 			w.WriteHeader(http.StatusMethodNotAllowed)
 			return
 		}
 
-		requestHeaders := strings.Split(r.Header.Get(corsRequestHeadersHeader), ",")
+		requestHeaders := strings.Split(r.Header.Get(CorsRequestHeadersHeader), ",")
 		allowedHeaders := make([]string, 0)
 		for _, v := range requestHeaders {
 			canonicalHeader := http.CanonicalHeaderKey(strings.TrimSpace(v))
@@ -125,32 +127,32 @@ func (ch *cors) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 		}
 
 		if len(allowedHeaders) > 0 {
-			w.Header().Set(corsAllowHeadersHeader, strings.Join(allowedHeaders, ","))
+			w.Header().Set(CorsAllowHeadersHeader, strings.Join(allowedHeaders, ","))
 		}
 
 		if ch.maxAge > 0 {
-			w.Header().Set(corsMaxAgeHeader, strconv.Itoa(ch.maxAge))
+			w.Header().Set(CorsMaxAgeHeader, strconv.Itoa(ch.maxAge))
 		}
 
 		if !ch.isMatch(method, defaultCorsMethods) {
-			w.Header().Set(corsAllowMethodsHeader, method)
+			w.Header().Set(CorsAllowMethodsHeader, method)
 		}
 	} else {
 		exposedHeaders := ch.exposedHeaders
-		if v := w.Header().Get(corsExposeHeadersHeader); v != "" {
+		if v := w.Header().Get(CorsExposeHeadersHeader); v != "" {
 			exposedHeaders = append(exposedHeaders, strings.SplitN(v, ",", -1)...)
 		}
 		if len(exposedHeaders) > 0 {
-			w.Header().Set(corsExposeHeadersHeader, strings.Join(ch.exposedHeaders, ","))
+			w.Header().Set(CorsExposeHeadersHeader, strings.Join(ch.exposedHeaders, ","))
 		}
 	}
 
 	if ch.allowCredentials {
-		w.Header().Set(corsAllowCredentialsHeader, "true")
+		w.Header().Set(CorsAllowCredentialsHeader, "true")
 	}
 
 	if len(ch.allowedOrigins) > 1 {
-		w.Header().Set(corsVaryHeader, corsOriginHeader)
+		w.Header().Set(CorsVaryHeader, CorsOriginHeader)
 	}
 
 	returnOrigin := origin
@@ -161,15 +163,16 @@ func (ch *cors) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 			// A configuration of * is different than explicitly setting an allowed
 			// origin. Returning arbitrary origin headers in an access control allow
 			// origin header is unsafe and is not required by any use case.
-			if o == corsOriginMatchAll {
+			if o == CorsOriginMatchAll {
 				returnOrigin = "*"
 				break
 			}
 		}
 	}
-	w.Header().Set(corsAllowOriginHeader, returnOrigin)
 
-	if r.Method == corsOptionMethod {
+	w.Header().Set(CorsAllowOriginHeader, returnOrigin)
+
+	if r.Method == CorsOptionMethod {
 		w.WriteHeader(ch.optionStatusCode)
 		return
 	}
@@ -229,7 +232,7 @@ func parseCORSOptions(opts ...CORSOption) *cors {
 // application/x-www-form-urlencoded, multipart/form-data, or text/plain.
 func AllowedHeaders(headers []string) CORSOption {
 	return func(ch *cors) error {
-		for _, v := range headers {
+		for _, v := range append(defaultCorsHeaders, headers...) {
 			normalizedHeader := http.CanonicalHeaderKey(strings.TrimSpace(v))
 			if normalizedHeader == "" {
 				continue
@@ -251,7 +254,7 @@ func AllowedHeaders(headers []string) CORSOption {
 func AllowedMethods(methods []string) CORSOption {
 	return func(ch *cors) error {
 		ch.allowedMethods = []string{}
-		for _, v := range methods {
+		for _, v := range append(defaultCorsMethods, methods...) {
 			normalizedMethod := strings.ToUpper(strings.TrimSpace(v))
 			if normalizedMethod == "" {
 				continue
@@ -272,8 +275,8 @@ func AllowedMethods(methods []string) CORSOption {
 func AllowedOrigins(origins []string) CORSOption {
 	return func(ch *cors) error {
 		for _, v := range origins {
-			if v == corsOriginMatchAll {
-				ch.allowedOrigins = []string{corsOriginMatchAll}
+			if v == CorsOriginMatchAll {
+				ch.allowedOrigins = []string{CorsOriginMatchAll}
 				return nil
 			}
 		}
@@ -373,7 +376,7 @@ func (ch *cors) isOriginAllowed(origin string) bool {
 	}
 
 	for _, allowedOrigin := range ch.allowedOrigins {
-		if allowedOrigin == origin || allowedOrigin == corsOriginMatchAll {
+		if allowedOrigin == origin || allowedOrigin == CorsOriginMatchAll {
 			return true
 		}
 	}

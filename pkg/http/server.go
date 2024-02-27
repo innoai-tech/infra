@@ -26,6 +26,8 @@ type Server struct {
 	// Enable debug mode
 	EnableDebug bool `flag:",omitempty"`
 
+	corsOptions []middleware.CORSOption
+
 	root courier.Router
 	svc  *http.Server
 
@@ -37,6 +39,10 @@ func (s *Server) SetDefaults() {
 	if s.Addr == "" {
 		s.Addr = ":80"
 	}
+}
+
+func (s *Server) SetCorsOptions(options ...middleware.CORSOption) {
+	s.corsOptions = options
 }
 
 func (s *Server) ApplyRouter(r courier.Router) {
@@ -79,7 +85,7 @@ func (s *Server) Init(ctx context.Context) error {
 
 	globalHandlers := append([]handler.HandlerMiddleware{
 		middleware.CompressLevelHandlerMiddleware(gzip.DefaultCompression),
-		middleware.DefaultCORS(),
+		middleware.DefaultCORS(s.corsOptions...),
 		middleware.MetricHandler(otel.GathererFromContext(ctx)),
 		middleware.PProfHandler(s.EnableDebug),
 	}, s.globalHandlers...)
