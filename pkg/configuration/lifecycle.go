@@ -83,6 +83,12 @@ func serve(ctx context.Context, stopCh chan os.Signal, configuratorServers ...Se
 	for i := range configuratorServers {
 		server := configuratorServers[i]
 
+		if d, ok := server.(CanDisabled); ok {
+			if d.Disabled(ctx) {
+				continue
+			}
+		}
+
 		g.Go(func() error {
 			err := server.Serve(c)
 			go func() {
@@ -157,4 +163,8 @@ type Server interface {
 
 type CanShutdown interface {
 	Shutdown(ctx context.Context) error
+}
+
+type CanDisabled interface {
+	Disabled(ctx context.Context) bool
 }
