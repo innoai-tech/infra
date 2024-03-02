@@ -2,6 +2,8 @@ package otel
 
 import (
 	"context"
+	"time"
+
 	"github.com/innoai-tech/infra/internal/otel"
 	"github.com/innoai-tech/infra/pkg/cli"
 	"github.com/innoai-tech/infra/pkg/configuration"
@@ -16,7 +18,6 @@ import (
 	sdkmetric "go.opentelemetry.io/otel/sdk/metric"
 	sdkresource "go.opentelemetry.io/otel/sdk/resource"
 	semconv "go.opentelemetry.io/otel/semconv/v1.20.0"
-	"time"
 )
 
 type Metric struct {

@@ -3,9 +3,10 @@ package aggregation
 import (
 	"context"
 	"fmt"
-	"github.com/prometheus/prometheus/tsdb/chunks"
 	"testing"
 	"time"
+
+	"github.com/prometheus/prometheus/tsdb/chunks"
 
 	"github.com/prometheus/prometheus/model/histogram"
 	"github.com/prometheus/prometheus/tsdb/chunkenc"

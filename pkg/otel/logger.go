@@ -16,23 +16,23 @@ import (
 func newLogger(
 	ctx context.Context,
 	tp trace.TracerProvider,
-	slog *slog.Logger,
+	directLogger *slog.Logger,
 	levelEnabled logr.Level,
 ) logr.Logger {
 	return &logger{
-		enabled:     levelEnabled,
-		tp:          tp,
-		slog:        slog,
-		spanContext: &spanContext{span: trace.SpanFromContext(ctx)},
+		enabled:      levelEnabled,
+		tp:           tp,
+		directLogger: directLogger,
+		spanContext:  &spanContext{span: trace.SpanFromContext(ctx)},
 	}
 }
 
 type logger struct {
-	enabled     logr.Level
-	tp          trace.TracerProvider
-	slog        *slog.Logger
-	spanContext *spanContext
-	attributes  []attribute.KeyValue
+	enabled      logr.Level
+	tp           trace.TracerProvider
+	directLogger *slog.Logger
+	spanContext  *spanContext
+	attributes   []attribute.KeyValue
 }
 
 type spanContext struct {
@@ -92,11 +92,11 @@ func (t *logger) WithValues(keyAndValues ...any) logr.Logger {
 	name, attrs := attrsFromKeyAndValues(t.spanContext.name, keyAndValues...)
 
 	return &logger{
-		enabled:     t.enabled,
-		tp:          t.tp,
-		slog:        t.slog,
-		spanContext: t.spanContext.withName(name),
-		attributes:  append(t.attributes, attrs...),
+		enabled:      t.enabled,
+		tp:           t.tp,
+		directLogger: t.directLogger,
+		spanContext:  t.spanContext.withName(name),
+		attributes:   append(t.attributes, attrs...),
 	}
 }
 
@@ -104,11 +104,11 @@ func (t *logger) Start(ctx context.Context, name string, keyAndValues ...any) (c
 	c, attrs, spanCtx := t.spanContext.start(ctx, t.tp, name, keyAndValues...)
 
 	lgr := &logger{
-		enabled:     t.enabled,
-		tp:          t.tp,
-		spanContext: spanCtx,
-		slog:        t.slog,
-		attributes:  append(t.attributes, attrs...),
+		enabled:      t.enabled,
+		tp:           t.tp,
+		spanContext:  spanCtx,
+		directLogger: t.directLogger,
+		attributes:   append(t.attributes, attrs...),
 	}
 
 	return logr.WithLogger(c, lgr), lgr
@@ -126,7 +126,7 @@ func (t *logger) End() {
 
 	t.spanContext.span.End(trace.WithTimestamp(endAt))
 
-	if l := t.slog; l != nil {
+	if l := t.directLogger; l != nil {
 		attrs := t.spanContext.toAttrs(t.attributes)
 		attrs = append(attrs, slog.String("spanCost", endAt.Sub(t.spanContext.startedAt).String()))
 
@@ -134,7 +134,7 @@ func (t *logger) End() {
 			attrs = append(attrs, slog.Any("source", otel.Source(3)))
 		}
 
-		l.LogAttrs(context.Background(), slog.LevelInfo, "done", attrs...)
+		l.LogAttrs(context.Background(), slog.LevelDebug, "done", attrs...)
 	}
 }
 
@@ -149,9 +149,13 @@ func (t *logger) info(level logr.Level, msg fmt.Stringer) {
 
 	msgStr := msg.String()
 
-	go t.span().AddEvent(msgStr, trace.WithTimestamp(time.Now()), trace.WithAttributes(t.attributes...))
+	t.span().AddEvent(
+		msgStr,
+		trace.WithTimestamp(time.Now()),
+		trace.WithAttributes(append(t.attributes, attribute.String("@level", level.String()))...),
+	)
 
-	if l := t.slog; l != nil {
+	if l := t.directLogger; l != nil {
 		attrs := t.spanContext.toAttrs(t.attributes)
 
 		if t.enabled >= logr.DebugLevel {
@@ -163,6 +167,7 @@ func (t *logger) info(level logr.Level, msg fmt.Stringer) {
 			l.LogAttrs(context.Background(), slog.LevelDebug, msgStr, attrs...)
 		case logr.InfoLevel:
 			l.LogAttrs(context.Background(), slog.LevelInfo, msgStr, attrs...)
+		default:
 		}
 	}
 }
@@ -178,9 +183,13 @@ func (t *logger) error(level logr.Level, err error) {
 
 	attributes := t.attributes
 
-	go t.span().RecordError(err, trace.WithTimestamp(time.Now()), trace.WithAttributes(attributes...))
+	t.span().RecordError(
+		err,
+		trace.WithTimestamp(time.Now()),
+		trace.WithAttributes(append(t.attributes, attribute.String("@level", level.String()))...),
+	)
 
-	if l := t.slog; l != nil {
+	if l := t.directLogger; l != nil {
 		attrs := t.spanContext.toAttrs(attributes)
 
 		if t.enabled >= logr.DebugLevel {
@@ -192,6 +201,8 @@ func (t *logger) error(level logr.Level, err error) {
 			l.LogAttrs(context.Background(), slog.LevelWarn, err.Error(), attrs...)
 		case logr.ErrorLevel:
 			l.LogAttrs(context.Background(), slog.LevelError, err.Error(), attrs...)
+		default:
+
 		}
 	}
 }

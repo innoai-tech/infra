@@ -6,9 +6,9 @@ import (
 	"time"
 
 	"github.com/go-courier/logr"
-
 	"go.opentelemetry.io/otel/exporters/otlp/otlptrace"
 	"go.opentelemetry.io/otel/exporters/otlp/otlptrace/otlptracegrpc"
+
 	"go.opentelemetry.io/otel/sdk/resource"
 	sdktrace "go.opentelemetry.io/otel/sdk/trace"
 	semconv "go.opentelemetry.io/otel/semconv/v1.20.0"
@@ -19,6 +19,16 @@ import (
 	"github.com/innoai-tech/infra/pkg/configuration"
 )
 
+type OtelWithBatchLog struct {
+	Otel
+}
+
+func (o *OtelWithBatchLog) SetDefaults() {
+	o.batchLog = true
+
+	o.Otel.SetDefaults()
+}
+
 type Otel struct {
 	// Log level
 	LogLevel LogLevel `flag:",omitempty"`
@@ -27,8 +37,9 @@ type Otel struct {
 	// When set, will collect traces
 	TraceCollectorEndpoint string `flag:",omitempty"`
 
+	batchLog        bool
 	tp              *sdktrace.TracerProvider
-	log             *slog.Logger
+	directLogger    *slog.Logger
 	enabledLogLevel logr.Level
 }
 
@@ -39,12 +50,17 @@ func (o *Otel) SetDefaults() {
 	if o.LogFilter == "" {
 		o.LogFilter = OutputFilterAlways
 	}
+	if o.TraceCollectorEndpoint != "" {
+		o.batchLog = true
+	}
 }
 
 func (o *Otel) Init(ctx context.Context) error {
-	if o.tp == nil {
-		o.log = otel.NewLogger()
+	if !o.batchLog {
+		o.directLogger = otel.NewLogger()
+	}
 
+	if o.tp == nil {
 		opts := []sdktrace.TracerProviderOption{
 			sdktrace.WithSampler(sdktrace.AlwaysSample()),
 		}
@@ -55,14 +71,23 @@ func (o *Otel) Init(ctx context.Context) error {
 				otlptracegrpc.WithInsecure(),
 				otlptracegrpc.WithTimeout(3*time.Second),
 			)
-			z, err := otlptrace.New(context.Background(), client)
+
+			exporter, err := otlptrace.New(ctx, client)
 			if err != nil {
 				return err
 			}
 
 			opts = append(opts, sdktrace.WithBatcher(
 				otel.WithSpanMapExporter(otel.OutputFilter(o.LogFilter))(
-					otel.WithErrIgnoreExporter()(z),
+					otel.WithErrIgnoreExporter()(exporter),
+				),
+			))
+		}
+
+		if o.directLogger == nil {
+			opts = append(opts, sdktrace.WithBatcher(
+				otel.WithSpanMapExporter(otel.OutputFilter(o.LogFilter))(
+					otel.SlogSpanExporter(otel.NewLogger()),
 				),
 			))
 		}
@@ -95,7 +120,7 @@ func (o *Otel) Shutdown(ctx context.Context) error {
 }
 
 func (o *Otel) InjectContext(ctx context.Context) context.Context {
-	log := newLogger(ctx, o.tp, o.log, o.enabledLogLevel)
+	log := newLogger(ctx, o.tp, o.directLogger, o.enabledLogLevel)
 
 	if info := cli.InfoFromContext(ctx); info != nil {
 		log = log.WithValues("app", info.App)

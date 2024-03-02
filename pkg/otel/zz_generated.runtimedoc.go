@@ -24,7 +24,7 @@ func (v Otel) RuntimeDoc(names ...string) ([]string, bool) {
 			return []string{
 				"Log level",
 			}, true
-		case "LogFilter":
+		case "ExportFilter":
 			return []string{
 				"Log filter",
 			}, true

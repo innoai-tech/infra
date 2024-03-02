@@ -28,17 +28,19 @@ func Setup(t testing.TB, c any) context.Context {
 func TestLog(t *testing.T) {
 	t.Run("FilterAlways", func(t *testing.T) {
 		t.Run("async", func(t *testing.T) {
-			ctx := Setup(t, &Otel{
-				LogFilter: OutputFilterAlways,
-				LogLevel:  DebugLevel,
+			ctx := Setup(t, &OtelWithBatchLog{
+				Otel: Otel{
+					LogLevel:  DebugLevel,
+					LogFilter: OutputFilterAlways,
+				},
 			})
 			doLog(ctx)
 		})
 
 		t.Run("sync", func(t *testing.T) {
 			ctx := Setup(t, &Otel{
-				LogFilter: OutputFilterAlways,
 				LogLevel:  DebugLevel,
+				LogFilter: OutputFilterAlways,
 			})
 			doLog(ctx)
 		})

@@ -5,6 +5,7 @@ import (
 	"log/slog"
 	"os"
 	"runtime"
+	"sync"
 
 	_ "time/tzdata"
 
@@ -41,6 +42,7 @@ func SlogSpanExporter(log *slog.Logger) sdktrace.SpanExporter {
 
 type stdoutSpanExporter struct {
 	log *slog.Logger
+	wg  sync.WaitGroup
 }
 
 func (e *stdoutSpanExporter) Shutdown(ctx context.Context) error {

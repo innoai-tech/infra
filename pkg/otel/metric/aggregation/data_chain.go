@@ -2,8 +2,9 @@ package aggregation
 
 import (
 	"context"
-	"github.com/prometheus/prometheus/util/annotations"
 	"time"
+
+	"github.com/prometheus/prometheus/util/annotations"
 
 	"github.com/prometheus/prometheus/model/histogram"
 	"github.com/prometheus/prometheus/model/labels"

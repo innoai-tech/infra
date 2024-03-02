@@ -2,6 +2,7 @@ package aggregation
 
 import (
 	"context"
+
 	"github.com/prometheus/prometheus/model/labels"
 	"github.com/prometheus/prometheus/storage"
 	"github.com/prometheus/prometheus/util/annotations"
