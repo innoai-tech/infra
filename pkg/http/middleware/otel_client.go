@@ -78,7 +78,7 @@ func (rt *LogRoundTripper) RoundTrip(req *http.Request) (*http.Response, error) 
 
 	if err == nil {
 		if resp.StatusCode > http.StatusBadRequest {
-			l.Warn(errors.Wrap(err, "http request failed"))
+			l.Warn(errors.New("http request failed"))
 		} else {
 			l.Info("success")
 		}
