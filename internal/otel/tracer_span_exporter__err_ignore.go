@@ -6,11 +6,9 @@ import (
 	sdktrace "go.opentelemetry.io/otel/sdk/trace"
 )
 
-func WithErrIgnoreExporter() func(spanExporter sdktrace.SpanExporter) sdktrace.SpanExporter {
-	return func(spanExporter sdktrace.SpanExporter) sdktrace.SpanExporter {
-		return &errIgnoreExporter{
-			SpanExporter: spanExporter,
-		}
+func IgnoreErrSpanExporter(spanExporter sdktrace.SpanExporter) sdktrace.SpanExporter {
+	return &errIgnoreExporter{
+		SpanExporter: spanExporter,
 	}
 }
 

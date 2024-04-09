@@ -2,22 +2,14 @@ package otel
 
 import (
 	"context"
-
-	"go.opentelemetry.io/otel"
-
 	contextx "github.com/octohelm/x/context"
 	"go.opentelemetry.io/otel/trace"
 )
 
-type tpCtx struct{}
+var TracerProviderContext = contextx.New[TracerProvider]()
 
-func ContextWithTracerProvider(ctx context.Context, tp trace.TracerProvider) context.Context {
-	return contextx.WithValue(ctx, tpCtx{}, tp)
-}
+type TracerProvider = trace.TracerProvider
 
-func TracerProviderFromContext(ctx context.Context) trace.TracerProvider {
-	if tp, ok := ctx.Value(tpCtx{}).(trace.TracerProvider); ok {
-		return tp
-	}
-	return otel.GetTracerProvider()
+func Tracer(ctx context.Context) trace.Tracer {
+	return TracerProviderContext.From(ctx).Tracer("")
 }

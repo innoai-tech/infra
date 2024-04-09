@@ -1,0 +1,190 @@
+package otel
+
+import (
+	"context"
+	prometheusclient "github.com/prometheus/client_golang/prometheus"
+	"github.com/prometheus/client_golang/prometheus/collectors"
+	"go.opentelemetry.io/otel/exporters/otlp/otlpmetric/otlpmetricgrpc"
+	"go.opentelemetry.io/otel/exporters/prometheus"
+	sdkmetric "go.opentelemetry.io/otel/sdk/metric"
+	"time"
+
+	"github.com/go-courier/logr"
+	"github.com/innoai-tech/infra/internal/otel"
+	"github.com/innoai-tech/infra/pkg/cli"
+	"github.com/innoai-tech/infra/pkg/configuration"
+	"go.opentelemetry.io/otel/exporters/otlp/otlptrace"
+	"go.opentelemetry.io/otel/exporters/otlp/otlptrace/otlptracegrpc"
+	"go.opentelemetry.io/otel/sdk/resource"
+	"golang.org/x/sync/errgroup"
+
+	sdklog "go.opentelemetry.io/otel/sdk/log"
+	sdktrace "go.opentelemetry.io/otel/sdk/trace"
+	semconv "go.opentelemetry.io/otel/semconv/v1.24.0"
+)
+
+type LogLevel = otel.LogLevel
+
+const (
+	ErrorLevel = otel.ErrorLevel
+	WarnLevel  = otel.WarnLevel
+	InfoLevel  = otel.InfoLevel
+	DebugLevel = otel.DebugLevel
+)
+
+type Otel struct {
+	// Log level
+	LogLevel LogLevel `flag:",omitempty"`
+	// When set, will collect traces
+	TraceCollectorEndpoint string `flag:",omitempty"`
+
+	MetricCollectorEndpoint      string `flag:",omitempty"`
+	MetricCollectIntervalSeconds int    `flag:",omitempty"`
+
+	tracerProvider *sdktrace.TracerProvider
+	loggerProvider *sdklog.LoggerProvider
+	meterProvider  *sdkmetric.MeterProvider
+	promGatherer   prometheusclient.Gatherer
+
+	enabledLevel logr.Level
+}
+
+func (o *Otel) SetDefaults() {
+	if o.LogLevel == "" {
+		o.LogLevel = InfoLevel
+	}
+
+	if o.MetricCollectorEndpoint != "" {
+		if o.MetricCollectIntervalSeconds == 0 {
+			o.MetricCollectIntervalSeconds = 60
+		}
+	}
+}
+
+func (o *Otel) InjectContext(ctx context.Context) context.Context {
+	l := otel.NewLogger(otel.LoggerProviderContext.Inject(ctx, o.loggerProvider), o.enabledLevel)
+
+	return configuration.InjectContext(
+		ctx,
+		configuration.InjectContextFunc(logr.WithLogger, l),
+		configuration.InjectContextFunc(otel.GathererContext.Inject, o.promGatherer),
+		configuration.InjectContextFunc(otel.TracerProviderContext.Inject, otel.TracerProvider(o.tracerProvider)),
+		configuration.InjectContextFunc(otel.LoggerProviderContext.Inject, otel.LoggerProvider(o.loggerProvider)),
+		configuration.InjectContextFunc(otel.MeterProviderContext.Inject, otel.MeterProvider(o.meterProvider)),
+	)
+}
+
+func (o *Otel) Init(ctx context.Context) error {
+	enabledLevel, err := logr.ParseLevel(string(o.LogLevel))
+	if err != nil {
+		return err
+	}
+	o.enabledLevel = enabledLevel
+
+	pr := prometheusclient.NewRegistry()
+
+	if err := pr.Register(collectors.NewProcessCollector(collectors.ProcessCollectorOpts{})); err != nil {
+		return err
+	}
+	if err := pr.Register(collectors.NewGoCollector()); err != nil {
+		return err
+	}
+
+	o.promGatherer = pr
+
+	prometheusReader, err := prometheus.New(
+		prometheus.WithRegisterer(pr),
+		prometheus.WithoutScopeInfo(),
+	)
+
+	tracerOpts := []sdktrace.TracerProviderOption{
+		sdktrace.WithSampler(sdktrace.AlwaysSample()),
+	}
+
+	logOpts := []sdklog.LoggerProviderOption{
+		sdklog.WithProcessor(sdklog.NewSimpleProcessor(otel.SlogExporter())),
+	}
+
+	meterOpts := []sdkmetric.Option{
+		sdkmetric.WithReader(prometheusReader),
+	}
+
+	if info := cli.InfoFromContext(ctx); info != nil {
+		res := resource.NewSchemaless(
+			semconv.ServiceName(info.App.Name),
+			semconv.ServiceVersion(info.App.Version),
+		)
+
+		tracerOpts = append(tracerOpts, sdktrace.WithResource(res))
+		logOpts = append(logOpts, sdklog.WithResource(res))
+		meterOpts = append(meterOpts, sdkmetric.WithResource(res))
+	}
+
+	if o.TraceCollectorEndpoint != "" {
+		client := otlptracegrpc.NewClient(
+			otlptracegrpc.WithEndpoint(o.TraceCollectorEndpoint),
+			otlptracegrpc.WithInsecure(),
+			otlptracegrpc.WithTimeout(3*time.Second),
+		)
+
+		exporter, err := otlptrace.New(ctx, client)
+		if err != nil {
+			return err
+		}
+
+		tracerOpts = append(tracerOpts,
+			sdktrace.WithBatcher(
+				otel.IgnoreErrSpanExporter(exporter),
+			),
+		)
+	}
+
+	if o.MetricCollectorEndpoint != "" {
+		exporter, err := otlpmetricgrpc.New(ctx, otlpmetricgrpc.WithEndpoint(o.MetricCollectorEndpoint))
+		if err != nil {
+			return err
+		}
+		meterOpts = append(meterOpts,
+			sdkmetric.WithReader(
+				sdkmetric.NewPeriodicReader(exporter,
+					sdkmetric.WithInterval(time.Duration(o.MetricCollectIntervalSeconds)*time.Second)),
+			),
+		)
+	}
+
+	o.loggerProvider = sdklog.NewLoggerProvider(logOpts...)
+	o.tracerProvider = sdktrace.NewTracerProvider(tracerOpts...)
+	o.meterProvider = sdkmetric.NewMeterProvider(meterOpts...)
+
+	return nil
+}
+
+func (o *Otel) Shutdown(c context.Context) error {
+	eg, ctx := errgroup.WithContext(c)
+
+	if tp := o.tracerProvider; tp != nil {
+		eg.Go(func() error {
+			_ = tp.ForceFlush(ctx)
+
+			return tp.Shutdown(ctx)
+		})
+	}
+
+	if lp := o.loggerProvider; lp != nil {
+		eg.Go(func() error {
+			_ = lp.ForceFlush(ctx)
+
+			return lp.Shutdown(ctx)
+		})
+	}
+
+	if mp := o.meterProvider; mp != nil {
+		eg.Go(func() error {
+			_ = mp.ForceFlush(ctx)
+
+			return mp.Shutdown(ctx)
+		})
+	}
+
+	return eg.Wait()
+}

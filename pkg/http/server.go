@@ -79,6 +79,7 @@ func (s *Server) Init(ctx context.Context) error {
 			s.routerHandlers...,
 		)...,
 	)
+
 	if err != nil {
 		return err
 	}
@@ -86,7 +87,7 @@ func (s *Server) Init(ctx context.Context) error {
 	globalHandlers := append([]handler.HandlerMiddleware{
 		middleware.CompressLevelHandlerMiddleware(gzip.DefaultCompression),
 		middleware.DefaultCORS(s.corsOptions...),
-		middleware.MetricHandler(otel.GathererFromContext(ctx)),
+		middleware.MetricHandler(otel.GathererContext.From(ctx)),
 		middleware.PProfHandler(s.EnableDebug),
 	}, s.globalHandlers...)
 

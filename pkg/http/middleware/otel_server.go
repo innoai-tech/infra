@@ -2,6 +2,8 @@ package middleware
 
 import (
 	"fmt"
+	"github.com/prometheus/client_golang/prometheus"
+	"log/slog"
 	"net/http"
 	"net/url"
 	"strconv"
@@ -13,13 +15,11 @@ import (
 	"github.com/octohelm/courier/pkg/courierhttp"
 	"github.com/octohelm/courier/pkg/courierhttp/util"
 	"github.com/pkg/errors"
-	"github.com/prometheus/client_golang/prometheus"
 	"github.com/prometheus/client_golang/prometheus/promhttp"
 	"go.opentelemetry.io/contrib/propagators/b3"
 	"go.opentelemetry.io/otel/attribute"
 	"go.opentelemetry.io/otel/metric"
 	"go.opentelemetry.io/otel/propagation"
-	semconv "go.opentelemetry.io/otel/semconv/v1.20.0"
 )
 
 func MetricHandler(gatherer prometheus.Gatherer) func(handler http.Handler) http.Handler {
@@ -75,6 +75,7 @@ func LogAndMetricHandler() func(handler http.Handler) http.Handler {
 			startAt := time.Now()
 
 			info := courierhttp.OperationInfoFromContext(ctx)
+
 			ctx, span := logr.FromContext(ctx).Start(ctx, info.ID)
 			defer func() {
 				span.End()
@@ -104,28 +105,26 @@ func LogAndMetricHandler() func(handler http.Handler) http.Handler {
 			requestCost := time.Since(startAt)
 			requestHeader := req.Header
 
-			keyAndValues := []any{
-				semconv.HTTPClientIP(util.ClientIP(req)),
-				semconv.HTTPMethod(req.Method),
-				semconv.HTTPURL(omitAuthorization(req.URL)),
-				semconv.HTTPStatusCode(loggerRw.statusCode),
-				semconv.UserAgentOriginal(requestHeader.Get("User-Agent")),
-				"http.server.duration", fmt.Sprintf("%s", requestCost),
-			}
-
-			l := logr.FromContext(ctx)
+			l := logr.FromContext(ctx).WithValues(
+				slog.String("http.client_ip", util.ClientIP(req)),
+				slog.String("http.method", req.Method),
+				slog.String("http.url", omitAuthorization(req.URL)),
+				slog.Int("http.status_code", loggerRw.statusCode),
+				slog.String("user_agent.original", requestHeader.Get("User-Agent")),
+				slog.String("http.server.duration", fmt.Sprintf("%s", requestCost)),
+			)
 
 			if loggerRw.err != nil {
 				if loggerRw.statusCode >= http.StatusInternalServerError {
-					l.WithValues(keyAndValues...).Error(loggerRw.err)
+					l.Error(loggerRw.err)
 				} else {
 					if isLevelEnabled(logr.WarnLevel)(enabledLevel) {
-						l.WithValues(keyAndValues...).Warn(loggerRw.err)
+						l.Warn(loggerRw.err)
 					}
 				}
 			} else {
 				if isLevelEnabled(logr.InfoLevel)(enabledLevel) {
-					l.WithValues(keyAndValues...).Info("success")
+					l.Info("success")
 				}
 			}
 

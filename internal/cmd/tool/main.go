@@ -17,11 +17,15 @@ import (
 var App = cli.NewApp("tool", "dev")
 
 func init() {
-	cli.AddTo(App, &struct {
+	c := &struct {
 		cli.C `name:"gen"`
 		otel.Otel
 		gengo.Gengo
-	}{})
+	}{}
+
+	c.LogLevel = otel.DebugLevel
+
+	cli.AddTo(App, c)
 }
 
 func main() {

@@ -31,6 +31,5 @@ func init() {
 type Serve struct {
 	cli.C `component:"server"`
 	otel.Otel
-	Metric otel.Metric
 	Server http.Server
 }

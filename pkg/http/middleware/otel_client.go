@@ -1,17 +1,16 @@
 package middleware
 
 import (
-	"fmt"
+	"log/slog"
 	"net/http"
 	"strconv"
 	"time"
 
-	"github.com/innoai-tech/infra/pkg/http/middleware/metrichttp"
 	"go.opentelemetry.io/otel/attribute"
 	"go.opentelemetry.io/otel/metric"
-	semconv "go.opentelemetry.io/otel/semconv/v1.20.0"
 
 	"github.com/go-courier/logr"
+	"github.com/innoai-tech/infra/pkg/http/middleware/metrichttp"
 	"github.com/pkg/errors"
 	"go.opentelemetry.io/contrib/propagators/b3"
 	"go.opentelemetry.io/otel/propagation"
@@ -45,19 +44,19 @@ func (rt *LogRoundTripper) RoundTrip(req *http.Request) (*http.Response, error) 
 	cost := time.Since(startedAt)
 
 	l := log.WithValues(
-		semconv.HTTPMethod(req.Method),
-		semconv.HTTPURL(omitAuthorization(req.URL)),
-		attribute.Key("http.client.duration").String(fmt.Sprintf("%s", cost)),
+		slog.String("http.method", req.Method),
+		slog.String("http.url", omitAuthorization(req.URL)),
+		slog.String("http.client.duration", cost.String()),
 	)
 
 	if resp != nil {
 		p, _ := strconv.ParseInt(req.URL.Port(), 10, 64)
 
 		attrs := []attribute.KeyValue{
-			attribute.Key("http.request.method").String(req.Method),
-			attribute.Key("http.response.status_code").Int(resp.StatusCode),
-			attribute.Key("server.address").String(req.URL.Hostname()),
-			attribute.Key("server.port").Int(int(p)),
+			attribute.String("http.request.method", req.Method),
+			attribute.Int("http.response.status_code", resp.StatusCode),
+			attribute.String("server.address", req.URL.Hostname()),
+			attribute.Int("server.port", int(p)),
 		}
 
 		metrichttp.ClientDuration.Record(ctx, cost.Seconds(), metric.WithAttributes(attrs...))
@@ -65,14 +64,15 @@ func (rt *LogRoundTripper) RoundTrip(req *http.Request) (*http.Response, error) 
 		metrichttp.ClientResponseSize.Record(ctx, resp.ContentLength, metric.WithAttributes(attrs...))
 
 		l = l.WithValues(
-			semconv.HTTPStatusCode(resp.StatusCode),
+			slog.String("http.method", req.Method),
+			slog.Int("http.status_code", resp.StatusCode),
 		)
 	}
 
 	if req.ContentLength > 0 {
 		l = l.WithValues(
-			"http.content-type", req.Header.Get("Content-Type"),
-			semconv.HTTPResponseContentLength(int(req.ContentLength)),
+			slog.String("http.content-type", req.Header.Get("Content-Type")),
+			slog.Int("http.response_content_length", int(req.ContentLength)),
 		)
 	}
 

@@ -19,51 +19,20 @@ func Setup(t testing.TB, c any) context.Context {
 	testingx.Expect(t, err, testingx.Be[error](nil))
 
 	t.Cleanup(func() {
-		_ = configuration.Shutdown(ctx, c)
+		if canShutdown, ok := c.(configuration.CanShutdown); ok {
+			_ = configuration.Shutdown(ctx, canShutdown)
+		}
 	})
 
 	return configuration.InjectContext(ctx, c.(configuration.ContextInjector))
 }
 
 func TestLog(t *testing.T) {
-	t.Run("FilterAlways", func(t *testing.T) {
-		t.Run("async", func(t *testing.T) {
-			ctx := Setup(t, &OtelWithBatchLog{
-				Otel: Otel{
-					LogLevel:  DebugLevel,
-					LogFilter: OutputFilterAlways,
-				},
-			})
-			doLog(ctx)
-		})
-
-		t.Run("sync", func(t *testing.T) {
-			ctx := Setup(t, &Otel{
-				LogLevel:  DebugLevel,
-				LogFilter: OutputFilterAlways,
-			})
-			doLog(ctx)
-		})
+	ctx := Setup(t, &Otel{
+		LogLevel: DebugLevel,
 	})
 
-	t.Run("OutputOnNever", func(t *testing.T) {
-		ctx := Setup(t, &Otel{
-			LogFilter: OutputFilterNever,
-			LogLevel:  DebugLevel,
-		})
-
-		ctx, log := logr.FromContext(ctx).Start(ctx, "op")
-		defer log.End()
-		doLog(ctx)
-	})
-
-	t.Run("OnFailure", func(t *testing.T) {
-		ctx := Setup(t, &Otel{
-			LogFilter: OutputFilterOnFailure,
-			LogLevel:  DebugLevel,
-		})
-		doLog(ctx)
-	})
+	doLog(ctx)
 }
 
 func doLog(ctx context.Context) {
