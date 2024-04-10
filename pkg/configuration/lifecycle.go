@@ -68,11 +68,6 @@ func RunOrServe(ctx context.Context, configurators ...any) error {
 
 			<-stopCh
 
-			timeout := 10 * time.Second
-
-			cc, cancel := context.WithTimeout(context.Background(), timeout)
-			defer cancel()
-
 			return Shutdown(cc, configuratorCanShutdowns...)
 		})
 
@@ -134,17 +129,33 @@ func serve(ctx context.Context, stopCh chan os.Signal, configuratorServers ...Se
 	return g.Wait()
 }
 
-func Shutdown(ctx context.Context, configuratorServers ...CanShutdown) error {
-	g, c := errgroup.WithContext(ctx)
+func Shutdown(c context.Context, configuratorServers ...CanShutdown) error {
+	timeout := 10 * time.Second
+	g := &errgroup.Group{}
 
 	for _, canShutdown := range configuratorServers {
 		g.Go(func() error {
+			ctx, cancel := context.WithTimeout(c, timeout)
+			defer cancel()
+
 			log.With(
 				slog.String("type", fmt.Sprintf("%T", canShutdown)),
 				slog.String("lifecycle", "Shutdown"),
+				slog.String("timeout", timeout.String()),
 			).Debug("shutting down")
 
-			return canShutdown.Shutdown(c)
+			done := make(chan error)
+
+			go func() {
+				done <- canShutdown.Shutdown(ctx)
+			}()
+
+			select {
+			case <-ctx.Done():
+				return ctx.Err()
+			case err := <-done:
+				return err
+			}
 		})
 	}
 

@@ -123,7 +123,11 @@ func (a *app) newFrom(cc Command, parent Command) *cobra.Command {
 			return err
 		}
 
-		return singletons.RunOrServe(ctx)
+		if err := singletons.RunOrServe(ctx); err != nil {
+			fmt.Println(err)
+		}
+
+		return nil
 	}
 
 	return cmd
