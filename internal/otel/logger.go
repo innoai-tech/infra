@@ -60,11 +60,15 @@ func (t *logger) Start(ctx context.Context, name string, keyAndValues ...any) (c
 
 func (t *logger) End() {
 	endAt := time.Now()
-	t.span().End(trace.WithTimestamp(endAt))
+	t.span(func(s trace.Span) {
+		s.End(trace.WithTimestamp(endAt))
+	})
 }
 
-func (t *logger) span() trace.Span {
-	return t.spanContext.span
+func (t *logger) span(do func(s trace.Span)) {
+	if span := t.spanContext.span; span != nil {
+		do(span)
+	}
 }
 
 func (t *logger) Debug(msgOrFormat string, args ...any) {
@@ -78,16 +82,20 @@ func (t *logger) Info(msgOrFormat string, args ...any) {
 func (t *logger) Warn(err error) {
 	t.error(logr.WarnLevel, err, t.keyValues, func(err error) {
 		errMsg := err.Error()
-		t.span().RecordError(err)
-		t.span().SetStatus(codes.Error, errMsg)
+		t.span(func(s trace.Span) {
+			s.RecordError(err)
+			s.SetStatus(codes.Error, errMsg)
+		})
 	})
 }
 
 func (t *logger) Error(err error) {
 	t.error(logr.ErrorLevel, err, t.keyValues, func(err error) {
 		errMsg := err.Error()
-		t.span().RecordError(err)
-		t.span().SetStatus(codes.Error, errMsg)
+		t.span(func(s trace.Span) {
+			s.RecordError(err)
+			s.SetStatus(codes.Error, errMsg)
+		})
 	})
 }
 
