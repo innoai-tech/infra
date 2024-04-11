@@ -15,7 +15,7 @@ require (
 	github.com/octohelm/x v0.0.0-20240219080259-91528f21e203
 	github.com/pkg/errors v0.9.1
 	github.com/prometheus/client_golang v1.19.0
-	github.com/prometheus/prometheus v0.51.1
+	github.com/prometheus/prometheus v0.51.2
 	github.com/spf13/cobra v1.8.0
 	github.com/spf13/pflag v1.0.5
 	go.opentelemetry.io/contrib/propagators/b3 v1.25.0
