@@ -163,42 +163,63 @@ type opt struct {
 	baseHref               string
 	disableHistoryFallback bool
 	disableCSP             bool
+
+	processed sync.Map
+}
+
+func (o *opt) loadOrProcess(f fs.FS, path string) ([]byte, error) {
+	if v, ok := o.processed.Load(path); ok {
+		return v.([]byte), nil
+	}
+
+	file, err := f.Open(path)
+	if err != nil {
+		return nil, err
+	}
+
+	defer file.Close()
+
+	data, _ := io.ReadAll(file)
+
+	data = bytes.ReplaceAll(data, []byte("__ENV__"), []byte(o.appEnv))
+	data = bytes.ReplaceAll(data, []byte("__VERSION__"), []byte(o.appVersion))
+	data = bytes.ReplaceAll(data, []byte("__APP_CONFIG__"), []byte(o.appConfig.String()))
+
+	data = bytes.ReplaceAll(data, []byte("/__APP_BASE_HREF__/"), []byte(o.baseHref))
+	data = bytes.ReplaceAll(data, []byte("__APP_BASE_HREF__"), []byte(o.baseHref))
+
+	o.processed.Store(path, data)
+
+	return data, nil
+}
+
+func (o *opt) sendFile(f fs.FS, w http.ResponseWriter, path string) {
+	if strings.HasPrefix(path, "/") {
+		path = path[1:]
+	}
+
+	data, err := o.loadOrProcess(f, path)
+	if err != nil {
+		w.WriteHeader(http.StatusNotFound)
+		return
+	}
+
+	w.WriteHeader(http.StatusOK)
+	if _, err := io.Copy(w, bytes.NewBuffer(data)); err != nil {
+
+	}
+}
+
+func (o *opt) staticFileHandler(f fs.FS) http.Handler {
+	return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+		if ext := path.Ext(r.URL.Path); ext != "" {
+			w.Header().Set("Content-Type", mime.TypeByExtension(ext))
+		}
+		o.sendFile(f, w, r.URL.Path)
+	})
 }
 
 func (o *opt) htmlHandler(f fs.FS) http.Handler {
-	cache := sync.Map{}
-
-	get := func(path string) []byte {
-		if v, ok := cache.Load(path); ok {
-			return v.([]byte)
-		}
-
-		file, err := f.Open(path)
-		if err != nil {
-			return nil
-		}
-
-		defer file.Close()
-
-		data, _ := io.ReadAll(file)
-
-		data = bytes.ReplaceAll(data, []byte("__ENV__"), []byte(o.appEnv))
-		data = bytes.ReplaceAll(data, []byte("__VERSION__"), []byte(o.appVersion))
-		data = bytes.ReplaceAll(data, []byte("__APP_CONFIG__"), []byte(o.appConfig.String()))
-
-		data = bytes.ReplaceAll(data, []byte("/__APP_BASE_HREF__/"), []byte(o.baseHref))
-		data = bytes.ReplaceAll(data, []byte("__APP_BASE_HREF__"), []byte(o.baseHref))
-
-		cache.Store(path, data)
-		return data
-	}
-
-	send := func(w http.ResponseWriter, path string) {
-		w.WriteHeader(http.StatusOK)
-		if _, err := io.Copy(w, bytes.NewBuffer(get(path))); err != nil {
-		}
-	}
-
 	return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 		w.Header().Set("Content-Type", mime.TypeByExtension(".html"))
 
@@ -212,7 +233,7 @@ func (o *opt) htmlHandler(f fs.FS) http.Handler {
 		requestPath := "index.html"
 
 		if !o.disableHistoryFallback {
-			send(w, requestPath)
+			o.sendFile(f, w, requestPath)
 			return
 		}
 
@@ -226,7 +247,7 @@ func (o *opt) htmlHandler(f fs.FS) http.Handler {
 			}
 
 			if _, err := fs.Stat(f, requestPath); err == nil {
-				send(w, requestPath)
+				o.sendFile(f, w, requestPath)
 				return
 			}
 		}
@@ -245,7 +266,7 @@ func ServeFS(f fs.FS, optFns ...OptFunc) http.Handler {
 	}
 
 	html := o.htmlHandler(f)
-	static := http.FileServer(http.FS(f))
+	static := o.staticFileHandler(f)
 
 	return handler.ApplyHandlerMiddlewares(
 		compress.CompressHandlerLevel(gzip.DefaultCompression),

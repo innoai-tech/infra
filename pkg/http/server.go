@@ -3,22 +3,54 @@ package http
 import (
 	"compress/gzip"
 	"context"
+	"encoding/base64"
 	"fmt"
 	"net/http"
 	"runtime"
-
-	"github.com/innoai-tech/infra/internal/otel"
-	"golang.org/x/net/http2"
-	"golang.org/x/net/http2/h2c"
+	"strings"
+	"sync"
 
 	"github.com/go-courier/logr"
-	"github.com/innoai-tech/infra/pkg/cli"
-	"github.com/innoai-tech/infra/pkg/configuration"
-	"github.com/innoai-tech/infra/pkg/http/middleware"
+	openapiview "github.com/innoai-tech/vuekit"
 	"github.com/octohelm/courier/pkg/courier"
 	"github.com/octohelm/courier/pkg/courierhttp/handler"
 	"github.com/octohelm/courier/pkg/courierhttp/handler/httprouter"
+	"golang.org/x/net/http2"
+	"golang.org/x/net/http2/h2c"
+
+	"github.com/innoai-tech/infra/internal/otel"
+	"github.com/innoai-tech/infra/pkg/cli"
+	"github.com/innoai-tech/infra/pkg/configuration"
+	"github.com/innoai-tech/infra/pkg/http/middleware"
+	"github.com/innoai-tech/infra/pkg/http/webapp"
 )
+
+func init() {
+	httprouter.SetOpenAPIViewContents(&openapiView{})
+}
+
+type openapiView struct {
+	once    sync.Once
+	handler http.Handler
+}
+
+func (v *openapiView) Upgrade(w http.ResponseWriter, r *http.Request) error {
+	v.once.Do(func() {
+		basePath := strings.Split(r.URL.Path, "/_view/")[0]
+
+		v.handler = webapp.ServeFS(
+			openapiview.Contents,
+			webapp.WithBaseHref(basePath+"/_view/"),
+			webapp.WithAppConfig(map[string]string{
+				"OPENAPI": base64.StdEncoding.EncodeToString([]byte(basePath + "/")),
+			}),
+		)
+	})
+
+	v.handler.ServeHTTP(w, r)
+
+	return nil
+}
 
 type Server struct {
 	// Listen addr
