@@ -111,7 +111,7 @@ type loggerContext struct {
 
 func (l *loggerContext) emit(level logr.Level, msg fmt.Stringer, keyValues []log.KeyValue) {
 	if l.Logger == nil {
-		return
+		l.Logger = Logger(l.ctx, "app")
 	}
 
 	var rec log.Record

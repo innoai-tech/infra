@@ -11,7 +11,7 @@ import (
 	"sync"
 
 	"github.com/go-courier/logr"
-	openapiview "github.com/innoai-tech/vuekit"
+	openapiview "github.com/innoai-tech/openapi-playground"
 	"github.com/octohelm/courier/pkg/courier"
 	"github.com/octohelm/courier/pkg/courierhttp/handler"
 	"github.com/octohelm/courier/pkg/courierhttp/handler/httprouter"
@@ -139,7 +139,9 @@ func (s *Server) Serve(ctx context.Context) error {
 	if s.svc == nil {
 		return nil
 	}
+
 	logr.FromContext(ctx).Info("serve on %s (%s/%s)", s.svc.Addr, runtime.GOOS, runtime.GOARCH)
+
 	return s.svc.ListenAndServe()
 }
 
