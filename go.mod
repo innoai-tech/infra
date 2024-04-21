@@ -11,7 +11,7 @@ require (
 	github.com/felixge/httpsnoop v1.0.4
 	github.com/go-courier/logr v0.3.0
 	github.com/go-json-experiment/json v0.0.0-20240418180308-af2d5061e6c2
-	github.com/innoai-tech/openapi-playground v0.0.0-20240420062124-2ed72af77893
+	github.com/innoai-tech/openapi-playground v0.0.0-20240420084814-73535475d149
 	github.com/octohelm/courier v0.0.0-20240419085324-367eabf18c5e
 	github.com/octohelm/gengo v0.0.0-20240409082121-aeffa5400f19
 	github.com/octohelm/storage v0.0.0-20240311031904-722fae0a0075
@@ -30,7 +30,7 @@ require (
 	go.opentelemetry.io/otel/log v0.1.0-alpha
 	go.opentelemetry.io/otel/metric v1.25.0
 	go.opentelemetry.io/otel/sdk v1.25.0
-	go.opentelemetry.io/otel/sdk/log v0.0.0-20240419070214-1f76264a2e61
+	go.opentelemetry.io/otel/sdk/log v0.0.0-20240420112451-48f028ffd36c
 	go.opentelemetry.io/otel/sdk/metric v1.25.0
 	go.opentelemetry.io/otel/trace v1.25.0
 	golang.org/x/net v0.24.0
@@ -44,7 +44,7 @@ require (
 	github.com/Azure/azure-sdk-for-go/sdk/internal v1.6.0 // indirect
 	github.com/AzureAD/microsoft-authentication-library-for-go v1.2.2 // indirect
 	github.com/alecthomas/units v0.0.0-20231202071711-9a357b53e9c9 // indirect
-	github.com/aws/aws-sdk-go v1.51.24 // indirect
+	github.com/aws/aws-sdk-go v1.51.25 // indirect
 	github.com/bboreham/go-loser v0.0.0-20230920113527-fcc2c21820a3 // indirect
 	github.com/beorn7/perks v1.0.1 // indirect
 	github.com/cenkalti/backoff/v4 v4.3.0 // indirect
@@ -83,7 +83,7 @@ require (
 	github.com/prometheus/client_model v0.6.1 // indirect
 	github.com/prometheus/common v0.53.0 // indirect
 	github.com/prometheus/common/sigv4 v0.1.0 // indirect
-	github.com/prometheus/procfs v0.13.0 // indirect
+	github.com/prometheus/procfs v0.14.0 // indirect
 	github.com/stretchr/testify v1.9.0 // indirect
 	go.opentelemetry.io/proto/otlp v1.2.0 // indirect
 	go.uber.org/atomic v1.11.0 // indirect
