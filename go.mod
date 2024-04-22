@@ -11,7 +11,7 @@ require (
 	github.com/felixge/httpsnoop v1.0.4
 	github.com/go-courier/logr v0.3.0
 	github.com/go-json-experiment/json v0.0.0-20240418180308-af2d5061e6c2
-	github.com/innoai-tech/openapi-playground v0.0.0-20240420084814-73535475d149
+	github.com/innoai-tech/openapi-playground v0.0.0-20240422024547-e29f4403bcaf
 	github.com/octohelm/courier v0.0.0-20240419085324-367eabf18c5e
 	github.com/octohelm/gengo v0.0.0-20240409082121-aeffa5400f19
 	github.com/octohelm/storage v0.0.0-20240311031904-722fae0a0075
