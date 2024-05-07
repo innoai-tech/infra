@@ -76,7 +76,7 @@ func (a *app) newFrom(cc Command, parent Command) *cobra.Command {
 
 	cmd.Flags().BoolVarP(&showConfiguration, "list-configuration", "c", os.Getenv("ENV") == "DEV", "show configuration")
 
-	if c.i.Component != "" {
+	if c.i.Component != nil {
 		cmd.Flags().BoolVarP(&dumpK8s, "dump-k8s", "", false, "dump k8s component")
 	}
 
@@ -181,7 +181,12 @@ func (a *app) bindCommandFromStruct(c *C, rv reflect.Value, flags *pflag.FlagSet
 				n.i.Name = name
 			}
 			if component, ok := ft.Tag.Lookup("component"); ok {
-				n.i.Component = component
+				tag := parseTag(component)
+
+				n.i.Component = &Component{
+					Name:    tag.Name,
+					Options: tag.Values,
+				}
 			}
 			continue
 		}

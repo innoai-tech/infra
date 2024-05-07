@@ -14,16 +14,23 @@ import (
 )
 
 func (c *C) dumpK8sConfiguration(ctx context.Context, dest string) error {
-	if c.i.Component == "" {
+	if c.i.Component == nil {
 		return nil
 	}
 
 	pkgName := strings.ToLower(camelcase.LowerCamelCase(c.i.App.Name))
-	componentName := camelcase.LowerKebabCase(c.i.Component)
+	componentName := camelcase.LowerKebabCase(c.i.Component.Name)
 
 	dest = path.Join(dest, pkgName)
 
+	kind := "Deployment"
+
+	if k := c.i.Component.Options.Get("kind"); k != "" {
+		kind = k
+	}
+
 	b := bytes.NewBuffer(nil)
+
 	_, _ = fmt.Fprintf(b, `
 package %s
 
@@ -38,15 +45,19 @@ metadata: {
 spec: {
 	version: _
 
-	deploy: {
-		kind: "Deployment"
-		spec: replicas: _ | *1
-	}
+	deploy: kind: %q
 `,
 		pkgName,
 		gengo.UpperCamelCase(componentName),
 		componentName,
+		kind,
 	)
+
+	if kind == "Deployment" {
+		_, _ = fmt.Fprintf(b, `
+	deploy: spec: replicas: _ | *1
+`)
+	}
 
 	var flagExposes []*flagVar
 

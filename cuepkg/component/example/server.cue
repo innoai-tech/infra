@@ -9,15 +9,15 @@ import (
 	spec: {
 		version: _
 
-		deploy: {
-			kind: "Deployment"
-			spec: replicas: _ | *1
-		}
+		deploy: kind: "Deployment"
 
-		config: EXAMPLE_LOG_LEVEL:                string | *"info"
-		config: EXAMPLE_LOG_FILTER:               string | *"Always"
-		config: EXAMPLE_TRACE_COLLECTOR_ENDPOINT: string | *""
-		config: EXAMPLE_SERVER_ENABLE_DEBUG:      string | *"false"
+		deploy: spec: replicas: _ | *1
+
+		config: EXAMPLE_LOG_LEVEL:                       string | *"info"
+		config: EXAMPLE_TRACE_COLLECTOR_ENDPOINT:        string | *""
+		config: EXAMPLE_METRIC_COLLECTOR_ENDPOINT:       string | *""
+		config: EXAMPLE_METRIC_COLLECT_INTERVAL_SECONDS: string | *"0"
+		config: EXAMPLE_SERVER_ENABLE_DEBUG:             string | *"false"
 
 		services: "#": ports: containers."server".ports
 

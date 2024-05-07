@@ -3,6 +3,7 @@ package cli
 import (
 	"context"
 	"fmt"
+	"net/url"
 
 	contextx "github.com/octohelm/x/context"
 )
@@ -11,7 +12,12 @@ type Info struct {
 	App       *App
 	Name      string
 	Desc      string
-	Component string
+	Component *Component
+}
+
+type Component struct {
+	Name    string
+	Options url.Values
 }
 
 func (info Info) InjectContext(ctx context.Context) context.Context {
