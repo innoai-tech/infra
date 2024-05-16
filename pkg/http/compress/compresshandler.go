@@ -44,7 +44,7 @@ type flusher interface {
 func (w *compressResponseWriter) Flush() {
 	// Flush compressed data if compressor supports it.
 	if f, ok := w.compressor.(flusher); ok {
-		f.Flush()
+		_ = f.Flush()
 	}
 	// Flush HTTP response.
 	if f, ok := w.w.(http.Flusher); ok {
@@ -106,7 +106,9 @@ func CompressHandlerLevel(level int) func(h http.Handler) http.Handler {
 				encWriter = brotli.NewWriterLevel(w, level)
 			}
 
-			defer encWriter.Close()
+			defer func() {
+				_ = encWriter.Close()
+			}()
 
 			w.Header().Set("Content-Encoding", encoding)
 			r.Header.Del(acceptEncoding)

@@ -156,7 +156,7 @@ spec: {
 }
 }`)
 
-	if err := os.MkdirAll(dest, os.ModePerm); err != nil {
+	if err := os.MkdirAll(dest, os.ModeDir); err != nil {
 		return err
 	}
 
@@ -165,5 +165,5 @@ spec: {
 		return err
 	}
 
-	return os.WriteFile(path.Join(dest, fmt.Sprintf("%s.cue", componentName)), data, os.ModePerm)
+	return os.WriteFile(path.Join(dest, fmt.Sprintf("%s.cue", componentName)), data, 0600)
 }

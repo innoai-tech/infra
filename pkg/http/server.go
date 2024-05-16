@@ -6,6 +6,7 @@ import (
 	"fmt"
 	"net/http"
 	"runtime"
+	"time"
 
 	"github.com/go-courier/logr"
 	"github.com/octohelm/courier/pkg/courier"
@@ -96,8 +97,9 @@ func (s *Server) Init(ctx context.Context) error {
 	h = handler.ApplyHandlerMiddlewares(globalHandlers...)(h)
 
 	s.svc = &http.Server{
-		Addr:    s.Addr,
-		Handler: h2c.NewHandler(h, &http2.Server{}),
+		Addr:              s.Addr,
+		ReadHeaderTimeout: 30 * time.Second,
+		Handler:           h2c.NewHandler(h, &http2.Server{}),
 	}
 
 	return nil

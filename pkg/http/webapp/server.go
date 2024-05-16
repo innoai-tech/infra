@@ -83,7 +83,8 @@ func (s *Server) Init(ctx context.Context) error {
 	ac.LoadFromEnviron(os.Environ())
 
 	s.svc = &http.Server{
-		Addr: s.Addr,
+		Addr:              s.Addr,
+		ReadHeaderTimeout: 10 * time.Second,
 		Handler: ServeFS(
 			s.fs,
 			WithAppEnv(s.Env),
