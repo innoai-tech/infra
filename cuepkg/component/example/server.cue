@@ -1,7 +1,7 @@
 package example
 
 import (
-	kubepkg "github.com/octohelm/kubepkg/cuepkg/kubepkg"
+	kubepkg "github.com/octohelm/kubepkgspec/cuepkg/kubepkg"
 )
 
 #Server: kubepkg.#KubePkg & {
