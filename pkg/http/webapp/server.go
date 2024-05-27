@@ -269,8 +269,8 @@ func ServeFS(f fs.FS, optFns ...OptFunc) http.Handler {
 	html := o.htmlHandler(f)
 	static := o.staticFileHandler(f)
 
-	return handler.ApplyHandlerMiddlewares(
-		compress.CompressHandlerLevel(gzip.DefaultCompression),
+	return handler.ApplyMiddlewares(
+		compress.HandlerLevel(gzip.DefaultCompression),
 	)(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 		if r.Method != http.MethodGet {
 			w.WriteHeader(http.StatusNoContent)

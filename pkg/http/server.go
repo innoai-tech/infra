@@ -32,8 +32,8 @@ type Server struct {
 	root courier.Router
 	svc  *http.Server
 
-	routerHandlers []handler.HandlerMiddleware
-	globalHandlers []handler.HandlerMiddleware
+	globalHandlers []handler.Middleware
+	routerHandlers []handler.Middleware
 }
 
 func (s *Server) SetDefaults() {
@@ -50,11 +50,11 @@ func (s *Server) ApplyRouter(r courier.Router) {
 	s.root = r
 }
 
-func (s *Server) ApplyRouterHandlers(handlers ...handler.HandlerMiddleware) {
+func (s *Server) ApplyRouterHandlers(handlers ...handler.Middleware) {
 	s.routerHandlers = append(s.routerHandlers, handlers...)
 }
 
-func (s *Server) ApplyGlobalHandlers(handlers ...handler.HandlerMiddleware) {
+func (s *Server) ApplyGlobalHandlers(handlers ...handler.Middleware) {
 	s.globalHandlers = append(s.globalHandlers, handlers...)
 }
 
@@ -73,8 +73,10 @@ func (s *Server) Init(ctx context.Context) error {
 		s.root,
 		info.App.String(),
 		append(
-			[]handler.HandlerMiddleware{
+			[]handler.Middleware{
 				middleware.ContextInjectorMiddleware(configuration.ContextInjectorFromContext(ctx)),
+				middleware.CompressHandlerMiddleware(gzip.DefaultCompression),
+				middleware.DefaultCORS(s.corsOptions...),
 				middleware.LogAndMetricHandler(),
 			},
 			s.routerHandlers...,
@@ -85,16 +87,14 @@ func (s *Server) Init(ctx context.Context) error {
 		return err
 	}
 
-	globalHandlers := append([]handler.HandlerMiddleware{
-		middleware.CompressLevelHandlerMiddleware(gzip.DefaultCompression),
-		middleware.DefaultCORS(s.corsOptions...),
+	globalHandlers := append([]handler.Middleware{
 		middleware.MetricHandler(otel.GathererContext.From(ctx)),
 		middleware.PProfHandler(s.EnableDebug),
 	}, s.globalHandlers...)
 
 	globalHandlers = append(globalHandlers, middleware.HealthCheckHandler())
 
-	h = handler.ApplyHandlerMiddlewares(globalHandlers...)(h)
+	h = handler.ApplyMiddlewares(globalHandlers...)(h)
 
 	s.svc = &http.Server{
 		Addr:              s.Addr,

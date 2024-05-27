@@ -10,9 +10,9 @@ require (
 	github.com/fatih/color v1.17.0
 	github.com/felixge/httpsnoop v1.0.4
 	github.com/go-courier/logr v0.3.0
-	github.com/go-json-experiment/json v0.0.0-20240418180308-af2d5061e6c2
+	github.com/go-json-experiment/json v0.0.0-20240524174822-2d9f40f7385b
 	github.com/innoai-tech/openapi-playground v0.0.0-20240429061612-ce5b1c0e47b5
-	github.com/octohelm/courier v0.0.0-20240516021431-5cf7af6666a1
+	github.com/octohelm/courier v0.0.0-20240527074539-a9eb7212792b
 	github.com/octohelm/gengo v0.0.0-20240510051519-974fb897453b
 	github.com/octohelm/storage v0.0.0-20240516030302-1ac2cc1ea347
 	github.com/octohelm/x v0.0.0-20240513022938-1bd86d96adef
@@ -45,7 +45,7 @@ require (
 	github.com/Azure/azure-sdk-for-go/sdk/internal v1.8.0 // indirect
 	github.com/AzureAD/microsoft-authentication-library-for-go v1.2.2 // indirect
 	github.com/alecthomas/units v0.0.0-20231202071711-9a357b53e9c9 // indirect
-	github.com/aws/aws-sdk-go v1.53.8 // indirect
+	github.com/aws/aws-sdk-go v1.53.10 // indirect
 	github.com/bboreham/go-loser v0.0.0-20230920113527-fcc2c21820a3 // indirect
 	github.com/beorn7/perks v1.0.1 // indirect
 	github.com/cenkalti/backoff/v4 v4.3.0 // indirect
@@ -90,7 +90,7 @@ require (
 	go.uber.org/atomic v1.11.0 // indirect
 	go.uber.org/goleak v1.3.0 // indirect
 	golang.org/x/crypto v0.23.0 // indirect
-	golang.org/x/exp v0.0.0-20240506185415-9bf2ced13842 // indirect
+	golang.org/x/exp v0.0.0-20240525044651-4c93da0ed11d // indirect
 	golang.org/x/mod v0.17.0 // indirect
 	golang.org/x/oauth2 v0.20.0 // indirect
 	golang.org/x/sys v0.20.0 // indirect

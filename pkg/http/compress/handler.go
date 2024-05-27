@@ -11,54 +11,13 @@ import (
 	"github.com/felixge/httpsnoop"
 )
 
-const acceptEncoding string = "Accept-Encoding"
-
-type compressResponseWriter struct {
-	compressor io.Writer
-	w          http.ResponseWriter
-}
-
-func (cw *compressResponseWriter) WriteHeader(c int) {
-	cw.w.Header().Del("Content-Length")
-	cw.w.WriteHeader(c)
-}
-
-func (cw *compressResponseWriter) Write(b []byte) (int, error) {
-	h := cw.w.Header()
-	if h.Get("Content-Type") == "" {
-		h.Set("Content-Type", http.DetectContentType(b))
-	}
-	h.Del("Content-Length")
-
-	return cw.compressor.Write(b)
-}
-
-func (cw *compressResponseWriter) ReadFrom(r io.Reader) (int64, error) {
-	return io.Copy(cw.compressor, r)
-}
-
-type flusher interface {
-	Flush() error
-}
-
-func (w *compressResponseWriter) Flush() {
-	// Flush compressed data if compressor supports it.
-	if f, ok := w.compressor.(flusher); ok {
-		_ = f.Flush()
-	}
-	// Flush HTTP response.
-	if f, ok := w.w.(http.Flusher); ok {
-		f.Flush()
-	}
-}
-
-// CompressHandlerLevel gzip compresses HTTP responses with specified compression level
+// HandlerLevel gzip compresses HTTP responses with specified compression level
 // for clients that support it via the 'Accept-Encoding' header.
 //
 // The compression level should be gzip.DefaultCompression, gzip.NoCompression,
 // or any integer value between gzip.BestSpeed and gzip.BestCompression inclusive.
 // gzip.DefaultCompression is used in case of invalid compression level.
-func CompressHandlerLevel(level int) func(h http.Handler) http.Handler {
+func HandlerLevel(level int) func(h http.Handler) http.Handler {
 	if level < gzip.DefaultCompression || level > gzip.BestCompression {
 		level = gzip.DefaultCompression
 	}
@@ -80,9 +39,6 @@ func CompressHandlerLevel(level int) func(h http.Handler) http.Handler {
 				}
 			}
 
-			// always add Accept-Encoding to Vary to prevent intermediate caches corruption
-			w.Header().Add("Vary", acceptEncoding)
-
 			// if we weren't able to identify an encoding we're familiar with, pass on the
 			// request to the handler and return
 			if encoding == "" {
@@ -94,6 +50,9 @@ func CompressHandlerLevel(level int) func(h http.Handler) http.Handler {
 				h.ServeHTTP(w, r)
 				return
 			}
+
+			// always add Accept-Encoding to Vary to prevent intermediate caches corruption
+			w.Header().Add("Vary", acceptEncoding)
 
 			// wrap the ResponseWriter with the writer for the chosen encoding
 			var encWriter io.WriteCloser
@@ -133,5 +92,46 @@ func CompressHandlerLevel(level int) func(h http.Handler) http.Handler {
 				},
 			}), r)
 		})
+	}
+}
+
+const acceptEncoding string = "Accept-Encoding"
+
+type compressResponseWriter struct {
+	compressor io.Writer
+	w          http.ResponseWriter
+}
+
+func (cw *compressResponseWriter) WriteHeader(c int) {
+	cw.w.Header().Del("Content-Length")
+	cw.w.WriteHeader(c)
+}
+
+func (cw *compressResponseWriter) Write(b []byte) (int, error) {
+	h := cw.w.Header()
+	if h.Get("Content-Type") == "" {
+		h.Set("Content-Type", http.DetectContentType(b))
+	}
+	h.Del("Content-Length")
+
+	return cw.compressor.Write(b)
+}
+
+func (cw *compressResponseWriter) ReadFrom(r io.Reader) (int64, error) {
+	return io.Copy(cw.compressor, r)
+}
+
+type flusher interface {
+	Flush() error
+}
+
+func (w *compressResponseWriter) Flush() {
+	// Flush compressed data if compressor supports it.
+	if f, ok := w.compressor.(flusher); ok {
+		_ = f.Flush()
+	}
+	// Flush HTTP response.
+	if f, ok := w.w.(http.Flusher); ok {
+		f.Flush()
 	}
 }
