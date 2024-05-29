@@ -76,7 +76,6 @@ func (s *Server) Init(ctx context.Context) error {
 			[]handler.Middleware{
 				middleware.ContextInjectorMiddleware(configuration.ContextInjectorFromContext(ctx)),
 				middleware.CompressHandlerMiddleware(gzip.DefaultCompression),
-				middleware.DefaultCORS(s.corsOptions...),
 				middleware.LogAndMetricHandler(),
 			},
 			s.routerHandlers...,
@@ -89,6 +88,7 @@ func (s *Server) Init(ctx context.Context) error {
 
 	globalHandlers := append([]handler.Middleware{
 		middleware.MetricHandler(otel.GathererContext.From(ctx)),
+		middleware.DefaultCORS(s.corsOptions...),
 		middleware.PProfHandler(s.EnableDebug),
 	}, s.globalHandlers...)
 
