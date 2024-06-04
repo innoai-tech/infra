@@ -156,7 +156,7 @@ spec: {
 }
 }`)
 
-	if err := os.MkdirAll(dest, os.ModeDir); err != nil {
+	if err := os.MkdirAll(dest, os.ModePerm); err != nil {
 		return err
 	}
 
