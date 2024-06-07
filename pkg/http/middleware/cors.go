@@ -66,7 +66,6 @@ var (
 	defaultCorsOptionStatusCode = 200
 	defaultCorsMethods          = []string{"GET", "HEAD", "POST"}
 	defaultCorsHeaders          = []string{"Accept", "Accept-Language", "Content-Language", "Origin"}
-	// (WebKit/Safari v9 sends the Origin header by default in AJAX requests)
 )
 
 const (
@@ -114,7 +113,7 @@ func (ch *cors) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 		allowedHeaders := make([]string, 0)
 		for _, v := range requestHeaders {
 			canonicalHeader := http.CanonicalHeaderKey(strings.TrimSpace(v))
-			if canonicalHeader == "" || ch.isMatch(canonicalHeader, defaultCorsHeaders) {
+			if canonicalHeader == "" {
 				continue
 			}
 
