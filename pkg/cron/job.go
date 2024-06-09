@@ -2,12 +2,12 @@ package cron
 
 import (
 	"context"
+	"github.com/pkg/errors"
 	"log/slog"
 	"time"
 
 	"github.com/go-courier/logr"
 	"github.com/innoai-tech/infra/pkg/configuration"
-	"github.com/pkg/errors"
 	"github.com/robfig/cron/v3"
 )
 
@@ -37,17 +37,23 @@ func (j *Job) SetDefaults() {
 	}
 }
 
+func (j *Job) ApplySchedule(s cron.Schedule) {
+	j.schedule = s
+}
+
 func (j *Job) ApplyAction(name string, action func(ctx context.Context)) {
 	j.name = name
 	j.action = action
 }
 
 func (j *Job) Init(ctx context.Context) error {
-	schedule, err := cron.ParseStandard(j.Cron)
-	if err != nil {
-		return errors.Wrapf(err, "parse cron failed: %s", j.Cron)
+	if j.schedule == nil {
+		schedule, err := cron.ParseStandard(j.Cron)
+		if err != nil {
+			return errors.Wrapf(err, "parse cron failed: %s", j.Cron)
+		}
+		j.schedule = schedule
 	}
-	j.schedule = schedule
 	return nil
 }
 
