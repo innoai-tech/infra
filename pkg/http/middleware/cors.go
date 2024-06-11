@@ -137,11 +137,7 @@ func (ch *cors) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 			w.Header().Set(CorsAllowMethodsHeader, method)
 		}
 	} else {
-		exposedHeaders := ch.exposedHeaders
-		if v := w.Header().Get(CorsExposeHeadersHeader); v != "" {
-			exposedHeaders = append(exposedHeaders, strings.SplitN(v, ",", -1)...)
-		}
-		if len(exposedHeaders) > 0 {
+		if len(ch.exposedHeaders) > 0 {
 			w.Header().Set(CorsExposeHeadersHeader, strings.Join(ch.exposedHeaders, ","))
 		}
 	}
