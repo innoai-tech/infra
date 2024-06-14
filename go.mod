@@ -5,7 +5,7 @@ go 1.22.0
 toolchain go1.22.2
 
 require (
-	cuelang.org/go v0.9.0
+	cuelang.org/go v0.9.1
 	github.com/andybalholm/brotli v1.1.0
 	github.com/fatih/color v1.17.0
 	github.com/felixge/httpsnoop v1.0.4
