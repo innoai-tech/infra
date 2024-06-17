@@ -31,6 +31,7 @@ type C struct {
 	cmdPath     []string
 	args        args
 	flagVars    []*flagVar
+	envPrefix   string
 	singletons  configuration.Singletons
 	subcommands []Command
 }
@@ -45,10 +46,16 @@ type CanRuntimeDoc interface {
 
 func addConfigurator(c *C, fv reflect.Value, flags *pflag.FlagSet, name string, appName string) {
 	c.singletons = append(c.singletons, fv.Addr().Interface())
-	collectFlagsFromConfigurator(c, flags, fv, name, appName)
+
+	envPrefix := c.envPrefix
+	if envPrefix == "" {
+		envPrefix = fmt.Sprintf("%s_", appName)
+	}
+
+	collectFlagsFromConfigurator(c, flags, fv, name, envPrefix)
 }
 
-func collectFlagsFromConfigurator(c *C, flags *pflag.FlagSet, rv reflect.Value, prefix string, appName string) {
+func collectFlagsFromConfigurator(c *C, flags *pflag.FlagSet, rv reflect.Value, prefix string, envPrefix string) {
 	var docer CanRuntimeDoc
 
 	if rv.CanAddr() {
@@ -129,9 +136,9 @@ func collectFlagsFromConfigurator(c *C, flags *pflag.FlagSet, rv reflect.Value, 
 
 		if ft.Type.Kind() == reflect.Struct && ff.Type() != "string" {
 			if ft.Anonymous {
-				collectFlagsFromConfigurator(c, flags, fv, prefix, appName)
+				collectFlagsFromConfigurator(c, flags, fv, prefix, envPrefix)
 			} else {
-				collectFlagsFromConfigurator(c, flags, fv, flagName, appName)
+				collectFlagsFromConfigurator(c, flags, fv, flagName, envPrefix)
 			}
 			continue
 		}
@@ -148,7 +155,7 @@ func collectFlagsFromConfigurator(c *C, flags *pflag.FlagSet, rv reflect.Value, 
 		}
 
 		ff.Name = camelcase.LowerKebabCase(flagName)
-		ff.EnvVar = camelcase.UpperSnakeCase(fmt.Sprintf("%s_%s", appName, flagName))
+		ff.EnvVar = camelcase.UpperSnakeCase(fmt.Sprintf("%s%s", envPrefix, flagName))
 
 		c.flagVars = append(c.flagVars, ff)
 		ff.Apply(flags)

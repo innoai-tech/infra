@@ -188,6 +188,11 @@ func (a *app) bindCommandFromStruct(c *C, rv reflect.Value, flags *pflag.FlagSet
 					Options: tag.Values,
 				}
 			}
+
+			if envPrefix, ok := ft.Tag.Lookup("envprefix"); ok {
+				n.envPrefix = envPrefix
+			}
+
 			continue
 		}
 
