@@ -162,17 +162,29 @@ func Shutdown(c context.Context, configuratorServers ...CanShutdown) error {
 	return g.Wait()
 }
 
-func Init(ctx context.Context, configurators ...any) error {
+func TypedInit(ctx context.Context, configurators ...ConfiguratorInit) error {
 	ctx = ContextInjectorFromContext(ctx).InjectContext(ctx)
 
 	for i := range configurators {
 		configurator := configurators[i]
 
-		log.With(slog.String("type", fmt.Sprintf("%T", configurator))).Debug("init")
-
-		if c, ok := configurator.(Defaulter); ok {
-			c.SetDefaults()
+		if err := initConfigurator(ctx, configurator); err != nil {
+			return err
 		}
+
+		if ci, ok := configurator.(ContextInjector); ok {
+			ctx = ci.InjectContext(ctx)
+		}
+	}
+
+	return nil
+}
+
+func Init(ctx context.Context, configurators ...any) error {
+	ctx = ContextInjectorFromContext(ctx).InjectContext(ctx)
+
+	for i := range configurators {
+		configurator := configurators[i]
 
 		if err := initConfigurator(ctx, configurator); err != nil {
 			return err
@@ -187,6 +199,12 @@ func Init(ctx context.Context, configurators ...any) error {
 }
 
 func initConfigurator(ctx context.Context, configurator any) (err error) {
+	log.With(slog.String("type", fmt.Sprintf("%T", configurator))).Debug("init")
+
+	if c, ok := configurator.(Defaulter); ok {
+		c.SetDefaults()
+	}
+
 	if c, ok := configurator.(ConfiguratorInit); ok {
 		return c.Init(ctx)
 	}
