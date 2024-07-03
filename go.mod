@@ -23,17 +23,17 @@ require (
 	github.com/spf13/cobra v1.8.0
 	github.com/spf13/pflag v1.0.5
 	go.opentelemetry.io/contrib/propagators/b3 v1.27.0
-	go.opentelemetry.io/otel v1.27.0
+	go.opentelemetry.io/otel v1.28.0
 	go.opentelemetry.io/otel/exporters/otlp/otlpmetric/otlpmetricgrpc v1.27.0
 	go.opentelemetry.io/otel/exporters/otlp/otlptrace v1.27.0
 	go.opentelemetry.io/otel/exporters/otlp/otlptrace/otlptracegrpc v1.27.0
 	go.opentelemetry.io/otel/exporters/prometheus v0.49.0
-	go.opentelemetry.io/otel/log v0.3.0
-	go.opentelemetry.io/otel/metric v1.27.0
-	go.opentelemetry.io/otel/sdk v1.27.0
-	go.opentelemetry.io/otel/sdk/log v0.3.0
+	go.opentelemetry.io/otel/log v0.4.0
+	go.opentelemetry.io/otel/metric v1.28.0
+	go.opentelemetry.io/otel/sdk v1.28.0
+	go.opentelemetry.io/otel/sdk/log v0.4.0
 	go.opentelemetry.io/otel/sdk/metric v1.27.0
-	go.opentelemetry.io/otel/trace v1.27.0
+	go.opentelemetry.io/otel/trace v1.28.0
 	golang.org/x/net v0.26.0
 	golang.org/x/sync v0.7.0
 	golang.org/x/term v0.21.0
