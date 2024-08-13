@@ -168,38 +168,37 @@ type opt struct {
 	processed sync.Map
 }
 
-func (o *opt) loadOrProcess(f fs.FS, path string) ([]byte, error) {
-	if v, ok := o.processed.Load(path); ok {
-		return v.([]byte), nil
-	}
+func (o *opt) loadOrProcess(f fs.FS, path string, baseHref string) ([]byte, error) {
+	fn, _ := o.processed.LoadOrStore(path+"?baseHref="+baseHref, func() ([]byte, error) {
+		file, err := f.Open(path)
+		if err != nil {
+			return nil, err
+		}
+		defer file.Close()
+		data, err := io.ReadAll(file)
+		if err != nil {
+			return nil, err
+		}
 
-	file, err := f.Open(path)
-	if err != nil {
-		return nil, err
-	}
+		data = bytes.ReplaceAll(data, []byte("__ENV__"), []byte(o.appEnv))
+		data = bytes.ReplaceAll(data, []byte("__VERSION__"), []byte(o.appVersion))
+		data = bytes.ReplaceAll(data, []byte("__APP_CONFIG__"), []byte(o.appConfig.String()))
 
-	defer file.Close()
+		data = bytes.ReplaceAll(data, []byte("/__APP_BASE_HREF__/"), []byte(baseHref))
+		data = bytes.ReplaceAll(data, []byte("__APP_BASE_HREF__"), []byte(baseHref))
 
-	data, _ := io.ReadAll(file)
+		return data, nil
+	})
 
-	data = bytes.ReplaceAll(data, []byte("__ENV__"), []byte(o.appEnv))
-	data = bytes.ReplaceAll(data, []byte("__VERSION__"), []byte(o.appVersion))
-	data = bytes.ReplaceAll(data, []byte("__APP_CONFIG__"), []byte(o.appConfig.String()))
-
-	data = bytes.ReplaceAll(data, []byte("/__APP_BASE_HREF__/"), []byte(o.baseHref))
-	data = bytes.ReplaceAll(data, []byte("__APP_BASE_HREF__"), []byte(o.baseHref))
-
-	o.processed.Store(path, data)
-
-	return data, nil
+	return fn.(func() ([]byte, error))()
 }
 
-func (o *opt) sendFile(f fs.FS, w http.ResponseWriter, path string) {
+func (o *opt) sendFile(f fs.FS, w http.ResponseWriter, r *http.Request, path string) {
 	if strings.HasPrefix(path, "/") {
 		path = path[1:]
 	}
 
-	data, err := o.loadOrProcess(f, path)
+	data, err := o.loadOrProcess(f, path, o.resolveBaseHref(r))
 	if err != nil {
 		w.WriteHeader(http.StatusNotFound)
 		return
@@ -216,7 +215,7 @@ func (o *opt) staticFileHandler(f fs.FS) http.Handler {
 		if ext := path.Ext(r.URL.Path); ext != "" {
 			w.Header().Set("Content-Type", mime.TypeByExtension(ext))
 		}
-		o.sendFile(f, w, r.URL.Path)
+		o.sendFile(f, w, r, r.URL.Path)
 	})
 }
 
@@ -234,7 +233,7 @@ func (o *opt) htmlHandler(f fs.FS) http.Handler {
 		requestPath := "index.html"
 
 		if !o.disableHistoryFallback {
-			o.sendFile(f, w, requestPath)
+			o.sendFile(f, w, r, requestPath)
 			return
 		}
 
@@ -248,7 +247,7 @@ func (o *opt) htmlHandler(f fs.FS) http.Handler {
 			}
 
 			if _, err := fs.Stat(f, requestPath); err == nil {
-				o.sendFile(f, w, requestPath)
+				o.sendFile(f, w, r, requestPath)
 				return
 			}
 		}
@@ -256,6 +255,17 @@ func (o *opt) htmlHandler(f fs.FS) http.Handler {
 		writeErr(w, http.StatusNotFound, errors.Errorf("`%s` not exists", requestPath))
 	})
 }
+
+func (o *opt) resolveBaseHref(r *http.Request) string {
+	if appBaseHref := r.Header.Get(HeaderAppBaseHref); appBaseHref != "" {
+		return appBaseHref
+	}
+	return o.baseHref
+}
+
+const (
+	HeaderAppBaseHref = "X-App-Base-Href"
+)
 
 func ServeFS(f fs.FS, optFns ...OptFunc) http.Handler {
 	o := &opt{
@@ -277,7 +287,9 @@ func ServeFS(f fs.FS, optFns ...OptFunc) http.Handler {
 			return
 		}
 
-		if o.baseHref != "/" {
+		baseHref := o.resolveBaseHref(r)
+
+		if baseHref != "/" {
 			if !strings.HasPrefix(r.URL.Path+"/", o.baseHref) {
 				http.Redirect(w, r, path.Clean(o.baseHref+r.URL.Path), http.StatusFound)
 				return
