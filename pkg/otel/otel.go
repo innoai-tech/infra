@@ -62,14 +62,18 @@ func (o *Otel) SetDefaults() {
 }
 
 func (o *Otel) InjectContext(ctx context.Context) context.Context {
-	l := otel.NewLogger(otel.LoggerProviderContext.Inject(ctx, o.loggerProvider), o.enabledLevel)
+	ctx = configuration.InjectContext(
+		ctx,
+		configuration.InjectContextFunc(otel.TracerProviderContext.Inject, otel.TracerProvider(o.tracerProvider)),
+		configuration.InjectContextFunc(otel.LoggerProviderContext.Inject, otel.LoggerProvider(o.loggerProvider)),
+	)
+
+	l := otel.NewLogger(ctx, o.enabledLevel)
 
 	return configuration.InjectContext(
 		ctx,
 		configuration.InjectContextFunc(logr.WithLogger, l),
 		configuration.InjectContextFunc(otel.GathererContext.Inject, o.promGatherer),
-		configuration.InjectContextFunc(otel.TracerProviderContext.Inject, otel.TracerProvider(o.tracerProvider)),
-		configuration.InjectContextFunc(otel.LoggerProviderContext.Inject, otel.LoggerProvider(o.loggerProvider)),
 		configuration.InjectContextFunc(otel.MeterProviderContext.Inject, otel.MeterProvider(o.meterProvider)),
 	)
 }

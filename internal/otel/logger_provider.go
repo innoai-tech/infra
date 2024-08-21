@@ -1,7 +1,6 @@
 package otel
 
 import (
-	"context"
 	contextx "github.com/octohelm/x/context"
 	"go.opentelemetry.io/otel/log"
 )
@@ -19,7 +18,3 @@ const (
 	InfoLevel  LogLevel = "info"
 	DebugLevel LogLevel = "debug"
 )
-
-func Logger(ctx context.Context, name string) log.Logger {
-	return LoggerProviderContext.From(ctx).Logger(name)
-}

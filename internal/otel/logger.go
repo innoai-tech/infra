@@ -13,9 +13,13 @@ import (
 
 func NewLogger(ctx context.Context, levelEnabled logr.Level) logr.Logger {
 	return &logger{
+		spanContext: spanContext{
+			tracerProvider: TracerProviderContext.From(ctx),
+		},
 		loggerContext: loggerContext{
-			ctx:     ctx,
-			enabled: levelEnabled,
+			ctx:            ctx,
+			loggerProvider: LoggerProviderContext.From(ctx),
+			enabled:        levelEnabled,
 		},
 	}
 }
@@ -100,18 +104,21 @@ func (t *logger) Error(err error) {
 }
 
 type loggerContext struct {
-	ctx     context.Context
-	enabled logr.Level
-
-	log.Logger
-
-	startedAt time.Time
-	parentID  trace.SpanID
+	ctx            context.Context
+	loggerProvider log.LoggerProvider
+	enabled        logr.Level
+	startedAt      time.Time
+	parentID       trace.SpanID
+	logger         log.Logger
 }
 
-func (l *loggerContext) emit(level logr.Level, msg fmt.Stringer, keyValues []log.KeyValue) {
-	if l.Logger == nil {
-		l.Logger = Logger(l.ctx, "app")
+func (lc *loggerContext) emit(level logr.Level, msg fmt.Stringer, keyValues []log.KeyValue) {
+	if lc.logger == nil {
+		lp, ok := LoggerProviderContext.MayFrom(lc.ctx)
+		if !ok {
+			lp = lc.loggerProvider
+		}
+		lc.logger = lp.Logger("app")
 	}
 
 	var rec log.Record
@@ -133,18 +140,18 @@ func (l *loggerContext) emit(level logr.Level, msg fmt.Stringer, keyValues []log
 		rec.AddAttributes(keyValues...)
 	}
 
-	if !l.startedAt.IsZero() {
-		rec.AddAttributes(log.String("cost", time.Since(l.startedAt).String()))
+	if !lc.startedAt.IsZero() {
+		rec.AddAttributes(log.String("cost", time.Since(lc.startedAt).String()))
 	}
 
-	if l.parentID.IsValid() {
-		rec.AddAttributes(log.String("parentSpanID", l.parentID.String()))
+	if lc.parentID.IsValid() {
+		rec.AddAttributes(log.String("parentSpanID", lc.parentID.String()))
 	}
 
 	rec.SetTimestamp(time.Now())
 	rec.SetBody(log.StringValue(msg.String()))
 
-	l.Emit(l.ctx, rec)
+	lc.logger.Emit(lc.ctx, rec)
 }
 
 func (l *loggerContext) info(level logr.Level, msg fmt.Stringer, keyValues []log.KeyValue) {
@@ -171,20 +178,29 @@ func (l *loggerContext) error(level logr.Level, err error, keyValues []log.KeyVa
 
 func (l loggerContext) Start(ctx context.Context, name string, parentID trace.SpanID) loggerContext {
 	l.ctx = ctx
-	l.Logger = Logger(ctx, name)
 	l.startedAt = time.Now()
 	l.parentID = parentID
+	lp, ok := LoggerProviderContext.MayFrom(l.ctx)
+	if !ok {
+		lp = l.loggerProvider
+	}
+	l.logger = lp.Logger(name)
+
 	return l
 }
 
 type spanContext struct {
-	name   string
-	span   trace.Span
-	tracer trace.Tracer
+	tracerProvider trace.TracerProvider
+	name           string
+	span           trace.Span
 }
 
 func (c spanContext) Start(ctx context.Context, spanName string) (spanContext, context.Context) {
-	cc, span := Tracer(ctx).Start(ctx, c.name, trace.WithTimestamp(time.Now()))
+	tp, ok := TracerProviderContext.MayFrom(ctx)
+	if !ok {
+		tp = c.tracerProvider
+	}
+	cc, span := tp.Tracer("").Start(ctx, c.name, trace.WithTimestamp(time.Now()))
 	c.span = span
 	c.name = spanName
 	return c, cc
