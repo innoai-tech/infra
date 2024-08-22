@@ -4,6 +4,7 @@ import (
 	"context"
 	"github.com/pkg/errors"
 	"log/slog"
+	"sync"
 	"time"
 
 	"github.com/go-courier/logr"
@@ -24,6 +25,8 @@ type Job struct {
 
 	schedule cron.Schedule
 	timer    *time.Timer
+	done     chan struct{}
+	once     sync.Once
 
 	name   string
 	action func(ctx context.Context)
@@ -62,12 +65,16 @@ var _ configuration.Server = (*Job)(nil)
 func (j *Job) Serve(ctx context.Context) error {
 	ci := configuration.ContextInjectorFromContext(ctx)
 
-	logr.FromContext(ctx).WithValues(
+	l := logr.FromContext(ctx).WithValues(
 		slog.String("name", j.name),
 		slog.String("cron", j.Cron),
-	).Info("waiting")
+	)
+
+	l.Info("waiting")
 
 	j.timer = time.NewTimer(5 * time.Second)
+
+	j.done = make(chan struct{})
 
 	for {
 		now := time.Now()
@@ -75,6 +82,8 @@ func (j *Job) Serve(ctx context.Context) error {
 		j.timer.Reset(j.schedule.Next(now).Sub(now))
 
 		select {
+		case <-j.done:
+			return nil
 		case <-ctx.Done():
 			return ctx.Err()
 		case now = <-j.timer.C:
@@ -87,9 +96,13 @@ func (j *Job) Serve(ctx context.Context) error {
 	}
 }
 
-func (j *Job) Shutdown(context.Context) error {
-	if j.timer != nil {
-		j.timer.Stop()
-	}
+func (j *Job) Shutdown(ctx context.Context) error {
+	j.once.Do(func() {
+		close(j.done)
+
+		if j.timer != nil {
+			j.timer.Stop()
+		}
+	})
 	return nil
 }

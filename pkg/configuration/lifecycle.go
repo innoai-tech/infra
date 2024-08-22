@@ -51,8 +51,7 @@ func RunOrServe(ctx context.Context, configurators ...any) error {
 	}
 
 	if len(configuratorServers) > 0 {
-		stopCh := make(chan os.Signal, 1)
-
+		stopCh := make(chan os.Signal)
 		g, c := errgroup.WithContext(cc)
 
 		g.Go(func() error {
@@ -113,11 +112,11 @@ func serve(ctx context.Context, stopCh chan os.Signal, configuratorServers ...Se
 		}
 
 		g.Go(func() error {
-			log.With(
+			l := log.With(
 				slog.String("type", fmt.Sprintf("%T", server)),
 				slog.String("lifecycle", "Serve"),
-			).Debug("serving")
-
+			)
+			l.Debug("serving")
 			err := server.Serve(c)
 			go func() {
 				stopCh <- syscall.SIGTERM
@@ -131,6 +130,7 @@ func serve(ctx context.Context, stopCh chan os.Signal, configuratorServers ...Se
 
 func Shutdown(c context.Context, configuratorServers ...CanShutdown) error {
 	timeout := 10 * time.Second
+
 	g := &errgroup.Group{}
 
 	for _, canShutdown := range configuratorServers {
@@ -138,13 +138,17 @@ func Shutdown(c context.Context, configuratorServers ...CanShutdown) error {
 			ctx, cancel := context.WithTimeout(c, timeout)
 			defer cancel()
 
-			log.With(
+			l := log.With(
 				slog.String("type", fmt.Sprintf("%T", canShutdown)),
 				slog.String("lifecycle", "Shutdown"),
 				slog.String("timeout", timeout.String()),
-			).Debug("shutting down")
+			)
+
+			l.Debug("shutting down")
+			defer log.Debug("done")
 
 			done := make(chan error)
+			defer close(done)
 
 			go func() {
 				done <- canShutdown.Shutdown(ctx)
