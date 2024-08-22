@@ -102,9 +102,7 @@ func run(ctx context.Context, configuratorRunners ...Runner) error {
 func serve(ctx context.Context, stopCh chan os.Signal, configuratorServers ...Server) error {
 	g, c := errgroup.WithContext(ctx)
 
-	for i := range configuratorServers {
-		server := configuratorServers[i]
-
+	for _, server := range configuratorServers {
 		if d, ok := server.(CanDisabled); ok {
 			if d.Disabled(ctx) {
 				continue
@@ -123,6 +121,12 @@ func serve(ctx context.Context, stopCh chan os.Signal, configuratorServers ...Se
 			}()
 			return err
 		})
+
+		if r, ok := server.(PostServeRunner); ok {
+			g.Go(func() error {
+				return r.PostServeRun(ctx)
+			})
+		}
 	}
 
 	return g.Wait()
@@ -230,6 +234,10 @@ type Runner interface {
 type Server interface {
 	CanShutdown
 	Serve(ctx context.Context) error
+}
+
+type PostServeRunner interface {
+	PostServeRun(ctx context.Context) error
 }
 
 type CanShutdown interface {
