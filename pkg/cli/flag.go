@@ -158,8 +158,11 @@ func (f *flagVar) Usage() string {
 }
 
 func (f *flagVar) Info() string {
+	if s, ok := f.Value.Interface().(interface{ SecurityString() string }); ok {
+		return fmt.Sprintf("%s = %s", f.EnvVar, s.SecurityString())
+	}
 	if f.Secret {
-		return fmt.Sprintf("%s = %s", f.EnvVar, strings.Repeat("*", len(f.string())))
+		return fmt.Sprintf("%s = %s", f.EnvVar, strings.Repeat("-", len(f.string())))
 	}
 	return fmt.Sprintf("%s = %s", f.EnvVar, f.string())
 }
