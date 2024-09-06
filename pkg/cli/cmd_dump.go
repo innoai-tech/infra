@@ -4,6 +4,7 @@ import (
 	"bytes"
 	"context"
 	"fmt"
+	"github.com/octohelm/x/slices"
 	"os"
 	"path"
 	"strings"
@@ -59,6 +60,15 @@ spec: {
 `)
 	}
 
+	toComment := func(s string) string {
+		return strings.Join(
+			slices.Map(strings.Split(s, "\n"), func(line string) string {
+				return "// " + line
+			}),
+			"\n",
+		)
+	}
+
 	var flagExposes []*flagVar
 
 	i := 0
@@ -74,14 +84,18 @@ spec: {
 
 		if f.Required {
 			_, _ = fmt.Fprintf(b,
-				`config: %q: string
-`, f.EnvVar)
+				`
+%s
+config: %q: string
+`, toComment(f.Desc), f.EnvVar)
 			continue
 		}
 
 		_, _ = fmt.Fprintf(b,
-			`config: %q: string | *%q
-`, f.EnvVar, f.string())
+			`
+%s 
+config: %q: string | *%q
+`, toComment(f.Desc), f.EnvVar, f.string())
 
 		i++
 	}
