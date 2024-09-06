@@ -5,6 +5,8 @@ DON'T EDIT THIS FILE
 package otel
 
 import (
+	fmt "fmt"
+
 	github_com_pkg_errors "github.com/pkg/errors"
 )
 
@@ -43,6 +45,6 @@ func (v LogLevel) Label() string {
 		return "warn"
 
 	default:
-		return "UNKNOWN"
+		return fmt.Sprint(v)
 	}
 }

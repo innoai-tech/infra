@@ -6,7 +6,6 @@ package org
 
 import (
 	github_com_octohelm_courier_pkg_courier "github.com/octohelm/courier/pkg/courier"
-	github_com_octohelm_courier_pkg_statuserror "github.com/octohelm/courier/pkg/statuserror"
 )
 
 func init() {
@@ -31,16 +30,6 @@ func init() {
 
 func (*GetOrg) ResponseContent() any {
 	return new(Detail)
-}
-
-func (*GetOrg) ResponseErrors() []error {
-	return []error{
-		&(github_com_octohelm_courier_pkg_statuserror.StatusErr{
-			Code: 404,
-			Key:  "NotFound",
-			Msg:  "NotFound",
-		}),
-	}
 }
 
 func init() {

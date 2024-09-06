@@ -52,10 +52,10 @@ func addConfigurator(c *C, fv reflect.Value, flags *pflag.FlagSet, name string, 
 		envPrefix = fmt.Sprintf("%s_", appName)
 	}
 
-	collectFlagsFromConfigurator(c, flags, fv, name, envPrefix)
+	collectFlagsFromConfigurator(c, flags, fv, name, envPrefix, "")
 }
 
-func collectFlagsFromConfigurator(c *C, flags *pflag.FlagSet, rv reflect.Value, prefix string, envPrefix string) {
+func collectFlagsFromConfigurator(c *C, flags *pflag.FlagSet, rv reflect.Value, prefix string, envPrefix string, parentDoc string) {
 	var docer CanRuntimeDoc
 
 	if rv.CanAddr() {
@@ -134,20 +134,35 @@ func collectFlagsFromConfigurator(c *C, flags *pflag.FlagSet, rv reflect.Value, 
 			flagName = prefix + "_" + flagName
 		}
 
-		if ft.Type.Kind() == reflect.Struct && ff.Type() != "string" {
-			if ft.Anonymous {
-				collectFlagsFromConfigurator(c, flags, fv, prefix, envPrefix)
-			} else {
-				collectFlagsFromConfigurator(c, flags, fv, flagName, envPrefix)
-			}
-			continue
-		}
+		doc := parentDoc
 
 		if docer != nil {
-			lines, ok := docer.RuntimeDoc(ft.Name)
-			if ok {
-				ff.Desc = strings.Join(lines, "\n")
+			if lines, ok := docer.RuntimeDoc(); ok {
+				if d := strings.Join(lines, "\n"); d != "" {
+					if doc != "" {
+						doc += ": \n"
+					}
+					doc += d
+				}
 			}
+
+			if lines, ok := docer.RuntimeDoc(ft.Name); ok {
+				if d := strings.Join(lines, "\n"); d != "" {
+					if doc != "" {
+						doc += ": \n"
+					}
+					doc += d
+				}
+			}
+		}
+
+		if ft.Type.Kind() == reflect.Struct && ff.Type() != "string" {
+			if ft.Anonymous {
+				collectFlagsFromConfigurator(c, flags, fv, prefix, envPrefix, doc)
+			} else {
+				collectFlagsFromConfigurator(c, flags, fv, flagName, envPrefix, doc)
+			}
+			continue
 		}
 
 		if can, ok := fv.Interface().(interface{ EnumValues() []any }); ok {
@@ -156,6 +171,7 @@ func collectFlagsFromConfigurator(c *C, flags *pflag.FlagSet, rv reflect.Value, 
 
 		ff.Name = camelcase.LowerKebabCase(flagName)
 		ff.EnvVar = camelcase.UpperSnakeCase(fmt.Sprintf("%s%s", envPrefix, flagName))
+		ff.Desc = doc
 
 		c.flagVars = append(c.flagVars, ff)
 		ff.Apply(flags)

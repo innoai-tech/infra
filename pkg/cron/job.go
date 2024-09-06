@@ -21,6 +21,9 @@ func (i IntervalSchedule) Next(t time.Time) time.Time {
 }
 
 type Job struct {
+	// cron job 配置
+	// 支持 标准格式
+	// 也支持 @every {duration} 等语义化格式
 	Cron string `flag:",omitempty"`
 
 	schedule cron.Schedule

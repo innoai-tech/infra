@@ -31,7 +31,11 @@ func (v Job) RuntimeDoc(names ...string) ([]string, bool) {
 	if len(names) > 0 {
 		switch names[0] {
 		case "Cron":
-			return []string{}, true
+			return []string{
+				"cron job 配置",
+				"支持 标准格式",
+				"也支持 @every {duration} 等语义化格式",
+			}, true
 
 		}
 

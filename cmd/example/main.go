@@ -4,6 +4,8 @@ import (
 	"context"
 
 	"github.com/innoai-tech/infra/pkg/cli"
+
+	_ "github.com/innoai-tech/infra/pkg/cron"
 )
 
 var App = cli.NewApp(

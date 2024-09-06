@@ -31,6 +31,21 @@ func (v App) RuntimeDoc(names ...string) ([]string, bool) {
 	return []string{}, true
 }
 
+func (v Component) RuntimeDoc(names ...string) ([]string, bool) {
+	if len(names) > 0 {
+		switch names[0] {
+		case "Name":
+			return []string{}, true
+		case "Options":
+			return []string{}, true
+
+		}
+
+		return nil, false
+	}
+	return []string{}, true
+}
+
 func (v Info) RuntimeDoc(names ...string) ([]string, bool) {
 	if len(names) > 0 {
 		switch names[0] {
