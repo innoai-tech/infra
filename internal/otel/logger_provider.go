@@ -18,3 +18,11 @@ const (
 	InfoLevel  LogLevel = "info"
 	DebugLevel LogLevel = "debug"
 )
+
+// +gengo:enum
+type LogFormat string
+
+const (
+	LogFormatJSON LogFormat = "json"
+	LogFormatText LogFormat = "text"
+)

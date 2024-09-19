@@ -10,6 +10,37 @@ import (
 	github_com_pkg_errors "github.com/pkg/errors"
 )
 
+var InvalidLogFormat = github_com_pkg_errors.New("invalid LogFormat")
+
+func (LogFormat) EnumValues() []any {
+	return []any{
+		LogFormatJSON, LogFormatText,
+	}
+}
+func ParseLogFormatLabelString(label string) (LogFormat, error) {
+	switch label {
+	case "json":
+		return LogFormatJSON, nil
+	case "text":
+		return LogFormatText, nil
+
+	default:
+		return "", InvalidLogFormat
+	}
+}
+
+func (v LogFormat) Label() string {
+	switch v {
+	case LogFormatJSON:
+		return "json"
+	case LogFormatText:
+		return "text"
+
+	default:
+		return fmt.Sprint(v)
+	}
+}
+
 var InvalidLogLevel = github_com_pkg_errors.New("invalid LogLevel")
 
 func (LogLevel) EnumValues() []any {

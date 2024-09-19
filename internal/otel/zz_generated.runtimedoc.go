@@ -14,6 +14,9 @@ func runtimeDoc(v any, names ...string) ([]string, bool) {
 	return nil, false
 }
 
+func (LogFormat) RuntimeDoc(names ...string) ([]string, bool) {
+	return []string{}, true
+}
 func (LogLevel) RuntimeDoc(names ...string) ([]string, bool) {
 	return []string{}, true
 }

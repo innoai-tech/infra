@@ -21,6 +21,10 @@ func (v Otel) RuntimeDoc(names ...string) ([]string, bool) {
 			return []string{
 				"Log level",
 			}, true
+		case "LogFormat":
+			return []string{
+				"Log format",
+			}, true
 		case "TraceCollectorEndpoint":
 			return []string{
 				"When set, will collect traces",

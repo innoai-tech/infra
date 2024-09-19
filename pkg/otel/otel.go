@@ -32,9 +32,18 @@ const (
 	DebugLevel = otel.DebugLevel
 )
 
+type LogFormat = otel.LogFormat
+
+const (
+	LogFormatText = otel.LogFormatText
+	LogFormatJSON = otel.LogFormatJSON
+)
+
 type Otel struct {
 	// Log level
 	LogLevel LogLevel `flag:",omitempty"`
+	// Log format
+	LogFormat LogFormat `flag:",omitempty"`
 	// When set, will collect traces
 	TraceCollectorEndpoint string `flag:",omitempty"`
 
@@ -52,6 +61,10 @@ type Otel struct {
 func (o *Otel) SetDefaults() {
 	if o.LogLevel == "" {
 		o.LogLevel = InfoLevel
+	}
+
+	if o.LogFormat == "" {
+		o.LogFormat = LogFormatJSON
 	}
 
 	if o.MetricCollectorEndpoint != "" {
@@ -106,7 +119,7 @@ func (o *Otel) Init(ctx context.Context) error {
 	}
 
 	logOpts := []sdklog.LoggerProviderOption{
-		sdklog.WithProcessor(sdklog.NewSimpleProcessor(otel.SlogExporter())),
+		sdklog.WithProcessor(sdklog.NewSimpleProcessor(otel.SlogExporter(o.LogFormat))),
 	}
 
 	meterOpts := []sdkmetric.Option{

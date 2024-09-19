@@ -10,7 +10,6 @@ import (
 	"github.com/fatih/color"
 	"go.opentelemetry.io/otel/log"
 	sdklog "go.opentelemetry.io/otel/sdk/log"
-	"golang.org/x/term"
 	"io"
 	"os"
 	"strings"
@@ -18,34 +17,13 @@ import (
 	"sync/atomic"
 )
 
-func findTTY() (*os.File, bool) {
-	// some of these may be redirected
-	for _, f := range []*os.File{os.Stderr, os.Stdout, os.Stdin} {
-		if term.IsTerminal(int(f.Fd())) {
-			return f, true
-		}
-	}
-	return nil, false
-}
-
-var isTTY = false
-
-func init() {
-	_, tty := findTTY()
-	if tty {
-		isTTY = true
-	}
-	if os.Getenv("TTY") == "0" {
-		isTTY = false
-	}
-}
-
-func SlogExporter() sdklog.Exporter {
-	if isTTY {
+func SlogExporter(format LogFormat) sdklog.Exporter {
+	switch format {
+	case LogFormatJSON:
+		return &jsonExporter{}
+	default:
 		return &prettyExporter{}
 	}
-
-	return &jsonExporter{}
 }
 
 type prettyExporter struct {
@@ -90,37 +68,28 @@ func (e *prettyExporter) print(f io.Writer, r sdklog.Record) error {
 
 	_, _ = fmt.Fprint(w, r.Body().AsString())
 
-	b := bytes.NewBuffer(nil)
-
-	written := map[string]bool{}
-
-	for attr := range r.WalkAttributes {
-		if written[attr.Key] {
-			continue
-		}
-		written[attr.Key] = true
-
-		_, _ = fmt.Fprint(b, " ")
-		_, _ = fmt.Fprint(b, attr.Key)
-		_, _ = fmt.Fprint(b, "=")
-		v, err := marshal(LogValue(attr.Value))
-		if err != nil {
-			return err
-		}
-		_, _ = fmt.Fprint(b, string(v))
-	}
+	attrs := map[string]any{}
 
 	if name := r.InstrumentationScope().Name; name != "" {
-		_, _ = fmt.Fprintf(b, " spanName=%s", name)
+		attrs["spanName"] = name
 	}
 
-	if b.Len() > 0 {
-		_, _ = fmt.Fprint(w, color.WhiteString(b.String()))
+	for attr := range r.WalkAttributes {
+		attrs[attr.Key] = LogValue(attr.Value)
+	}
+
+	data, err := marshal(attrs)
+	if err != nil {
+		panic(err)
+	}
+
+	if len(data) > 0 {
+		_, _ = fmt.Fprint(w, "\t")
+		_, _ = fmt.Fprint(w, color.WhiteString(string(data)))
 	}
 
 	_, _ = fmt.Fprintln(w)
-
-	_, err := io.Copy(f, w)
+	_, err = io.Copy(f, w)
 	return err
 }
 
