@@ -5,13 +5,17 @@ DON'T EDIT THIS FILE
 package archive
 
 import (
-	github_com_octohelm_courier_pkg_courier "github.com/octohelm/courier/pkg/courier"
+	courier "github.com/octohelm/courier/pkg/courier"
 )
 
 func init() {
-	R.Register(github_com_octohelm_courier_pkg_courier.NewRouter(&ArchiveZip{}))
+	R.Register(courier.NewRouter(&ArchiveZip{}))
 }
 
 func (*ArchiveZip) ResponseContent() any {
+	return new(ZipFile)
+}
+
+func (*ArchiveZip) ResponseData() *ZipFile {
 	return new(ZipFile)
 }

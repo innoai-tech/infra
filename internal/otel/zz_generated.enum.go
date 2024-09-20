@@ -7,10 +7,10 @@ package otel
 import (
 	fmt "fmt"
 
-	github_com_pkg_errors "github.com/pkg/errors"
+	pkgerrors "github.com/pkg/errors"
 )
 
-var InvalidLogFormat = github_com_pkg_errors.New("invalid LogFormat")
+var InvalidLogFormat = pkgerrors.New("invalid LogFormat")
 
 func (LogFormat) EnumValues() []any {
 	return []any{
@@ -41,7 +41,7 @@ func (v LogFormat) Label() string {
 	}
 }
 
-var InvalidLogLevel = github_com_pkg_errors.New("invalid LogLevel")
+var InvalidLogLevel = pkgerrors.New("invalid LogLevel")
 
 func (LogLevel) EnumValues() []any {
 	return []any{

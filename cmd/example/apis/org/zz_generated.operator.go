@@ -5,37 +5,50 @@ DON'T EDIT THIS FILE
 package org
 
 import (
-	github_com_octohelm_courier_pkg_courier "github.com/octohelm/courier/pkg/courier"
+	courier "github.com/octohelm/courier/pkg/courier"
 )
 
 func init() {
-	R.Register(github_com_octohelm_courier_pkg_courier.NewRouter(&CreateOrg{}))
+	R.Register(courier.NewRouter(&CreateOrg{}))
 }
 
 func (*CreateOrg) ResponseContent() any {
 	return nil
 }
 
+func (*CreateOrg) ResponseData() *courier.NoContent {
+	return new(courier.NoContent)
+}
 func init() {
-	R.Register(github_com_octohelm_courier_pkg_courier.NewRouter(&DeleteOrg{}))
+	R.Register(courier.NewRouter(&DeleteOrg{}))
 }
 
 func (*DeleteOrg) ResponseContent() any {
 	return nil
 }
 
+func (*DeleteOrg) ResponseData() *courier.NoContent {
+	return new(courier.NoContent)
+}
 func init() {
-	R.Register(github_com_octohelm_courier_pkg_courier.NewRouter(&GetOrg{}))
+	R.Register(courier.NewRouter(&GetOrg{}))
 }
 
 func (*GetOrg) ResponseContent() any {
 	return new(Detail)
 }
 
+func (*GetOrg) ResponseData() *Detail {
+	return new(Detail)
+}
 func init() {
-	R.Register(github_com_octohelm_courier_pkg_courier.NewRouter(&ListOrg{}))
+	R.Register(courier.NewRouter(&ListOrg{}))
 }
 
 func (*ListOrg) ResponseContent() any {
+	return new(DataList)
+}
+
+func (*ListOrg) ResponseData() *DataList {
 	return new(DataList)
 }

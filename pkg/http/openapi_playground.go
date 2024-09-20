@@ -33,6 +33,8 @@ func (v *openapiView) Upgrade(w http.ResponseWriter, r *http.Request) error {
 		)
 	})
 
+	// openapi playground should ignore HeaderAppBaseHref
+	r.Header.Del(webapp.HeaderAppBaseHref)
 	v.handler.ServeHTTP(w, r)
 
 	return nil
