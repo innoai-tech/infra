@@ -1,6 +1,6 @@
 module github.com/innoai-tech/infra
 
-go 1.23.1
+go 1.23.2
 
 require (
 	cuelang.org/go v0.10.0
@@ -10,9 +10,9 @@ require (
 	github.com/go-courier/logr v0.3.0
 	github.com/go-json-experiment/json v0.0.0-20240815175050-ebd3a8989ca1
 	github.com/innoai-tech/openapi-playground v0.0.0-20240909062817-20f99d67805e
-	github.com/octohelm/courier v0.0.0-20240828072746-af3b5bc1f867
-	github.com/octohelm/gengo v0.0.0-20240919101245-4bc8a41dd2f4
-	github.com/octohelm/storage v0.0.0-20240919143925-9d143fd6c23c
+	github.com/octohelm/courier v0.0.0-20241008041414-e633deec2772
+	github.com/octohelm/gengo v0.0.0-20241008032243-cafe22171bd5
+	github.com/octohelm/storage v0.0.0-20241001040821-7d2a5c055f67
 	github.com/octohelm/x v0.0.0-20240904081416-42a1ee2d28a9
 	github.com/pkg/errors v0.9.1
 	github.com/prometheus/client_golang v1.20.4
@@ -32,7 +32,7 @@ require (
 	go.opentelemetry.io/otel/sdk/log v0.6.0
 	go.opentelemetry.io/otel/sdk/metric v1.30.0
 	go.opentelemetry.io/otel/trace v1.30.0
-	golang.org/x/net v0.29.0
+	golang.org/x/net v0.30.0
 	golang.org/x/sync v0.8.0
 )
 
@@ -54,7 +54,6 @@ require (
 	github.com/grpc-ecosystem/grpc-gateway/v2 v2.22.0 // indirect
 	github.com/inconshreveable/mousetrap v1.1.0 // indirect
 	github.com/juju/ansiterm v1.0.0 // indirect
-	github.com/julienschmidt/httprouter v1.3.0 // indirect
 	github.com/klauspost/compress v1.17.9 // indirect
 	github.com/lunixbochs/vtclean v1.0.0 // indirect
 	github.com/mattn/go-colorable v0.1.13 // indirect
@@ -67,9 +66,9 @@ require (
 	go.opentelemetry.io/proto/otlp v1.3.1 // indirect
 	go.uber.org/atomic v1.11.0 // indirect
 	golang.org/x/mod v0.21.0 // indirect
-	golang.org/x/sys v0.25.0 // indirect
-	golang.org/x/text v0.18.0 // indirect
-	golang.org/x/tools v0.25.0 // indirect
+	golang.org/x/sys v0.26.0 // indirect
+	golang.org/x/text v0.19.0 // indirect
+	golang.org/x/tools v0.26.0 // indirect
 	google.golang.org/genproto/googleapis/api v0.0.0-20240903143218-8af14fe29dc1 // indirect
 	google.golang.org/genproto/googleapis/rpc v0.0.0-20240903143218-8af14fe29dc1 // indirect
 	google.golang.org/grpc v1.66.1 // indirect

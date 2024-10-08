@@ -56,7 +56,7 @@ func httpBasicAttrs(req *http.Request) []attribute.KeyValue {
 	}
 }
 
-func httpRouteAttrs(statusCode int, info courierhttp.OperationInfo, req *http.Request) []attribute.KeyValue {
+func httpRouteAttrs(statusCode int, info *courierhttp.OperationInfo, req *http.Request) []attribute.KeyValue {
 	return []attribute.KeyValue{
 		attribute.Key("http.route").String(info.Route),
 		attribute.Key("http.request.method").String(req.Method),
@@ -74,7 +74,7 @@ func LogAndMetricHandler() func(handler http.Handler) http.Handler {
 
 			startAt := time.Now()
 
-			info := courierhttp.OperationInfoFromContext(ctx)
+			info, _ := courierhttp.OperationInfoFromContext(ctx)
 
 			ctx, span := logr.FromContext(ctx).Start(ctx, info.ID)
 			defer func() {

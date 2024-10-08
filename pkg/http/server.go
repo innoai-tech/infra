@@ -9,16 +9,15 @@ import (
 	"time"
 
 	"github.com/go-courier/logr"
+	"github.com/innoai-tech/infra/internal/otel"
+	"github.com/innoai-tech/infra/pkg/cli"
+	"github.com/innoai-tech/infra/pkg/configuration"
+	"github.com/innoai-tech/infra/pkg/http/middleware"
 	"github.com/octohelm/courier/pkg/courier"
 	"github.com/octohelm/courier/pkg/courierhttp/handler"
 	"github.com/octohelm/courier/pkg/courierhttp/handler/httprouter"
 	"golang.org/x/net/http2"
 	"golang.org/x/net/http2/h2c"
-
-	"github.com/innoai-tech/infra/internal/otel"
-	"github.com/innoai-tech/infra/pkg/cli"
-	"github.com/innoai-tech/infra/pkg/configuration"
-	"github.com/innoai-tech/infra/pkg/http/middleware"
 )
 
 type Server struct {
