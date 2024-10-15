@@ -7,7 +7,6 @@ import (
 	"strings"
 
 	encodingx "github.com/octohelm/x/encoding"
-	"github.com/pkg/errors"
 	"github.com/spf13/pflag"
 )
 
@@ -30,7 +29,7 @@ type flagVar struct {
 func (f *flagVar) FromEnvVars(vars map[string]string) error {
 	if v, ok := vars[f.EnvVar]; ok {
 		if err := f.Set(v); err != nil {
-			return errors.Wrapf(err, "set value from %s failed", f.EnvVar)
+			return fmt.Errorf("set value from %s failed: %w", f.EnvVar, err)
 		}
 	}
 	return nil

@@ -6,6 +6,7 @@ package org
 
 import (
 	courier "github.com/octohelm/courier/pkg/courier"
+	statuserror "github.com/octohelm/courier/pkg/statuserror"
 )
 
 func init() {
@@ -19,6 +20,7 @@ func (*CreateOrg) ResponseContent() any {
 func (*CreateOrg) ResponseData() *courier.NoContent {
 	return new(courier.NoContent)
 }
+
 func init() {
 	R.Register(courier.NewRouter(&DeleteOrg{}))
 }
@@ -30,6 +32,7 @@ func (*DeleteOrg) ResponseContent() any {
 func (*DeleteOrg) ResponseData() *courier.NoContent {
 	return new(courier.NoContent)
 }
+
 func init() {
 	R.Register(courier.NewRouter(&GetOrg{}))
 }
@@ -41,6 +44,16 @@ func (*GetOrg) ResponseContent() any {
 func (*GetOrg) ResponseData() *Detail {
 	return new(Detail)
 }
+func (*GetOrg) ResponseErrors() []error {
+	return []error{
+		&(statuserror.ErrorResponse{
+			Code: 500,
+			Key:  "statuserror.statusError",
+			Msg:  "{key}{ code={statusCode}, msg={err} }",
+		}),
+	}
+}
+
 func init() {
 	R.Register(courier.NewRouter(&ListOrg{}))
 }

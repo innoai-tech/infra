@@ -21,7 +21,6 @@ import (
 
 	"github.com/go-courier/logr"
 	"github.com/innoai-tech/infra/pkg/http/webapp/appconfig"
-	"github.com/pkg/errors"
 
 	_ "github.com/innoai-tech/infra/pkg/http/webapp/etc"
 )
@@ -75,7 +74,7 @@ func (s *Server) Init(ctx context.Context) error {
 	if s.fs == nil {
 		s.fs = os.DirFS(s.Root)
 		if _, err := fs.Stat(s.fs, "index.html"); err != nil {
-			return errors.Wrapf(err, "index.html not found in root dir %s", s.Root)
+			return fmt.Errorf("index.html not found in root dir %s: %w", s.Root, err)
 		}
 	}
 
@@ -252,7 +251,7 @@ func (o *opt) htmlHandler(f fs.FS) http.Handler {
 			}
 		}
 
-		writeErr(w, http.StatusNotFound, errors.Errorf("`%s` not exists", requestPath))
+		writeErr(w, http.StatusNotFound, fmt.Errorf("`%s` not exists", requestPath))
 	})
 }
 

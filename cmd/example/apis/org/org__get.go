@@ -5,8 +5,8 @@ import (
 	"net/http"
 	"time"
 
+	"errors"
 	"github.com/octohelm/courier/pkg/statuserror"
-	"github.com/pkg/errors"
 
 	"github.com/octohelm/courier/pkg/courierhttp"
 )

@@ -2,7 +2,7 @@ package cron
 
 import (
 	"context"
-	"github.com/pkg/errors"
+	"fmt"
 	"log/slog"
 	"sync"
 	"time"
@@ -56,7 +56,7 @@ func (j *Job) Init(ctx context.Context) error {
 	if j.schedule == nil {
 		schedule, err := cron.ParseStandard(j.Cron)
 		if err != nil {
-			return errors.Wrapf(err, "parse cron failed: %s", j.Cron)
+			return fmt.Errorf("parse cron failed: %s: %w", j.Cron, err)
 		}
 		j.schedule = schedule
 	}

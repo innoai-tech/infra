@@ -5,10 +5,10 @@ import (
 	"testing"
 	"time"
 
+	"errors"
 	"github.com/go-courier/logr"
 	"github.com/innoai-tech/infra/pkg/configuration"
 	testingx "github.com/octohelm/x/testing"
-	"github.com/pkg/errors"
 )
 
 func Setup(t testing.TB, c any) context.Context {

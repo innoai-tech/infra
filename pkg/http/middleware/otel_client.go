@@ -1,6 +1,7 @@
 package middleware
 
 import (
+	"fmt"
 	"log/slog"
 	"net/http"
 	"strconv"
@@ -9,9 +10,9 @@ import (
 	"go.opentelemetry.io/otel/attribute"
 	"go.opentelemetry.io/otel/metric"
 
+	"errors"
 	"github.com/go-courier/logr"
 	"github.com/innoai-tech/infra/pkg/http/middleware/metrichttp"
-	"github.com/pkg/errors"
 	"go.opentelemetry.io/contrib/propagators/b3"
 	"go.opentelemetry.io/otel/propagation"
 )
@@ -83,7 +84,7 @@ func (rt *LogRoundTripper) RoundTrip(req *http.Request) (*http.Response, error) 
 			l.Info("success")
 		}
 	} else {
-		l.Warn(errors.Wrap(err, "http request failed"))
+		l.Warn(fmt.Errorf("http request failed: %w", err))
 	}
 
 	return resp, err

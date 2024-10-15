@@ -5,12 +5,11 @@ DON'T EDIT THIS FILE
 package otel
 
 import (
+	errors "errors"
 	fmt "fmt"
-
-	pkgerrors "github.com/pkg/errors"
 )
 
-var InvalidLogFormat = pkgerrors.New("invalid LogFormat")
+var InvalidLogFormat = errors.New("invalid LogFormat")
 
 func (LogFormat) EnumValues() []any {
 	return []any{
@@ -41,7 +40,7 @@ func (v LogFormat) Label() string {
 	}
 }
 
-var InvalidLogLevel = pkgerrors.New("invalid LogLevel")
+var InvalidLogLevel = errors.New("invalid LogLevel")
 
 func (LogLevel) EnumValues() []any {
 	return []any{

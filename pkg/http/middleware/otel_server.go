@@ -10,11 +10,11 @@ import (
 	"strings"
 	"time"
 
+	"errors"
 	"github.com/go-courier/logr"
 	"github.com/innoai-tech/infra/pkg/http/middleware/metrichttp"
 	"github.com/octohelm/courier/pkg/courierhttp"
 	"github.com/octohelm/courier/pkg/courierhttp/util"
-	"github.com/pkg/errors"
 	"github.com/prometheus/client_golang/prometheus/promhttp"
 	"go.opentelemetry.io/contrib/propagators/b3"
 	"go.opentelemetry.io/otel/attribute"
