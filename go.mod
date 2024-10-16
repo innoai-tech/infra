@@ -14,7 +14,7 @@ require (
 	github.com/octohelm/gengo v0.0.0-20241014043309-2344b8632080
 	github.com/octohelm/storage v0.0.0-20241014040055-4f454a8d6947
 	github.com/octohelm/x v0.0.0-20241011014327-0fcf864c84d6
-	github.com/prometheus/client_golang v1.20.4
+	github.com/prometheus/client_golang v1.20.5
 	github.com/prometheus/prometheus v0.54.1
 	github.com/robfig/cron/v3 v3.0.1
 	github.com/spf13/cobra v1.8.1
