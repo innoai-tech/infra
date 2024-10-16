@@ -1,6 +1,7 @@
 package http
 
 import (
+	"cmp"
 	"compress/gzip"
 	"context"
 	"fmt"
@@ -28,6 +29,8 @@ type Server struct {
 
 	corsOptions []middleware.CORSOption
 
+	name string
+
 	root courier.Router
 	svc  *http.Server
 
@@ -47,6 +50,10 @@ func (s *Server) SetCorsOptions(options ...middleware.CORSOption) {
 
 func (s *Server) ApplyRouter(r courier.Router) {
 	s.root = r
+}
+
+func (s *Server) SetName(name string) {
+	s.name = name
 }
 
 func (s *Server) ApplyRouterHandlers(handlers ...handler.Middleware) {
@@ -70,7 +77,7 @@ func (s *Server) Init(ctx context.Context) error {
 
 	h, err := httprouter.New(
 		s.root,
-		info.App.String(),
+		cmp.Or(s.name, info.App.Name)+"/"+info.App.Version,
 		append(
 			[]handler.Middleware{
 				middleware.ContextInjectorMiddleware(configuration.ContextInjectorFromContext(ctx)),

@@ -10,7 +10,7 @@ require (
 	github.com/go-courier/logr v0.3.0
 	github.com/go-json-experiment/json v0.0.0-20240815175050-ebd3a8989ca1
 	github.com/innoai-tech/openapi-playground v0.0.0-20240920071141-a9f087bad00f
-	github.com/octohelm/courier v0.0.0-20241015075216-73c8ee334551
+	github.com/octohelm/courier v0.0.0-20241016053631-360e3af3e736
 	github.com/octohelm/gengo v0.0.0-20241014043309-2344b8632080
 	github.com/octohelm/storage v0.0.0-20241014040055-4f454a8d6947
 	github.com/octohelm/x v0.0.0-20241011014327-0fcf864c84d6
