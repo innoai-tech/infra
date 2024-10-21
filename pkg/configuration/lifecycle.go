@@ -44,30 +44,31 @@ func RunOrServe(ctx context.Context, configurators ...any) error {
 
 	ci := ContextInjectorFromContext(ctx)
 
-	cc := ci.InjectContext(ctx)
-
-	if err := run(cc, configuratorRunners...); err != nil {
+	if err := run(ci.InjectContext(ctx), configuratorRunners...); err != nil {
 		return err
 	}
 
 	if len(configuratorServers) > 0 {
-		stopCh := make(chan os.Signal)
-		g, c := errgroup.WithContext(cc)
+		chStop := make(chan os.Signal)
+
+		signal.Notify(chStop,
+			os.Interrupt, os.Kill,
+			syscall.SIGHUP, syscall.SIGINT, syscall.SIGTERM, syscall.SIGQUIT,
+			syscall.SIGILL, syscall.SIGABRT, syscall.SIGFPE, syscall.SIGSEGV,
+		)
+
+		c, cancel := context.WithCancel(ci.InjectContext(ctx))
+		g, gc := errgroup.WithContext(c)
 
 		g.Go(func() error {
-			return serve(c, stopCh, configuratorServers...)
+			defer cancel()
+			<-chStop
+
+			return Shutdown(gc, configuratorCanShutdowns...)
 		})
 
 		g.Go(func() error {
-			signal.Notify(stopCh,
-				os.Interrupt, os.Kill,
-				syscall.SIGHUP, syscall.SIGINT, syscall.SIGTERM, syscall.SIGQUIT,
-				syscall.SIGILL, syscall.SIGABRT, syscall.SIGFPE, syscall.SIGSEGV,
-			)
-
-			<-stopCh
-
-			return Shutdown(cc, configuratorCanShutdowns...)
+			return serve(gc, chStop, configuratorServers...)
 		})
 
 		return g.Wait()
@@ -75,7 +76,7 @@ func RunOrServe(ctx context.Context, configurators ...any) error {
 
 	if len(configuratorCanShutdowns) > 0 {
 		// shutdown as cleanup
-		return Shutdown(cc, configuratorCanShutdowns...)
+		return Shutdown(ci.InjectContext(ctx), configuratorCanShutdowns...)
 	}
 
 	return nil
@@ -115,6 +116,8 @@ func serve(ctx context.Context, stopCh chan os.Signal, configuratorServers ...Se
 				slog.String("lifecycle", "Serve"),
 			)
 			l.Debug("serving")
+			defer l.Debug("exit")
+
 			err := server.Serve(c)
 			go func() {
 				stopCh <- syscall.SIGTERM
@@ -145,11 +148,10 @@ func Shutdown(c context.Context, configuratorServers ...CanShutdown) error {
 			l := log.With(
 				slog.String("type", fmt.Sprintf("%T", canShutdown)),
 				slog.String("lifecycle", "Shutdown"),
-				slog.String("timeout", timeout.String()),
 			)
 
-			l.Debug("shutting down")
-			defer log.Debug("done")
+			l.With(slog.String("timeout", timeout.String())).Debug("shutting down")
+			defer l.Debug("done")
 
 			done := make(chan error)
 			defer close(done)

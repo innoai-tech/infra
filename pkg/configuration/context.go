@@ -70,3 +70,7 @@ type injectContextFunc[T any] struct {
 func (f *injectContextFunc[T]) InjectContext(ctx context.Context) context.Context {
 	return f.inject(ctx, f.input)
 }
+
+func Background(ctx context.Context) context.Context {
+	return ContextInjectorFromContext(ctx).InjectContext(context.Background())
+}

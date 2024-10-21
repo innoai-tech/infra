@@ -12,6 +12,30 @@ import (
 	"github.com/robfig/cron/v3"
 )
 
+type Schedule struct {
+	// cron job 配置
+	// 支持 标准格式
+	// 也支持 @every {duration} 等语义化格式
+	Cron string `flag:",omitempty"`
+
+	schedule cron.Schedule
+}
+
+func (s Schedule) Schedule() cron.Schedule {
+	return s.schedule
+}
+
+func (j *Schedule) Init(ctx context.Context) error {
+	if j.schedule == nil {
+		schedule, err := cron.ParseStandard(j.Cron)
+		if err != nil {
+			return fmt.Errorf("parse cron failed: %s: %w", j.Cron, err)
+		}
+		j.schedule = schedule
+	}
+	return nil
+}
+
 type IntervalSchedule struct {
 	Interval time.Duration
 }
