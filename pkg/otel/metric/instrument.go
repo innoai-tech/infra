@@ -2,7 +2,6 @@ package metric
 
 import (
 	"context"
-
 	"github.com/innoai-tech/infra/internal/otel"
 	otelmetric "go.opentelemetry.io/otel/metric"
 )
@@ -21,17 +20,6 @@ type Float64Counter interface {
 
 type Float64Recorder interface {
 	Record(ctx context.Context, incr float64, options ...otelmetric.RecordOption)
-}
-
-func NewInt64UpDownCounter(name string, optFns ...OptionFunc) Int64Counter {
-	o := newOption(name, optFns...)
-
-	return &int64Instrument{
-		option: o,
-		counter: func(meter otelmetric.Meter) (Int64Counter, error) {
-			return meter.Int64UpDownCounter(o.Name, otelmetric.WithUnit(o.Unit), otelmetric.WithDescription(o.Description))
-		},
-	}
 }
 
 func NewInt64Counter(name string, optFuncs ...OptionFunc) Int64Counter {

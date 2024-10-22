@@ -15,7 +15,7 @@ var (
 		}),
 	)
 
-	ServerActiveRequest = metric.NewInt64UpDownCounter(
+	ServerActiveRequest = metric.NewInt64Counter(
 		"http.server.active_requests",
 		metric.WithDescription("Measures the number of concurrent HTTP requests that are currently in-flight"),
 	)
@@ -36,6 +36,5 @@ var (
 		metric.WithAggregation(sdkmetric.AggregationExplicitBucketHistogram{
 			Boundaries: SizeHistogramBoundaries,
 		}),
-		//metric.WithAggregationFunc("increase", 1*time.Minute),
 	)
 )

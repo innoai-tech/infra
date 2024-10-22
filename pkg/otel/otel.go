@@ -113,6 +113,9 @@ func (o *Otel) Init(ctx context.Context) error {
 		prometheus.WithRegisterer(pr),
 		prometheus.WithoutScopeInfo(),
 	)
+	if err != nil {
+		return err
+	}
 
 	tracerOpts := []sdktrace.TracerProviderOption{
 		sdktrace.WithSampler(sdktrace.AlwaysSample()),
