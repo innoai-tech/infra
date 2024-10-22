@@ -7,7 +7,7 @@ require (
 	github.com/andybalholm/brotli v1.1.1
 	github.com/fatih/color v1.17.0
 	github.com/felixge/httpsnoop v1.0.4
-	github.com/go-courier/logr v0.3.0
+	github.com/go-courier/logr v0.3.1
 	github.com/go-json-experiment/json v0.0.0-20240815175050-ebd3a8989ca1
 	github.com/innoai-tech/openapi-playground v0.0.0-20241021014502-87119c104e6a
 	github.com/octohelm/courier v0.0.0-20241019060647-30c761fc7341
