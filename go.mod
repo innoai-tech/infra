@@ -7,11 +7,11 @@ require (
 	github.com/andybalholm/brotli v1.1.1
 	github.com/fatih/color v1.17.0
 	github.com/felixge/httpsnoop v1.0.4
-	github.com/go-courier/logr v0.3.0
+	github.com/go-courier/logr v0.3.1
 	github.com/go-json-experiment/json v0.0.0-20240815175050-ebd3a8989ca1
 	github.com/innoai-tech/openapi-playground v0.0.0-20241021014502-87119c104e6a
-	github.com/octohelm/courier v0.0.0-20241019060647-30c761fc7341
-	github.com/octohelm/gengo v0.0.0-20241014043309-2344b8632080
+	github.com/octohelm/courier v0.0.0-20241022023800-691a2df64fa6
+	github.com/octohelm/gengo v0.0.0-20241021060200-490be2d0c7f4
 	github.com/octohelm/storage v0.0.0-20241014040055-4f454a8d6947
 	github.com/octohelm/x v0.0.0-20241011014327-0fcf864c84d6
 	github.com/prometheus/client_golang v1.20.5

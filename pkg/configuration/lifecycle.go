@@ -154,7 +154,6 @@ func Shutdown(c context.Context, configuratorServers ...CanShutdown) error {
 			defer l.Debug("done")
 
 			done := make(chan error)
-			defer close(done)
 
 			go func() {
 				done <- canShutdown.Shutdown(ctx)
