@@ -5,7 +5,7 @@ go 1.23.2
 require (
 	cuelang.org/go v0.10.0
 	github.com/andybalholm/brotli v1.1.1
-	github.com/fatih/color v1.17.0
+	github.com/fatih/color v1.18.0
 	github.com/felixge/httpsnoop v1.0.4
 	github.com/go-courier/logr v0.3.1
 	github.com/go-json-experiment/json v0.0.0-20240815175050-ebd3a8989ca1
