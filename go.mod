@@ -3,7 +3,7 @@ module github.com/innoai-tech/infra
 go 1.23.2
 
 require (
-	cuelang.org/go v0.10.0
+	cuelang.org/go v0.10.1
 	github.com/andybalholm/brotli v1.1.1
 	github.com/fatih/color v1.17.0
 	github.com/felixge/httpsnoop v1.0.4
