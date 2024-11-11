@@ -3,12 +3,13 @@ package configuration
 import (
 	"context"
 	"fmt"
-	"golang.org/x/sync/errgroup"
 	"log/slog"
 	"os"
 	"os/signal"
 	"syscall"
 	"time"
+
+	"golang.org/x/sync/errgroup"
 )
 
 var log *slog.Logger

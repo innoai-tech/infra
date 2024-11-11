@@ -4,7 +4,9 @@ import (
 	"cmp"
 	"compress/gzip"
 	"context"
+	"crypto/tls"
 	"fmt"
+	"net"
 	"net/http"
 	"runtime"
 	"time"
@@ -30,15 +32,22 @@ type Server struct {
 	corsOptions []middleware.CORSOption
 
 	name string
-
 	root courier.Router
 	svc  *http.Server
 
+	tlsProvider    Provider
 	globalHandlers []handler.Middleware
 	routerHandlers []handler.Middleware
 }
 
 func (s *Server) SetDefaults() {
+	if s.tlsProvider != nil {
+		if s.Addr == "" {
+			s.Addr = ":443"
+		}
+		return
+	}
+
 	if s.Addr == "" {
 		s.Addr = ":80"
 	}
@@ -54,6 +63,10 @@ func (s *Server) ApplyRouter(r courier.Router) {
 
 func (s *Server) SetName(name string) {
 	s.name = name
+}
+
+func (s *Server) SetTLSProvoder(tlsProvider Provider) {
+	s.tlsProvider = tlsProvider
 }
 
 func (s *Server) ApplyRouterHandlers(handlers ...handler.Middleware) {
@@ -116,9 +129,29 @@ func (s *Server) Serve(ctx context.Context) error {
 		return nil
 	}
 
-	logr.FromContext(ctx).Info("serve on %s (%s/%s)", s.svc.Addr, runtime.GOOS, runtime.GOARCH)
+	l := logr.FromContext(ctx)
 
-	return s.svc.ListenAndServe()
+	svc := s.svc
+
+	tpe := "http"
+	if s.tlsProvider != nil {
+		tpe = "https"
+	}
+
+	l.Info("serve %s on %s (%s/%s)", tpe, svc.Addr, runtime.GOOS, runtime.GOARCH)
+
+	ln, err := net.Listen("tcp", svc.Addr)
+	if err != nil {
+		return err
+	}
+	defer ln.Close()
+
+	if s.tlsProvider != nil {
+		svc.TLSConfig = s.tlsProvider.TLSConfig()
+		return svc.ServeTLS(ln, "", "")
+	}
+
+	return svc.Serve(ln)
 }
 
 func (s *Server) Shutdown(ctx context.Context) error {
@@ -126,4 +159,8 @@ func (s *Server) Shutdown(ctx context.Context) error {
 		return nil
 	}
 	return s.svc.Shutdown(ctx)
+}
+
+type Provider interface {
+	TLSConfig() *tls.Config
 }

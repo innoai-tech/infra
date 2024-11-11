@@ -2,6 +2,7 @@ package otel
 
 import (
 	"context"
+
 	contextx "github.com/octohelm/x/context"
 	"github.com/prometheus/client_golang/prometheus"
 	sdkmetric "go.opentelemetry.io/otel/sdk/metric"

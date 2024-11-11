@@ -2,10 +2,11 @@ package otel
 
 import (
 	"fmt"
-	"go.opentelemetry.io/otel/log"
 	"log/slog"
 	"path/filepath"
 	"runtime"
+
+	"go.opentelemetry.io/otel/log"
 )
 
 func GetSource(skip int) Source {

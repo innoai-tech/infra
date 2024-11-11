@@ -2,7 +2,6 @@ package middleware
 
 import (
 	"fmt"
-	"github.com/prometheus/client_golang/prometheus"
 	"log/slog"
 	"net/http"
 	"net/url"
@@ -10,7 +9,10 @@ import (
 	"strings"
 	"time"
 
+	"github.com/prometheus/client_golang/prometheus"
+
 	"errors"
+
 	"github.com/go-courier/logr"
 	"github.com/innoai-tech/infra/pkg/http/middleware/metrichttp"
 	"github.com/octohelm/courier/pkg/courierhttp"

@@ -3,18 +3,19 @@ package otel
 import (
 	"bytes"
 	"context"
-	"cuelang.org/go/cue/cuecontext"
-	cueformat "cuelang.org/go/cue/format"
-	"cuelang.org/go/encoding/gocode/gocodec"
 	"fmt"
-	"github.com/fatih/color"
-	"go.opentelemetry.io/otel/log"
-	sdklog "go.opentelemetry.io/otel/sdk/log"
 	"io"
 	"os"
 	"strings"
 	"sync"
 	"sync/atomic"
+
+	"cuelang.org/go/cue/cuecontext"
+	cueformat "cuelang.org/go/cue/format"
+	"cuelang.org/go/encoding/gocode/gocodec"
+	"github.com/fatih/color"
+	"go.opentelemetry.io/otel/log"
+	sdklog "go.opentelemetry.io/otel/sdk/log"
 )
 
 func SlogExporter(format LogFormat) sdklog.Exporter {

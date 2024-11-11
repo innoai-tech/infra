@@ -2,12 +2,13 @@ package otel
 
 import (
 	"context"
+	"time"
+
 	prometheusclient "github.com/prometheus/client_golang/prometheus"
 	"github.com/prometheus/client_golang/prometheus/collectors"
 	"go.opentelemetry.io/otel/exporters/otlp/otlpmetric/otlpmetricgrpc"
 	"go.opentelemetry.io/otel/exporters/prometheus"
 	sdkmetric "go.opentelemetry.io/otel/sdk/metric"
-	"time"
 
 	"github.com/go-courier/logr"
 	"github.com/innoai-tech/infra/internal/otel"

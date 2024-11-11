@@ -4,10 +4,11 @@ import (
 	"bytes"
 	"context"
 	"fmt"
-	"github.com/octohelm/x/slices"
 	"os"
 	"path"
 	"strings"
+
+	"github.com/octohelm/x/slices"
 
 	cueformat "cuelang.org/go/cue/format"
 	"github.com/octohelm/gengo/pkg/camelcase"

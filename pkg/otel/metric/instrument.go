@@ -2,6 +2,7 @@ package metric
 
 import (
 	"context"
+
 	"github.com/innoai-tech/infra/internal/otel"
 	otelmetric "go.opentelemetry.io/otel/metric"
 )

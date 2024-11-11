@@ -4,12 +4,13 @@ import (
 	"bytes"
 	"context"
 	"encoding/base64"
-	"github.com/go-json-experiment/json/jsontext"
-	"go.opentelemetry.io/otel/log"
-	sdklog "go.opentelemetry.io/otel/sdk/log"
 	"io"
 	"os"
 	"time"
+
+	"github.com/go-json-experiment/json/jsontext"
+	"go.opentelemetry.io/otel/log"
+	sdklog "go.opentelemetry.io/otel/sdk/log"
 )
 
 type jsonExporter struct {
