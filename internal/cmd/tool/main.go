@@ -10,8 +10,8 @@ import (
 
 	_ "github.com/octohelm/courier/devpkg/clientgen"
 	_ "github.com/octohelm/courier/devpkg/operatorgen"
+	_ "github.com/octohelm/enumeration/devpkg/enumgen"
 	_ "github.com/octohelm/gengo/devpkg/runtimedocgen"
-	_ "github.com/octohelm/storage/devpkg/enumgen"
 )
 
 var App = cli.NewApp("tool", "dev")
