@@ -1,3 +1,5 @@
+export INFRA_CLI_DEBUG = 1
+
 example:
 	go run ./cmd/example serve -c \
 		--server-addr=:8081
@@ -27,7 +29,9 @@ dep:
 	go get -u ./...
 
 gen:
-	go run ./internal/cmd/tool gen ./cmd/example
+	go run ./internal/cmd/tool gen \
+		./cmd/example \
+		./pkg/appinfo
 
 gen.debug:
 	go run ./internal/cmd/tool gen --log-level=debug ./cmd/example

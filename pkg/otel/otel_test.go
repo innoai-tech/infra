@@ -17,6 +17,7 @@ func Setup(t testing.TB, c any) context.Context {
 
 	ctx := context.Background()
 	err := configuration.Init(ctx, c)
+
 	testingx.Expect(t, err, testingx.Be[error](nil))
 
 	t.Cleanup(func() {

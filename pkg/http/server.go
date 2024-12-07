@@ -13,7 +13,7 @@ import (
 
 	"github.com/go-courier/logr"
 	"github.com/innoai-tech/infra/internal/otel"
-	"github.com/innoai-tech/infra/pkg/cli"
+	"github.com/innoai-tech/infra/pkg/appinfo"
 	"github.com/innoai-tech/infra/pkg/configuration"
 	"github.com/innoai-tech/infra/pkg/http/middleware"
 	"github.com/octohelm/courier/pkg/courier"
@@ -23,6 +23,7 @@ import (
 	"golang.org/x/net/http2/h2c"
 )
 
+// +gengo:injectable
 type Server struct {
 	// Listen addr
 	Addr string `flag:",omitempty,expose=http"`
@@ -38,6 +39,8 @@ type Server struct {
 	tlsProvider    Provider
 	globalHandlers []handler.Middleware
 	routerHandlers []handler.Middleware
+
+	info *appinfo.Info `inject:",opt"`
 }
 
 func (s *Server) SetDefaults() {
@@ -77,7 +80,7 @@ func (s *Server) ApplyGlobalHandlers(handlers ...handler.Middleware) {
 	s.globalHandlers = append(s.globalHandlers, handlers...)
 }
 
-func (s *Server) Init(ctx context.Context) error {
+func (s *Server) afterInit(ctx context.Context) error {
 	if s.svc != nil {
 		return nil
 	}
@@ -86,11 +89,15 @@ func (s *Server) Init(ctx context.Context) error {
 		return fmt.Errorf("root router is not set")
 	}
 
-	info := cli.InfoFromContext(ctx)
+	serviceName := "unknown/v0"
+
+	if info := s.info; info != nil {
+		serviceName = cmp.Or(s.name, info.App.Name) + "/" + info.App.Version
+	}
 
 	h, err := httprouter.New(
 		s.root,
-		cmp.Or(s.name, info.App.Name)+"/"+info.App.Version,
+		serviceName,
 		append(
 			[]handler.Middleware{
 				middleware.ContextInjectorMiddleware(configuration.ContextInjectorFromContext(ctx)),

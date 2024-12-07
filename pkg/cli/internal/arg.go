@@ -1,4 +1,4 @@
-package cli
+package internal
 
 import (
 	"fmt"
@@ -9,18 +9,18 @@ import (
 	encodingx "github.com/octohelm/x/encoding"
 )
 
-type arg struct {
+type Arg struct {
 	Name  string
 	Value reflect.Value
 }
 
-func (as arg) HasVariadic() bool {
+func (as Arg) HasVariadic() bool {
 	return as.Value.Kind() == reflect.Slice
 }
 
-type args []*arg
+type Args []*Arg
 
-func (as args) String() string {
+func (as Args) String() string {
 	s := strings.Builder{}
 
 	for i := range as {
@@ -38,10 +38,8 @@ func (as args) String() string {
 	return s.String()
 }
 
-func (as args) Validate(args []string) error {
-	for i := range as {
-		a := as[i]
-
+func (as Args) Validate(args []string) error {
+	for i, a := range as {
 		if len(args) < i {
 			return fmt.Errorf("need %d arg as %s", i, camelcase.UpperSnakeCase(a.Name))
 		}

@@ -7,6 +7,8 @@ import (
 	"reflect"
 	"strings"
 
+	"github.com/innoai-tech/infra/pkg/appinfo"
+	"github.com/innoai-tech/infra/pkg/cli/internal"
 	"github.com/innoai-tech/infra/pkg/configuration"
 	"github.com/octohelm/gengo/pkg/camelcase"
 	"github.com/spf13/pflag"
@@ -27,13 +29,15 @@ func AddTo[T Command](parent Command, c T) T {
 }
 
 type C struct {
-	i           Info
+	i appinfo.Info
+
 	cmdPath     []string
-	args        args
-	flagVars    []*flagVar
-	envPrefix   string
-	singletons  configuration.Singletons
 	subcommands []Command
+
+	args       internal.Args
+	flagVars   []*internal.FlagVar
+	envPrefix  string
+	singletons configuration.Singletons
 }
 
 func (c *C) Cmd() *C {
@@ -44,18 +48,25 @@ type CanRuntimeDoc interface {
 	RuntimeDoc(names ...string) ([]string, bool)
 }
 
-func addConfigurator(c *C, fv reflect.Value, flags *pflag.FlagSet, name string, appName string) {
-	c.singletons = append(c.singletons, fv.Addr().Interface())
-
+func addConfigurator(c *C, flags *pflag.FlagSet, target any, name string, appName string) {
 	envPrefix := c.envPrefix
 	if envPrefix == "" {
 		envPrefix = fmt.Sprintf("%s_", appName)
 	}
 
-	collectFlagsFromConfigurator(c, flags, fv, name, envPrefix, "")
+	collectFlagsFromConfigurator(c, flags, target, name, envPrefix, "")
 }
 
-func collectFlagsFromConfigurator(c *C, flags *pflag.FlagSet, rv reflect.Value, prefix string, envPrefix string, parentDoc string) {
+func collectFlagsFromConfigurator(c *C, flags *pflag.FlagSet, target any, prefix string, envPrefix string, parentDoc string) {
+	rv, ok := target.(reflect.Value)
+	if !ok {
+		rv = reflect.ValueOf(target)
+	}
+
+	for rv.Kind() == reflect.Ptr {
+		rv = rv.Elem()
+	}
+
 	var docer CanRuntimeDoc
 
 	if rv.CanAddr() {
@@ -84,7 +95,7 @@ func collectFlagsFromConfigurator(c *C, flags *pflag.FlagSet, rv reflect.Value, 
 		if n, ok := ft.Tag.Lookup("arg"); ok {
 			argName := ft.Name
 
-			tt := parseTag(n)
+			tt := internal.ParseTag(n)
 			if n := tt.Name; n != "" {
 				argName = n
 			}
@@ -93,7 +104,7 @@ func collectFlagsFromConfigurator(c *C, flags *pflag.FlagSet, rv reflect.Value, 
 				argName = prefix + "_" + argName
 			}
 
-			a := &arg{
+			a := &internal.Arg{
 				Name:  argName,
 				Value: fv,
 			}
@@ -103,7 +114,7 @@ func collectFlagsFromConfigurator(c *C, flags *pflag.FlagSet, rv reflect.Value, 
 			continue
 		}
 
-		ff := &flagVar{
+		ff := &internal.FlagVar{
 			Value: fv,
 		}
 
@@ -114,12 +125,12 @@ func collectFlagsFromConfigurator(c *C, flags *pflag.FlagSet, rv reflect.Value, 
 				continue
 			}
 
-			tt := parseTag(n)
+			tt := internal.ParseTag(n)
 			if name := tt.Name; name != "" {
 				flagName = name
 			}
 
-			ff.Required = !tt.Has("omitempty")
+			ff.Required = !(tt.Has("omitempty") || tt.Has("omitzero"))
 
 			ff.Expose = tt.Get("expose")
 			ff.Secret = tt.Has("secret")
@@ -174,6 +185,7 @@ func collectFlagsFromConfigurator(c *C, flags *pflag.FlagSet, rv reflect.Value, 
 		ff.Desc = doc
 
 		c.flagVars = append(c.flagVars, ff)
+
 		ff.Apply(flags)
 	}
 }

@@ -2,6 +2,9 @@ package otel
 
 import (
 	"context"
+	"github.com/innoai-tech/infra/pkg/appinfo"
+	"go.opentelemetry.io/otel/sdk/resource"
+	semconv "go.opentelemetry.io/otel/semconv/v1.24.0"
 	"time"
 
 	prometheusclient "github.com/prometheus/client_golang/prometheus"
@@ -12,16 +15,13 @@ import (
 
 	"github.com/go-courier/logr"
 	"github.com/innoai-tech/infra/internal/otel"
-	"github.com/innoai-tech/infra/pkg/cli"
 	"github.com/innoai-tech/infra/pkg/configuration"
 	"go.opentelemetry.io/otel/exporters/otlp/otlptrace"
 	"go.opentelemetry.io/otel/exporters/otlp/otlptrace/otlptracegrpc"
-	"go.opentelemetry.io/otel/sdk/resource"
 	"golang.org/x/sync/errgroup"
 
 	sdklog "go.opentelemetry.io/otel/sdk/log"
 	sdktrace "go.opentelemetry.io/otel/sdk/trace"
-	semconv "go.opentelemetry.io/otel/semconv/v1.24.0"
 )
 
 type LogLevel = otel.LogLevel
@@ -40,6 +40,7 @@ const (
 	LogFormatJSON = otel.LogFormatJSON
 )
 
+// +gengo:injectable
 type Otel struct {
 	// Log level
 	LogLevel LogLevel `flag:",omitempty"`
@@ -57,6 +58,8 @@ type Otel struct {
 	promGatherer   prometheusclient.Gatherer
 
 	enabledLevel logr.Level
+
+	info *appinfo.Info `inject:",opt"`
 }
 
 func (o *Otel) SetDefaults() {
@@ -92,7 +95,7 @@ func (o *Otel) InjectContext(ctx context.Context) context.Context {
 	)
 }
 
-func (o *Otel) Init(ctx context.Context) error {
+func (o *Otel) afterInit(ctx context.Context) error {
 	enabledLevel, err := logr.ParseLevel(string(o.LogLevel))
 	if err != nil {
 		return err
@@ -130,7 +133,7 @@ func (o *Otel) Init(ctx context.Context) error {
 		sdkmetric.WithReader(prometheusReader),
 	}
 
-	if info := cli.InfoFromContext(ctx); info != nil {
+	if info := o.info; info != nil {
 		res := resource.NewSchemaless(
 			semconv.ServiceName(info.App.Name),
 			semconv.ServiceVersion(info.App.Version),

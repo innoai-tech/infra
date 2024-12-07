@@ -3,9 +3,11 @@ package configuration
 import (
 	"context"
 	"fmt"
+	"iter"
 	"log/slog"
 	"os"
 	"os/signal"
+	"slices"
 	"syscall"
 	"time"
 
@@ -27,25 +29,33 @@ func init() {
 }
 
 func RunOrServe(ctx context.Context, configurators ...any) error {
-	configuratorRunners := make([]Runner, 0, len(configurators))
 	configuratorServers := make([]Server, 0, len(configurators))
 	configuratorCanShutdowns := make([]CanShutdown, 0, len(configurators))
 
-	for i := range configurators {
-		if x, ok := configurators[i].(Runner); ok {
-			configuratorRunners = append(configuratorRunners, x)
-		}
-		if x, ok := configurators[i].(CanShutdown); ok {
-			configuratorCanShutdowns = append(configuratorCanShutdowns, x)
-		}
-		if x, ok := configurators[i].(Server); ok {
+	for _, configurator := range configurators {
+		if x, ok := configurator.(Server); ok {
 			configuratorServers = append(configuratorServers, x)
+		}
+
+		if x, ok := configurator.(CanShutdown); ok {
+			configuratorCanShutdowns = append(configuratorCanShutdowns, x)
 		}
 	}
 
 	ci := ContextInjectorFromContext(ctx)
 
-	if err := run(ci.InjectContext(ctx), configuratorRunners...); err != nil {
+	if err := run(
+		ci.InjectContext(ctx),
+		func(yield func(Runner) bool) {
+			for _, configurator := range configurators {
+				if x, ok := configurator.(Runner); ok {
+					if !yield(x) {
+						return
+					}
+				}
+			}
+		},
+	); err != nil {
 		return err
 	}
 
@@ -69,7 +79,7 @@ func RunOrServe(ctx context.Context, configurators ...any) error {
 		})
 
 		g.Go(func() error {
-			return serve(gc, chStop, configuratorServers...)
+			return serve(gc, chStop, slices.Values(configuratorServers))
 		})
 
 		return g.Wait()
@@ -83,16 +93,16 @@ func RunOrServe(ctx context.Context, configurators ...any) error {
 	return nil
 }
 
-func run(ctx context.Context, configuratorRunners ...Runner) error {
-	for i := range configuratorRunners {
+func run(ctx context.Context, configuratorRunners iter.Seq[Runner]) error {
+	for runner := range configuratorRunners {
 		l := log.With(
-			slog.String("type", fmt.Sprintf("%T", configuratorRunners[i])),
+			slog.String("type", fmt.Sprintf("%T", runner)),
 			slog.String("lifecycle", "Run"),
 		)
 
 		l.Debug("staring")
 
-		if err := configuratorRunners[i].Run(ctx); err != nil {
+		if err := runner.Run(ctx); err != nil {
 			return err
 		}
 
@@ -101,10 +111,10 @@ func run(ctx context.Context, configuratorRunners ...Runner) error {
 	return nil
 }
 
-func serve(ctx context.Context, stopCh chan os.Signal, configuratorServers ...Server) error {
+func serve(ctx context.Context, stopCh chan os.Signal, configuratorServers iter.Seq[Server]) error {
 	g, c := errgroup.WithContext(ctx)
 
-	for _, server := range configuratorServers {
+	for server := range configuratorServers {
 		if d, ok := server.(CanDisabled); ok {
 			if d.Disabled(ctx) {
 				continue
@@ -136,12 +146,12 @@ func serve(ctx context.Context, stopCh chan os.Signal, configuratorServers ...Se
 	return g.Wait()
 }
 
-func Shutdown(c context.Context, configuratorServers ...CanShutdown) error {
+func Shutdown(c context.Context, configuratorCanShutdowns ...CanShutdown) error {
 	timeout := 10 * time.Second
 
 	g := &errgroup.Group{}
 
-	for _, canShutdown := range configuratorServers {
+	for _, canShutdown := range configuratorCanShutdowns {
 		g.Go(func() error {
 			ctx, cancel := context.WithTimeout(c, timeout)
 			defer cancel()
@@ -172,30 +182,10 @@ func Shutdown(c context.Context, configuratorServers ...CanShutdown) error {
 	return g.Wait()
 }
 
-func TypedInit(ctx context.Context, configurators ...ConfiguratorInit) error {
-	ctx = ContextInjectorFromContext(ctx).InjectContext(ctx)
-
-	for i := range configurators {
-		configurator := configurators[i]
-
-		if err := initConfigurator(ctx, configurator); err != nil {
-			return err
-		}
-
-		if ci, ok := configurator.(ContextInjector); ok {
-			ctx = ci.InjectContext(ctx)
-		}
-	}
-
-	return nil
-}
-
 func Init(ctx context.Context, configurators ...any) error {
 	ctx = ContextInjectorFromContext(ctx).InjectContext(ctx)
 
-	for i := range configurators {
-		configurator := configurators[i]
-
+	for _, configurator := range configurators {
 		if err := initConfigurator(ctx, configurator); err != nil {
 			return err
 		}
@@ -215,7 +205,7 @@ func initConfigurator(ctx context.Context, configurator any) (err error) {
 		c.SetDefaults()
 	}
 
-	if c, ok := configurator.(ConfiguratorInit); ok {
+	if c, ok := configurator.(CanInit); ok {
 		return c.Init(ctx)
 	}
 	return nil
@@ -225,7 +215,7 @@ type Defaulter interface {
 	SetDefaults()
 }
 
-type ConfiguratorInit interface {
+type CanInit interface {
 	Init(ctx context.Context) error
 }
 
@@ -235,6 +225,7 @@ type Runner interface {
 
 type Server interface {
 	CanShutdown
+
 	Serve(ctx context.Context) error
 }
 

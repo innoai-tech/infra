@@ -8,23 +8,33 @@ import (
 	"reflect"
 	"strings"
 
+	"github.com/spf13/cobra"
 	"github.com/spf13/pflag"
 
+	"github.com/innoai-tech/infra/pkg/appinfo"
+	"github.com/innoai-tech/infra/pkg/cli/internal"
 	"github.com/innoai-tech/infra/pkg/configuration"
-	"github.com/spf13/cobra"
 )
+
+type AppOptionFunc = func(*appinfo.App)
+
+func WithImageNamespace(imageNamespace string) AppOptionFunc {
+	return func(a *appinfo.App) {
+		a.ImageNamespace = imageNamespace
+	}
+}
 
 func NewApp(name string, version string, fns ...AppOptionFunc) Command {
 	a := &app{
 		version: version,
 
-		a: &App{
+		a: &appinfo.App{
 			Name:    name,
 			Version: version,
 		},
 
 		C: C{
-			i: Info{
+			i: appinfo.Info{
 				Name: name,
 			},
 		},
@@ -48,7 +58,7 @@ func (a *app) ExecuteContext(ctx context.Context) error {
 
 type app struct {
 	C
-	a       *App
+	a       *appinfo.App
 	root    *cobra.Command
 	version string
 }
@@ -81,10 +91,6 @@ func (a *app) newFrom(cc Command, parent Command) *cobra.Command {
 	}
 
 	cmd.RunE = func(cmd *cobra.Command, args []string) error {
-		if len(c.singletons) == 0 {
-			return cmd.Help()
-		}
-
 		if err := c.args.Validate(args); err != nil {
 			return err
 		}
@@ -114,7 +120,9 @@ func (a *app) newFrom(cc Command, parent Command) *cobra.Command {
 		}
 
 		singletons := append(
-			configuration.Singletons{c.i},
+			configuration.Singletons{{
+				Configurator: c.i,
+			}},
 			c.singletons...,
 		)
 
@@ -177,9 +185,9 @@ func (a *app) bindCommandFromStruct(c *C, rv reflect.Value, flags *pflag.FlagSet
 				n.i.Name = name
 			}
 			if component, ok := ft.Tag.Lookup("component"); ok {
-				tag := parseTag(component)
+				tag := internal.ParseTag(component)
 
-				n.i.Component = &Component{
+				n.i.Component = &appinfo.Component{
 					Name:    tag.Name,
 					Options: tag.Values,
 				}
@@ -191,15 +199,10 @@ func (a *app) bindCommandFromStruct(c *C, rv reflect.Value, flags *pflag.FlagSet
 
 			continue
 		}
+	}
 
-		name := ft.Name
-
-		if ft.Anonymous {
-			name = ""
-		}
-
-		if ft.Type.Kind() == reflect.Struct {
-			addConfigurator(c, fv, flags, name, a.i.Name)
-		}
+	c.singletons = configuration.SingletonsFromStruct(rv)
+	for _, s := range c.singletons {
+		addConfigurator(c, flags, s.Configurator, s.Name, a.i.Name)
 	}
 }

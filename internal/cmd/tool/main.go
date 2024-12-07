@@ -9,6 +9,7 @@ import (
 	"github.com/innoai-tech/infra/pkg/otel"
 
 	_ "github.com/octohelm/courier/devpkg/clientgen"
+	_ "github.com/octohelm/courier/devpkg/injectablegen"
 	_ "github.com/octohelm/courier/devpkg/operatorgen"
 	_ "github.com/octohelm/enumeration/devpkg/enumgen"
 	_ "github.com/octohelm/gengo/devpkg/runtimedocgen"

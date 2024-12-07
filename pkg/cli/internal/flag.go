@@ -1,4 +1,4 @@
-package cli
+package internal
 
 import (
 	"encoding"
@@ -10,7 +10,7 @@ import (
 	"github.com/spf13/pflag"
 )
 
-type flagVar struct {
+type FlagVar struct {
 	Name       string
 	Alias      string
 	Required   bool
@@ -26,7 +26,7 @@ type flagVar struct {
 	changed bool
 }
 
-func (f *flagVar) FromEnvVars(vars map[string]string) error {
+func (f *FlagVar) FromEnvVars(vars map[string]string) error {
 	if v, ok := vars[f.EnvVar]; ok {
 		if err := f.Set(v); err != nil {
 			return fmt.Errorf("set value from %s failed: %w", f.EnvVar, err)
@@ -35,7 +35,7 @@ func (f *flagVar) FromEnvVars(vars map[string]string) error {
 	return nil
 }
 
-func (f *flagVar) Apply(flags *pflag.FlagSet) {
+func (f *FlagVar) Apply(flags *pflag.FlagSet) {
 	ff := flags.VarPF(f, f.Name, f.Alias, f.Usage())
 
 	if f.Value.Kind() == reflect.Slice {
@@ -49,14 +49,14 @@ func (f *flagVar) Apply(flags *pflag.FlagSet) {
 	}
 }
 
-func (f *flagVar) String() string {
+func (f *FlagVar) String() string {
 	if strings.HasSuffix(f.Type(), "Slice") {
-		return "[" + f.string() + "]"
+		return "[" + f.DefaultValue() + "]"
 	}
-	return f.string()
+	return f.DefaultValue()
 }
 
-func (f *flagVar) string() string {
+func (f *FlagVar) DefaultValue() string {
 	b := &strings.Builder{}
 
 	if f.Value.Kind() == reflect.Slice {
@@ -75,7 +75,7 @@ func (f *flagVar) string() string {
 	return b.String()
 }
 
-func (f *flagVar) Type() string {
+func (f *FlagVar) Type() string {
 	if _, ok := f.Value.Interface().(encoding.TextMarshaler); ok {
 		return "string"
 	}
@@ -85,9 +85,9 @@ func (f *flagVar) Type() string {
 	return f.typ(f.Value.Type())
 }
 
-var textMarshaler = reflect.TypeOf((*encoding.TextMarshaler)(nil)).Elem()
+var textMarshaler = reflect.TypeFor[encoding.TextMarshaler]()
 
-func (f *flagVar) typ(t reflect.Type) string {
+func (f *FlagVar) typ(t reflect.Type) string {
 	if ok := t.Implements(textMarshaler); ok {
 		return "string"
 	}
@@ -97,7 +97,7 @@ func (f *flagVar) typ(t reflect.Type) string {
 	return t.Kind().String()
 }
 
-func (f *flagVar) Set(s string) error {
+func (f *FlagVar) Set(s string) error {
 	if f.Value.Kind() == reflect.Slice {
 		if s == "" && !f.Required {
 			return nil
@@ -129,7 +129,7 @@ func (f *flagVar) Set(s string) error {
 	return encodingx.UnmarshalText(f.Value, []byte(s))
 }
 
-func (f *flagVar) Usage() string {
+func (f *FlagVar) Usage() string {
 	s := strings.Builder{}
 
 	s.WriteString(f.Desc)
@@ -156,12 +156,12 @@ func (f *flagVar) Usage() string {
 	return s.String()
 }
 
-func (f *flagVar) Info() string {
+func (f *FlagVar) Info() string {
 	if s, ok := f.Value.Interface().(interface{ SecurityString() string }); ok {
 		return fmt.Sprintf("%s = %s", f.EnvVar, s.SecurityString())
 	}
 	if f.Secret {
-		return fmt.Sprintf("%s = %s", f.EnvVar, strings.Repeat("-", len(f.string())))
+		return fmt.Sprintf("%s = %s", f.EnvVar, strings.Repeat("-", len(f.DefaultValue())))
 	}
-	return fmt.Sprintf("%s = %s", f.EnvVar, f.string())
+	return fmt.Sprintf("%s = %s", f.EnvVar, f.DefaultValue())
 }

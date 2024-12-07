@@ -1,13 +1,19 @@
-package cli
+package internal
 
 import (
 	"net/url"
 	"strings"
 )
 
-func parseTag(v string) *tag {
+type Tag struct {
+	Name string
+
+	url.Values
+}
+
+func ParseTag(v string) *Tag {
 	parts := strings.Split(v, ",")
-	t := &tag{
+	t := &Tag{
 		Values: url.Values{},
 	}
 
@@ -26,9 +32,4 @@ func parseTag(v string) *tag {
 	}
 
 	return t
-}
-
-type tag struct {
-	Name string
-	url.Values
 }

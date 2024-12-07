@@ -8,11 +8,12 @@ import (
 	"path"
 	"strings"
 
-	"github.com/octohelm/x/slices"
+	"github.com/innoai-tech/infra/pkg/cli/internal"
 
 	cueformat "cuelang.org/go/cue/format"
 	"github.com/octohelm/gengo/pkg/camelcase"
 	"github.com/octohelm/gengo/pkg/gengo"
+	"github.com/octohelm/x/slices"
 )
 
 func (c *C) dumpK8sConfiguration(ctx context.Context, dest string) error {
@@ -70,7 +71,7 @@ spec: {
 		)
 	}
 
-	var flagExposes []*flagVar
+	var flagExposes []*internal.FlagVar
 
 	i := 0
 	for _, f := range c.flagVars {
@@ -96,7 +97,7 @@ config: %q: string
 			`
 %s 
 config: %q: string | *%q
-`, toComment(f.Desc), f.EnvVar, f.string())
+`, toComment(f.Desc), f.EnvVar, f.DefaultValue())
 
 		i++
 	}

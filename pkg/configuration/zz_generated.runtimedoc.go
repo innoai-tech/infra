@@ -22,6 +22,21 @@ func runtimeDoc(v any, prefix string, names ...string) ([]string, bool) {
 	return nil, false
 }
 
+func (v Singleton) RuntimeDoc(names ...string) ([]string, bool) {
+	if len(names) > 0 {
+		switch names[0] {
+		case "Name":
+			return []string{}, true
+		case "Target":
+			return []string{}, true
+
+		}
+
+		return nil, false
+	}
+	return []string{}, true
+}
+
 func (Singletons) RuntimeDoc(names ...string) ([]string, bool) {
 	return []string{}, true
 }

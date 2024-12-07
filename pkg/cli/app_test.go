@@ -5,19 +5,28 @@ import (
 	"testing"
 
 	"github.com/innoai-tech/infra/pkg/cli"
-	. "github.com/octohelm/x/testing"
+	testingx "github.com/octohelm/x/testing"
 )
 
 type Do struct {
 	cli.C `args:"INPUT"`
 
+	Shared
+}
+
+type Shared struct {
 	X
 }
 
 type X struct {
-	Src    []string `arg:""`
-	Force  bool     `flag:",omitempty" alias:"f"`
-	Output string   `flag:",omitempty" alias:"o"`
+	Src []string `arg:"INPUT"`
+
+	Force  bool   `flag:",omitempty" alias:"f"`
+	Output string `flag:",omitempty" alias:"o"`
+}
+
+func (x *X) InjectContext(ctx context.Context) context.Context {
+	return ctx
 }
 
 func TestApp(t *testing.T) {
@@ -27,12 +36,12 @@ func TestApp(t *testing.T) {
 
 		t.Run("When execute `do` with flags and args", func(t *testing.T) {
 			err := cli.Execute(context.Background(), a, []string{"do", "--force", "-o", "build", "src"})
-			Expect(t, err, Be[error](nil))
+			testingx.Expect(t, err, testingx.BeNil[error]())
 
 			t.Run("Flags should be parsed correct", func(t *testing.T) {
-				Expect(t, do.Force, Be(true))
-				Expect(t, do.Output, Be("build"))
-				Expect(t, do.Src, Equal([]string{"src"}))
+				testingx.Expect(t, do.Src, testingx.Equal([]string{"src"}))
+				testingx.Expect(t, do.Force, testingx.Be(true))
+				testingx.Expect(t, do.Output, testingx.Be("build"))
 			})
 		})
 	})

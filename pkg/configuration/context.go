@@ -2,34 +2,52 @@ package configuration
 
 import (
 	"context"
+	"iter"
 
 	contextx "github.com/octohelm/x/context"
 )
 
+type ContextInjector interface {
+	InjectContext(ctx context.Context) context.Context
+}
+
+func Background(ctx context.Context) context.Context {
+	return ContextInjectorFromContext(ctx).InjectContext(context.Background())
+}
+
 func InjectContext(ctx context.Context, contextInjectors ...ContextInjector) context.Context {
-	for i := range contextInjectors {
-		ctx = contextInjectors[i].InjectContext(ctx)
+	for _, contextInjector := range contextInjectors {
+		ctx = contextInjector.InjectContext(ctx)
 	}
 	return ctx
 }
 
 func ComposeContextInjector(configurators ...any) ContextInjector {
 	contextInjectors := make([]ContextInjector, 0, len(configurators))
-	for i := range configurators {
-		if ci, ok := configurators[i].(ContextInjector); ok {
+	for _, configurator := range configurators {
+		if ci, ok := configurator.(ContextInjector); ok {
 			contextInjectors = append(contextInjectors, ci)
 		}
 	}
 
-	return &composeContextInjector{contextInjectors}
+	return &composeContextInjector{func(yield func(ContextInjector) bool) {
+		for _, ci := range contextInjectors {
+			if !yield(ci) {
+				return
+			}
+		}
+	}}
 }
 
 type composeContextInjector struct {
-	contextInjectors []ContextInjector
+	contextInjectors iter.Seq[ContextInjector]
 }
 
 func (c *composeContextInjector) InjectContext(ctx context.Context) context.Context {
-	return InjectContext(ctx, c.contextInjectors...)
+	for contextInjector := range c.contextInjectors {
+		ctx = contextInjector.InjectContext(ctx)
+	}
+	return ctx
 }
 
 type contextInjectorCtx struct{}
@@ -51,10 +69,6 @@ func (contextInjectorDiscord) InjectContext(ctx context.Context) context.Context
 	return ctx
 }
 
-type ContextInjector interface {
-	InjectContext(ctx context.Context) context.Context
-}
-
 func InjectContextFunc[T any](fn func(ctx context.Context, input T) context.Context, input T) ContextInjector {
 	return &injectContextFunc[T]{
 		input:  input,
@@ -69,8 +83,4 @@ type injectContextFunc[T any] struct {
 
 func (f *injectContextFunc[T]) InjectContext(ctx context.Context) context.Context {
 	return f.inject(ctx, f.input)
-}
-
-func Background(ctx context.Context) context.Context {
-	return ContextInjectorFromContext(ctx).InjectContext(context.Background())
 }
