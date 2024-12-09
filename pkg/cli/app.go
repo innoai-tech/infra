@@ -34,7 +34,7 @@ func NewApp(name string, version string, fns ...AppOptionFunc) Command {
 		},
 
 		C: C{
-			i: appinfo.Info{
+			info: appinfo.Info{
 				Name: name,
 			},
 		},
@@ -65,7 +65,7 @@ type app struct {
 
 func (a *app) newFrom(cc Command, parent Command) *cobra.Command {
 	c := cc.Cmd()
-	c.i.App = a.a
+	c.info.App = a.a
 
 	cmd := &cobra.Command{
 		Version: a.version,
@@ -74,7 +74,7 @@ func (a *app) newFrom(cc Command, parent Command) *cobra.Command {
 	a.bindCommand(cmd, c, cc)
 
 	if parent != nil {
-		c.cmdPath = append(parent.Cmd().cmdPath, c.i.Name)
+		c.cmdPath = append(parent.Cmd().cmdPath, c.info.Name)
 	}
 
 	for i := range c.subcommands {
@@ -86,7 +86,7 @@ func (a *app) newFrom(cc Command, parent Command) *cobra.Command {
 
 	cmd.Flags().BoolVarP(&showConfiguration, "list-configuration", "c", os.Getenv("ENV") == "DEV", "show configuration")
 
-	if c.i.Component != nil {
+	if c.info.Component != nil {
 		cmd.Flags().BoolVarP(&dumpK8s, "dump-k8s", "", false, "dump k8s component")
 	}
 
@@ -121,7 +121,7 @@ func (a *app) newFrom(cc Command, parent Command) *cobra.Command {
 
 		singletons := append(
 			configuration.Singletons{{
-				Configurator: c.i,
+				Configurator: &c.info,
 			}},
 			c.singletons...,
 		)
@@ -146,19 +146,19 @@ func (a *app) bindCommand(c *cobra.Command, info *C, v any) {
 
 	rv = rv.Elem()
 
-	if info.i.Name == "" {
-		info.i.Name = strings.ToLower(rv.Type().Name())
+	if info.info.Name == "" {
+		info.info.Name = strings.ToLower(rv.Type().Name())
 	}
 
 	a.bindCommandFromStruct(info, rv, c.Flags())
 
 	if len(info.args) > 0 {
-		c.Use = fmt.Sprintf("%s [flags] %s", info.i.Name, info.args)
+		c.Use = fmt.Sprintf("%s [flags] %s", info.info.Name, info.args)
 	} else {
-		c.Use = info.i.Name
+		c.Use = info.info.Name
 	}
 
-	c.Short = info.i.Desc
+	c.Short = info.info.Desc
 }
 
 func (a *app) bindCommandFromStruct(c *C, rv reflect.Value, flags *pflag.FlagSet) {
@@ -167,7 +167,7 @@ func (a *app) bindCommandFromStruct(c *C, rv reflect.Value, flags *pflag.FlagSet
 	if v, ok := rv.Interface().(CanRuntimeDoc); ok {
 		lines, ok := v.RuntimeDoc()
 		if ok && len(lines) > 0 {
-			c.i.Desc = lines[0]
+			c.info.Desc = lines[0]
 		}
 	}
 
@@ -182,12 +182,12 @@ func (a *app) bindCommandFromStruct(c *C, rv reflect.Value, flags *pflag.FlagSet
 
 		if n, ok := fv.Addr().Interface().(*C); ok {
 			if name, ok := ft.Tag.Lookup("name"); ok {
-				n.i.Name = name
+				n.info.Name = name
 			}
 			if component, ok := ft.Tag.Lookup("component"); ok {
 				tag := internal.ParseTag(component)
 
-				n.i.Component = &appinfo.Component{
+				n.info.Component = &appinfo.Component{
 					Name:    tag.Name,
 					Options: tag.Values,
 				}
@@ -203,6 +203,6 @@ func (a *app) bindCommandFromStruct(c *C, rv reflect.Value, flags *pflag.FlagSet
 
 	c.singletons = configuration.SingletonsFromStruct(rv)
 	for _, s := range c.singletons {
-		addConfigurator(c, flags, s.Configurator, s.Name, a.i.Name)
+		addConfigurator(c, flags, s.Configurator, s.Name, a.info.Name)
 	}
 }

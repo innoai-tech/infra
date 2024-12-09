@@ -27,7 +27,7 @@ func (v Singleton) RuntimeDoc(names ...string) ([]string, bool) {
 		switch names[0] {
 		case "Name":
 			return []string{}, true
-		case "Target":
+		case "Configurator":
 			return []string{}, true
 
 		}

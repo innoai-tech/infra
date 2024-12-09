@@ -8,7 +8,7 @@ require (
 	github.com/fatih/color v1.18.0
 	github.com/felixge/httpsnoop v1.0.4
 	github.com/go-courier/logr v0.3.1
-	github.com/go-json-experiment/json v0.0.0-20241127185351-9802db03f36a
+	github.com/go-json-experiment/json v0.0.0-20241208081943-bc21dd91e076
 	github.com/innoai-tech/openapi-playground v0.0.0-20241128062759-016782382594
 	github.com/octohelm/courier v0.0.0-20241206102254-0144cc25da6e
 	github.com/octohelm/enumeration v0.0.0-20241121070632-2cd7179b161c

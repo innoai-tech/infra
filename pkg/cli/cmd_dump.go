@@ -17,18 +17,18 @@ import (
 )
 
 func (c *C) dumpK8sConfiguration(ctx context.Context, dest string) error {
-	if c.i.Component == nil {
+	if c.info.Component == nil {
 		return nil
 	}
 
-	pkgName := strings.ToLower(camelcase.LowerCamelCase(c.i.App.Name))
-	componentName := camelcase.LowerKebabCase(c.i.Component.Name)
+	pkgName := strings.ToLower(camelcase.LowerCamelCase(c.info.App.Name))
+	componentName := camelcase.LowerKebabCase(c.info.Component.Name)
 
 	dest = path.Join(dest, pkgName)
 
 	kind := "Deployment"
 
-	if k := c.i.Component.Options.Get("kind"); k != "" {
+	if k := c.info.Component.Options.Get("kind"); k != "" {
 		kind = k
 	}
 
@@ -158,7 +158,7 @@ config: %q: string | *%q
 			name: _ | *"%v/%v"
 			tag:  _ | *"\(version)"
 		}
-`, componentName, c.i.App.ImageNamespace, c.i.App.Name)
+`, componentName, c.info.App.ImageNamespace, c.info.App.Name)
 
 	_, _ = fmt.Fprintf(b, `
 		args: [

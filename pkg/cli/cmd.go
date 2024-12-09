@@ -29,7 +29,7 @@ func AddTo[T Command](parent Command, c T) T {
 }
 
 type C struct {
-	i appinfo.Info
+	info appinfo.Info
 
 	cmdPath     []string
 	subcommands []Command

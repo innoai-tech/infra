@@ -80,6 +80,13 @@ func (s *Server) ApplyGlobalHandlers(handlers ...handler.Middleware) {
 	s.globalHandlers = append(s.globalHandlers, handlers...)
 }
 
+func (s *Server) serviceName() string {
+	if info := s.info; info != nil {
+		return cmp.Or(s.name, info.App.Name) + "/" + info.App.Version
+	}
+	return "unknown/v0"
+}
+
 func (s *Server) afterInit(ctx context.Context) error {
 	if s.svc != nil {
 		return nil
@@ -89,15 +96,9 @@ func (s *Server) afterInit(ctx context.Context) error {
 		return fmt.Errorf("root router is not set")
 	}
 
-	serviceName := "unknown/v0"
-
-	if info := s.info; info != nil {
-		serviceName = cmp.Or(s.name, info.App.Name) + "/" + info.App.Version
-	}
-
 	h, err := httprouter.New(
 		s.root,
-		serviceName,
+		s.serviceName(),
 		append(
 			[]handler.Middleware{
 				middleware.ContextInjectorMiddleware(configuration.ContextInjectorFromContext(ctx)),
@@ -145,7 +146,7 @@ func (s *Server) Serve(ctx context.Context) error {
 		tpe = "https"
 	}
 
-	l.Info("serve %s on %s (%s/%s)", tpe, svc.Addr, runtime.GOOS, runtime.GOARCH)
+	l.Info("serve %s %s on %s (%s/%s)", s.serviceName(), tpe, svc.Addr, runtime.GOOS, runtime.GOARCH)
 
 	ln, err := net.Listen("tcp", svc.Addr)
 	if err != nil {
