@@ -1,7 +1,6 @@
 package compress
 
 import (
-	"compress/flate"
 	"compress/gzip"
 	"io"
 	"net/http"
@@ -22,19 +21,18 @@ func HandlerLevel(level int) func(h http.Handler) http.Handler {
 		level = gzip.DefaultCompression
 	}
 
-	return func(h http.Handler) http.Handler {
-		const (
-			brEncoding    = "br"
-			gzipEncoding  = "gzip"
-			flateEncoding = "deflate"
-		)
+	const (
+		brEncoding   = "br"
+		gzipEncoding = "gzip"
+	)
 
+	return func(h http.Handler) http.Handler {
 		return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 			// detect what encoding to use
 			var encoding string
 			for _, curEnc := range strings.Split(r.Header.Get(acceptEncoding), ",") {
 				curEnc = strings.TrimSpace(curEnc)
-				if curEnc == brEncoding || curEnc == gzipEncoding || curEnc == flateEncoding {
+				if curEnc == brEncoding || curEnc == gzipEncoding {
 					encoding = curEnc
 				}
 			}
@@ -59,10 +57,10 @@ func HandlerLevel(level int) func(h http.Handler) http.Handler {
 			switch encoding {
 			case gzipEncoding:
 				encWriter, _ = gzip.NewWriterLevel(w, level)
-			case flateEncoding:
-				encWriter, _ = flate.NewWriter(w, level)
 			case brEncoding:
 				encWriter = brotli.NewWriterLevel(w, level)
+			default:
+				encoding = ""
 			}
 
 			defer func() {
