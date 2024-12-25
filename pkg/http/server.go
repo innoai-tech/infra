@@ -5,10 +5,10 @@ import (
 	"compress/gzip"
 	"context"
 	"crypto/tls"
-	"fmt"
 	"net"
 	"net/http"
 	"runtime"
+	"slices"
 	"time"
 
 	"github.com/go-courier/logr"
@@ -80,11 +80,37 @@ func (s *Server) ApplyGlobalHandlers(handlers ...handler.Middleware) {
 	s.globalHandlers = append(s.globalHandlers, handlers...)
 }
 
-func (s *Server) serviceName() string {
+func (s *Server) serviceName(ctx context.Context) string {
+	if s.info == nil {
+		if value, ok := appinfo.InfoFromContext(ctx); ok {
+			s.info = value
+		}
+	}
+
 	if info := s.info; info != nil {
 		return cmp.Or(s.name, info.App.Name) + "/" + info.App.Version
 	}
+
 	return "unknown/v0"
+}
+
+func (s *Server) NewHandler(ctx context.Context, root courier.Router) (http.Handler, error) {
+	return httprouter.New(
+		root,
+		s.serviceName(ctx),
+		s.buildRouterHandlers(ctx)...,
+	)
+}
+
+func (s *Server) buildRouterHandlers(ctx context.Context) []handler.Middleware {
+	return slices.Concat(
+		[]handler.Middleware{
+			middleware.ContextInjectorMiddleware(configuration.ContextInjectorFromContext(ctx)),
+			middleware.CompressHandlerMiddleware(gzip.DefaultCompression),
+			middleware.LogAndMetricHandler(),
+		},
+		s.routerHandlers,
+	)
 }
 
 func (s *Server) afterInit(ctx context.Context) error {
@@ -92,41 +118,32 @@ func (s *Server) afterInit(ctx context.Context) error {
 		return nil
 	}
 
-	if s.root == nil {
-		return fmt.Errorf("root router is not set")
+	var r http.Handler = http.NewServeMux()
+
+	if s.root != nil {
+		h, err := s.NewHandler(ctx, s.root)
+		if err != nil {
+			return err
+		}
+		r = h
 	}
 
-	h, err := httprouter.New(
-		s.root,
-		s.serviceName(),
-		append(
-			[]handler.Middleware{
-				middleware.ContextInjectorMiddleware(configuration.ContextInjectorFromContext(ctx)),
-				middleware.CompressHandlerMiddleware(gzip.DefaultCompression),
-				middleware.LogAndMetricHandler(),
-			},
-			s.routerHandlers...,
-		)...,
+	globalHandlers := slices.Concat(
+		[]handler.Middleware{
+			middleware.MetricHandler(otel.GathererContext.From(ctx)),
+			middleware.DefaultCORS(s.corsOptions...),
+			middleware.PProfHandler(s.EnableDebug),
+		},
+		s.globalHandlers,
+		[]handler.Middleware{
+			middleware.HealthCheckHandler(),
+		},
 	)
-
-	if err != nil {
-		return err
-	}
-
-	globalHandlers := append([]handler.Middleware{
-		middleware.MetricHandler(otel.GathererContext.From(ctx)),
-		middleware.DefaultCORS(s.corsOptions...),
-		middleware.PProfHandler(s.EnableDebug),
-	}, s.globalHandlers...)
-
-	globalHandlers = append(globalHandlers, middleware.HealthCheckHandler())
-
-	h = handler.ApplyMiddlewares(globalHandlers...)(h)
 
 	s.svc = &http.Server{
 		Addr:              s.Addr,
 		ReadHeaderTimeout: 30 * time.Second,
-		Handler:           h2c.NewHandler(h, &http2.Server{}),
+		Handler:           h2c.NewHandler(handler.ApplyMiddlewares(globalHandlers...)(r), &http2.Server{}),
 	}
 
 	return nil
@@ -146,7 +163,7 @@ func (s *Server) Serve(ctx context.Context) error {
 		tpe = "https"
 	}
 
-	l.Info("serve %s %s on %s (%s/%s)", s.serviceName(), tpe, svc.Addr, runtime.GOOS, runtime.GOARCH)
+	l.Info("serve %s %s on %s (%s/%s)", s.serviceName(ctx), tpe, svc.Addr, runtime.GOOS, runtime.GOARCH)
 
 	ln, err := net.Listen("tcp", svc.Addr)
 	if err != nil {

@@ -9,7 +9,7 @@ require (
 	github.com/felixge/httpsnoop v1.0.4
 	github.com/go-courier/logr v0.3.1
 	github.com/go-json-experiment/json v0.0.0-20241219015541-cad22780dab8
-	github.com/innoai-tech/openapi-playground v0.0.0-20241218103306-21a43ceaf06a
+	github.com/innoai-tech/openapi-playground v0.0.0-20241225012500-43ff08aee40d
 	github.com/octohelm/courier v0.0.0-20241218075031-edbeb58d1ef4
 	github.com/octohelm/enumeration v0.0.0-20241121070632-2cd7179b161c
 	github.com/octohelm/gengo v0.0.0-20241115071734-9f4b1461bafa
