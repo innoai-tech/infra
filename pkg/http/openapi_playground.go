@@ -16,26 +16,26 @@ func init() {
 }
 
 type openapiView struct {
-	once    sync.Once
-	handler http.Handler
+	views sync.Map
 }
 
 func (v *openapiView) Upgrade(w http.ResponseWriter, r *http.Request) error {
-	v.once.Do(func() {
-		basePath := strings.Split(r.URL.Path, "/_view/")[0]
+	basePath := strings.Split(r.URL.Path, "/_view/")[0]
 
-		v.handler = webapp.ServeFS(
+	getHandler, _ := v.views.LoadOrStore(basePath, sync.OnceValue(func() http.Handler {
+		return webapp.ServeFS(
 			openapiview.Contents,
 			webapp.WithBaseHref(basePath+"/_view/"),
 			webapp.WithAppConfig(map[string]string{
 				"OPENAPI": base64.StdEncoding.EncodeToString([]byte(basePath)),
 			}),
 		)
-	})
+	}))
 
 	// openapi playground should ignore HeaderAppBaseHref
 	r.Header.Del(webapp.HeaderAppBaseHref)
-	v.handler.ServeHTTP(w, r)
+
+	getHandler.(func() http.Handler)().ServeHTTP(w, r)
 
 	return nil
 }
