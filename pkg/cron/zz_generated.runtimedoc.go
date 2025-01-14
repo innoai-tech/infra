@@ -4,6 +4,8 @@ DON'T EDIT THIS FILE
 */
 package cron
 
+import _ "embed"
+
 // nolint:deadcode,unused
 func runtimeDoc(v any, prefix string, names ...string) ([]string, bool) {
 	if c, ok := v.(interface {
@@ -22,7 +24,7 @@ func runtimeDoc(v any, prefix string, names ...string) ([]string, bool) {
 	return nil, false
 }
 
-func (v IntervalSchedule) RuntimeDoc(names ...string) ([]string, bool) {
+func (v *IntervalSchedule) RuntimeDoc(names ...string) ([]string, bool) {
 	if len(names) > 0 {
 		switch names[0] {
 		case "Interval":
@@ -35,7 +37,7 @@ func (v IntervalSchedule) RuntimeDoc(names ...string) ([]string, bool) {
 	return []string{}, true
 }
 
-func (v Job) RuntimeDoc(names ...string) ([]string, bool) {
+func (v *Job) RuntimeDoc(names ...string) ([]string, bool) {
 	if len(names) > 0 {
 		switch names[0] {
 		case "Cron":
@@ -52,7 +54,7 @@ func (v Job) RuntimeDoc(names ...string) ([]string, bool) {
 	return []string{}, true
 }
 
-func (v Schedule) RuntimeDoc(names ...string) ([]string, bool) {
+func (v *Schedule) RuntimeDoc(names ...string) ([]string, bool) {
 	if len(names) > 0 {
 		switch names[0] {
 		case "Cron":

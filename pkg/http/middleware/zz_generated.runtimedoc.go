@@ -4,6 +4,8 @@ DON'T EDIT THIS FILE
 */
 package middleware
 
+import _ "embed"
+
 // nolint:deadcode,unused
 func runtimeDoc(v any, prefix string, names ...string) ([]string, bool) {
 	if c, ok := v.(interface {
@@ -22,14 +24,14 @@ func runtimeDoc(v any, prefix string, names ...string) ([]string, bool) {
 	return nil, false
 }
 
-func (CORSOption) RuntimeDoc(names ...string) ([]string, bool) {
+func (*CORSOption) RuntimeDoc(names ...string) ([]string, bool) {
 	return []string{
-		"CORSOption represents a functional option for configuring the CORS middleware.",
+		"represents a functional option for configuring the CORS middleware.",
 	}, true
 }
 
-func (OriginValidator) RuntimeDoc(names ...string) ([]string, bool) {
+func (*OriginValidator) RuntimeDoc(names ...string) ([]string, bool) {
 	return []string{
-		"OriginValidator takes an origin string and returns whether or not that origin is allowed.",
+		"takes an origin string and returns whether or not that origin is allowed.",
 	}, true
 }

@@ -4,6 +4,8 @@ DON'T EDIT THIS FILE
 */
 package otel
 
+import _ "embed"
+
 // nolint:deadcode,unused
 func runtimeDoc(v any, prefix string, names ...string) ([]string, bool) {
 	if c, ok := v.(interface {
@@ -22,26 +24,26 @@ func runtimeDoc(v any, prefix string, names ...string) ([]string, bool) {
 	return nil, false
 }
 
-func (LogFormat) RuntimeDoc(names ...string) ([]string, bool) {
+func (*LogFormat) RuntimeDoc(names ...string) ([]string, bool) {
 	return []string{}, true
 }
 
-func (LogLevel) RuntimeDoc(names ...string) ([]string, bool) {
+func (*LogLevel) RuntimeDoc(names ...string) ([]string, bool) {
 	return []string{}, true
 }
 
-func (v Source) RuntimeDoc(names ...string) ([]string, bool) {
+func (v *Source) RuntimeDoc(names ...string) ([]string, bool) {
 	if len(names) > 0 {
 		switch names[0] {
 		case "Function":
 			return []string{
-				"Function is the package path-qualified function name containing the",
+				"is the package path-qualified function name containing the",
 				"source line. If non-empty, this string uniquely identifies a single",
 				"function in the program. This may be the empty string if not known.",
 			}, true
 		case "File":
 			return []string{
-				"File and Line are the file name and line number (1-based) of the source",
+				"and Line are the file name and line number (1-based) of the source",
 				"line. These may be the empty string and zero, respectively, if not known.",
 			}, true
 		case "Line":

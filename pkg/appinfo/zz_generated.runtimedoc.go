@@ -4,6 +4,8 @@ DON'T EDIT THIS FILE
 */
 package appinfo
 
+import _ "embed"
+
 // nolint:deadcode,unused
 func runtimeDoc(v any, prefix string, names ...string) ([]string, bool) {
 	if c, ok := v.(interface {
@@ -22,7 +24,7 @@ func runtimeDoc(v any, prefix string, names ...string) ([]string, bool) {
 	return nil, false
 }
 
-func (v App) RuntimeDoc(names ...string) ([]string, bool) {
+func (v *App) RuntimeDoc(names ...string) ([]string, bool) {
 	if len(names) > 0 {
 		switch names[0] {
 		case "Name":
@@ -39,7 +41,7 @@ func (v App) RuntimeDoc(names ...string) ([]string, bool) {
 	return []string{}, true
 }
 
-func (v Component) RuntimeDoc(names ...string) ([]string, bool) {
+func (v *Component) RuntimeDoc(names ...string) ([]string, bool) {
 	if len(names) > 0 {
 		switch names[0] {
 		case "Name":
@@ -54,7 +56,7 @@ func (v Component) RuntimeDoc(names ...string) ([]string, bool) {
 	return []string{}, true
 }
 
-func (v Info) RuntimeDoc(names ...string) ([]string, bool) {
+func (v *Info) RuntimeDoc(names ...string) ([]string, bool) {
 	if len(names) > 0 {
 		switch names[0] {
 		case "App":

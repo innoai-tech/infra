@@ -4,6 +4,8 @@ DON'T EDIT THIS FILE
 */
 package org
 
+import _ "embed"
+
 // nolint:deadcode,unused
 func runtimeDoc(v any, prefix string, names ...string) ([]string, bool) {
 	if c, ok := v.(interface {
@@ -22,23 +24,21 @@ func runtimeDoc(v any, prefix string, names ...string) ([]string, bool) {
 	return nil, false
 }
 
-func (v CreateOrg) RuntimeDoc(names ...string) ([]string, bool) {
+func (v *CreateOrg) RuntimeDoc(names ...string) ([]string, bool) {
 	if len(names) > 0 {
 		switch names[0] {
 
 		}
-		if doc, ok := runtimeDoc(v.Info, "", names...); ok {
+		if doc, ok := runtimeDoc(&v.Info, "", names...); ok {
 			return doc, ok
 		}
 
 		return nil, false
 	}
-	return []string{
-		"创建组织",
-	}, true
+	return []string{"创建组织"}, true
 }
 
-func (v DataList) RuntimeDoc(names ...string) ([]string, bool) {
+func (v *DataList) RuntimeDoc(names ...string) ([]string, bool) {
 	if len(names) > 0 {
 		switch names[0] {
 		case "Data":
@@ -53,7 +53,7 @@ func (v DataList) RuntimeDoc(names ...string) ([]string, bool) {
 	return []string{}, true
 }
 
-func (v DeleteOrg) RuntimeDoc(names ...string) ([]string, bool) {
+func (v *DeleteOrg) RuntimeDoc(names ...string) ([]string, bool) {
 	if len(names) > 0 {
 		switch names[0] {
 		case "OrgName":
@@ -63,19 +63,17 @@ func (v DeleteOrg) RuntimeDoc(names ...string) ([]string, bool) {
 
 		return nil, false
 	}
-	return []string{
-		"删除组织",
-	}, true
+	return []string{"删除组织"}, true
 }
 
-func (v Detail) RuntimeDoc(names ...string) ([]string, bool) {
+func (v *Detail) RuntimeDoc(names ...string) ([]string, bool) {
 	if len(names) > 0 {
 		switch names[0] {
 		case "CreatedAt":
 			return []string{}, true
 
 		}
-		if doc, ok := runtimeDoc(v.Info, "", names...); ok {
+		if doc, ok := runtimeDoc(&v.Info, "", names...); ok {
 			return doc, ok
 		}
 
@@ -84,7 +82,7 @@ func (v Detail) RuntimeDoc(names ...string) ([]string, bool) {
 	return []string{}, true
 }
 
-func (v GetOrg) RuntimeDoc(names ...string) ([]string, bool) {
+func (v *GetOrg) RuntimeDoc(names ...string) ([]string, bool) {
 	if len(names) > 0 {
 		switch names[0] {
 		case "OrgName":
@@ -94,12 +92,10 @@ func (v GetOrg) RuntimeDoc(names ...string) ([]string, bool) {
 
 		return nil, false
 	}
-	return []string{
-		"查询组织信息",
-	}, true
+	return []string{"查询组织信息"}, true
 }
 
-func (v Info) RuntimeDoc(names ...string) ([]string, bool) {
+func (v *Info) RuntimeDoc(names ...string) ([]string, bool) {
 	if len(names) > 0 {
 		switch names[0] {
 		case "Name":
@@ -115,12 +111,10 @@ func (v Info) RuntimeDoc(names ...string) ([]string, bool) {
 
 		return nil, false
 	}
-	return []string{
-		"组织详情",
-	}, true
+	return []string{"组织详情"}, true
 }
 
-func (v ListOrg) RuntimeDoc(names ...string) ([]string, bool) {
+func (v *ListOrg) RuntimeDoc(names ...string) ([]string, bool) {
 	if len(names) > 0 {
 		switch names[0] {
 
@@ -128,11 +122,9 @@ func (v ListOrg) RuntimeDoc(names ...string) ([]string, bool) {
 
 		return nil, false
 	}
-	return []string{
-		"拉取组织列表",
-	}, true
+	return []string{"拉取组织列表"}, true
 }
 
-func (Type) RuntimeDoc(names ...string) ([]string, bool) {
+func (*Type) RuntimeDoc(names ...string) ([]string, bool) {
 	return []string{}, true
 }

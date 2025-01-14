@@ -3,17 +3,20 @@ module github.com/innoai-tech/infra
 go 1.23.4
 
 require (
+	github.com/go-courier/logr v0.3.1
+	github.com/innoai-tech/openapi-playground v0.0.0-20250114034804-310f640b66d3
+	github.com/octohelm/courier v0.0.0-20250114035526-588446a8c021
+	github.com/octohelm/enumeration v0.0.0-20241121070632-2cd7179b161c
+	github.com/octohelm/gengo v0.0.0-20250114031122-612df07e4139
+	github.com/octohelm/x v0.0.0-20250109055815-dda0e47e75ea
+)
+
+require (
 	cuelang.org/go v0.11.1
 	github.com/andybalholm/brotli v1.1.1
 	github.com/fatih/color v1.18.0
 	github.com/felixge/httpsnoop v1.0.4
-	github.com/go-courier/logr v0.3.1
-	github.com/go-json-experiment/json v0.0.0-20250108213703-50a1ba2c17a5
-	github.com/innoai-tech/openapi-playground v0.0.0-20250109045117-c8f528d56822
-	github.com/octohelm/courier v0.0.0-20250109060539-e7e7b35c1a99
-	github.com/octohelm/enumeration v0.0.0-20241121070632-2cd7179b161c
-	github.com/octohelm/gengo v0.0.0-20250104080658-4527b142baef
-	github.com/octohelm/x v0.0.0-20250109055815-dda0e47e75ea
+	github.com/go-json-experiment/json v0.0.0-20250113184934-d8c9bc4f8854
 	github.com/prometheus/client_golang v1.20.5
 	github.com/robfig/cron/v3 v3.0.1
 	github.com/spf13/cobra v1.8.1
@@ -48,7 +51,7 @@ require (
 	github.com/juju/ansiterm v1.0.0 // indirect
 	github.com/klauspost/compress v1.17.11 // indirect
 	github.com/lunixbochs/vtclean v1.0.0 // indirect
-	github.com/mattn/go-colorable v0.1.13 // indirect
+	github.com/mattn/go-colorable v0.1.14 // indirect
 	github.com/mattn/go-isatty v0.0.20 // indirect
 	github.com/munnerz/goautoneg v0.0.0-20191010083416-a7dc8b61c822 // indirect
 	github.com/onsi/gomega v1.36.2 // indirect
@@ -59,6 +62,7 @@ require (
 	go.opentelemetry.io/auto/sdk v1.1.0 // indirect
 	go.opentelemetry.io/proto/otlp v1.5.0 // indirect
 	golang.org/x/mod v0.22.0 // indirect
+	golang.org/x/oauth2 v0.25.0 // indirect
 	golang.org/x/sys v0.29.0 // indirect
 	golang.org/x/text v0.21.0 // indirect
 	golang.org/x/tools v0.29.0 // indirect
