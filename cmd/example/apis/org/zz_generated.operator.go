@@ -47,10 +47,10 @@ func (*GetOrg) ResponseData() *Detail {
 
 func (*GetOrg) ResponseErrors() []error {
 	return []error{
-		&(statuserror.ErrorResponse{
-			Code: 500,
-			Key:  "statuserror.statusError",
-			Msg:  "{key}{ code={statusCode}, msg={err} }",
+		&(statuserror.Descriptor{
+			Code:    "statuserror.statusError",
+			Message: "{code}{message={err},statusCode={statusCode}}",
+			Status:  500,
 		}),
 	}
 }

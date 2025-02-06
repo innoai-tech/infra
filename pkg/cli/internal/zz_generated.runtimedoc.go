@@ -79,7 +79,6 @@ func (v *Tag) RuntimeDoc(names ...string) ([]string, bool) {
 		switch names[0] {
 		case "Name":
 			return []string{}, true
-
 		}
 		if doc, ok := runtimeDoc(&v.Values, "", names...); ok {
 			return doc, ok

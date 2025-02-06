@@ -21,6 +21,7 @@ func (Type) EnumValues() []any {
 		TYPE__GOV, TYPE__COMPANY,
 	}
 }
+
 func (v Type) MarshalText() ([]byte, error) {
 	return []byte(v.String()), nil
 }

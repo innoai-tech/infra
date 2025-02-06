@@ -22,10 +22,9 @@ func InfoInjectContext(ctx context.Context, tpe *Info) context.Context {
 }
 
 func (p *Info) InjectContext(ctx context.Context) context.Context {
-
 	return InfoInjectContext(ctx, p)
 }
-func (v *Info) Init(ctx context.Context) error {
 
+func (v *Info) Init(ctx context.Context) error {
 	return nil
 }

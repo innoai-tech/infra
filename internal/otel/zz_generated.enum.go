@@ -16,6 +16,7 @@ func (LogFormat) EnumValues() []any {
 		LogFormatJSON, LogFormatText,
 	}
 }
+
 func ParseLogFormatLabelString(label string) (LogFormat, error) {
 	switch label {
 	case "json":
@@ -47,6 +48,7 @@ func (LogLevel) EnumValues() []any {
 		DebugLevel, ErrorLevel, InfoLevel, WarnLevel,
 	}
 }
+
 func ParseLogLevelLabelString(label string) (LogLevel, error) {
 	switch label {
 	case "debug":

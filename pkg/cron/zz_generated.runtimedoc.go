@@ -29,7 +29,6 @@ func (v *IntervalSchedule) RuntimeDoc(names ...string) ([]string, bool) {
 		switch names[0] {
 		case "Interval":
 			return []string{}, true
-
 		}
 
 		return nil, false
@@ -46,7 +45,6 @@ func (v *Job) RuntimeDoc(names ...string) ([]string, bool) {
 				"支持 标准格式",
 				"也支持 @every {duration} 等语义化格式",
 			}, true
-
 		}
 
 		return nil, false
@@ -63,7 +61,6 @@ func (v *Schedule) RuntimeDoc(names ...string) ([]string, bool) {
 				"支持 标准格式",
 				"也支持 @every {duration} 等语义化格式",
 			}, true
-
 		}
 
 		return nil, false

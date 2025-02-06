@@ -29,7 +29,6 @@ func (v *Serve) RuntimeDoc(names ...string) ([]string, bool) {
 		switch names[0] {
 		case "Server":
 			return []string{}, true
-
 		}
 		if doc, ok := runtimeDoc(&v.Otel, "", names...); ok {
 			return doc, ok
@@ -37,13 +36,14 @@ func (v *Serve) RuntimeDoc(names ...string) ([]string, bool) {
 
 		return nil, false
 	}
-	return []string{"Start serve"}, true
+	return []string{
+		"Start serve",
+	}, true
 }
 
 func (v *Webapp) RuntimeDoc(names ...string) ([]string, bool) {
 	if len(names) > 0 {
 		switch names[0] {
-
 		}
 		if doc, ok := runtimeDoc(&v.Otel, "", names...); ok {
 			return doc, ok
@@ -54,5 +54,7 @@ func (v *Webapp) RuntimeDoc(names ...string) ([]string, bool) {
 
 		return nil, false
 	}
-	return []string{"Start webapp serve"}, true
+	return []string{
+		"Start webapp serve",
+	}, true
 }
