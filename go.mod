@@ -5,10 +5,10 @@ go 1.24.0
 require (
 	github.com/go-courier/logr v0.3.1
 	github.com/innoai-tech/openapi-playground v0.0.0-20250211021902-60e42b12e553
-	github.com/octohelm/courier v0.0.0-20250213031428-2432e8681d86
+	github.com/octohelm/courier v0.0.0-20250213104025-f21d0877d28c
 	github.com/octohelm/enumeration v0.0.0-20250115091102-ddf41951d733
-	github.com/octohelm/gengo v0.0.0-20250208093034-2a09863d11f8
-	github.com/octohelm/x v0.0.0-20250212034859-0e2c4f726784
+	github.com/octohelm/gengo v0.0.0-20250213040207-59af51fbf311
+	github.com/octohelm/x v0.0.0-20250213100717-a5d72cc790e0
 )
 
 require (
@@ -16,7 +16,7 @@ require (
 	github.com/andybalholm/brotli v1.1.1
 	github.com/fatih/color v1.18.0
 	github.com/felixge/httpsnoop v1.0.4
-	github.com/go-json-experiment/json v0.0.0-20250212230008-60a0516c2895
+	github.com/go-json-experiment/json v0.0.0-20250213060926-925ba3f173fa
 	github.com/prometheus/client_golang v1.20.5
 	github.com/robfig/cron/v3 v3.0.1
 	github.com/spf13/cobra v1.8.1
