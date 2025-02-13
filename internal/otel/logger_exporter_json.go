@@ -36,7 +36,7 @@ func (e *jsonExporter) print(w io.Writer, r sdklog.Record) error {
 	b := bytes.NewBuffer(nil)
 	enc := jsontext.NewEncoder(b)
 
-	if err := enc.WriteToken(jsontext.ObjectStart); err != nil {
+	if err := enc.WriteToken(jsontext.BeginObject); err != nil {
 		return err
 	}
 
@@ -87,7 +87,7 @@ func (e *jsonExporter) print(w io.Writer, r sdklog.Record) error {
 		return err
 	}
 
-	if err := enc.WriteToken(jsontext.ObjectEnd); err != nil {
+	if err := enc.WriteToken(jsontext.EndObject); err != nil {
 		return err
 	}
 
@@ -141,7 +141,7 @@ func writeJSONValue(enc *jsontext.Encoder, value any) error {
 	case bool:
 		return enc.WriteToken(jsontext.Bool(x))
 	case map[string]any:
-		if err := enc.WriteToken(jsontext.ObjectStart); err != nil {
+		if err := enc.WriteToken(jsontext.BeginObject); err != nil {
 			return err
 		}
 		for key, value := range x {
@@ -152,9 +152,9 @@ func writeJSONValue(enc *jsontext.Encoder, value any) error {
 				return err
 			}
 		}
-		return enc.WriteToken(jsontext.ObjectEnd)
+		return enc.WriteToken(jsontext.EndObject)
 	case []any:
-		if err := enc.WriteToken(jsontext.ArrayStart); err != nil {
+		if err := enc.WriteToken(jsontext.BeginArray); err != nil {
 			return err
 		}
 		for i := range x {
@@ -162,7 +162,7 @@ func writeJSONValue(enc *jsontext.Encoder, value any) error {
 				return err
 			}
 		}
-		return enc.WriteToken(jsontext.ArrayEnd)
+		return enc.WriteToken(jsontext.EndArray)
 	case []byte:
 		return enc.WriteToken(jsontext.String(base64.StdEncoding.EncodeToString(x)))
 	}
