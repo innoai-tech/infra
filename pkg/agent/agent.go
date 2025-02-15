@@ -2,18 +2,18 @@ package agent
 
 import (
 	"context"
-	"github.com/go-courier/logr"
-	"github.com/innoai-tech/infra/pkg/configuration"
 	"log/slog"
 	"sync"
 	"sync/atomic"
 
+	"github.com/go-courier/logr"
+	"github.com/innoai-tech/infra/pkg/configuration"
 	"golang.org/x/sync/errgroup"
 )
 
-type action struct {
-	name   string
-	action func(ctx context.Context) error
+type worker struct {
+	name string
+	run  func(ctx context.Context) error
 }
 
 type Agent struct {
@@ -21,7 +21,7 @@ type Agent struct {
 	closed  atomic.Bool
 	serving atomic.Bool
 	wg      sync.WaitGroup
-	actions []*action
+	workers []*worker
 }
 
 func (x *Agent) Init(ctx context.Context) error {
@@ -29,25 +29,8 @@ func (x *Agent) Init(ctx context.Context) error {
 	return nil
 }
 
-func (x *Agent) Add(name string, fn func(ctx context.Context) error) {
-	if x.serving.Load() {
-		return
-	}
-
-	a := &action{
-		name:   name,
-		action: fn,
-	}
-
-	x.actions = append(x.actions, a)
-}
-
 func (x *Agent) Disabled(ctx context.Context) bool {
-	return len(x.actions) == 0
-}
-
-func (x *Agent) Done() <-chan struct{} {
-	return x.done
+	return len(x.workers) == 0
 }
 
 func (x *Agent) Serve(pctx context.Context) error {
@@ -55,7 +38,7 @@ func (x *Agent) Serve(pctx context.Context) error {
 		return nil
 	}
 
-	// serve once
+	// run once
 	if x.serving.Swap(true) {
 		return nil
 	}
@@ -64,21 +47,22 @@ func (x *Agent) Serve(pctx context.Context) error {
 
 	eg := &errgroup.Group{}
 
-	for _, a := range x.actions {
-		x.wg.Add(1)
+	for _, w := range x.workers {
 
 		l := logr.FromContext(pctx)
 
-		if a.name != "" {
-			l.WithValues(slog.String("agent.name", a.name))
+		if w.name != "" {
+			l = l.WithValues(slog.String("worker.name", w.name))
 		}
 
-		l.Info("agent serving...")
+		l.Info("agent worker serving...")
 
+		x.wg.Add(1)
 		eg.Go(func() error {
 			defer x.wg.Done()
 
 			c := contextInjector.InjectContext(context.Background())
+			c = configuration.ContextWithContextInjector(c, contextInjector)
 			c = logr.LoggerInjectContext(c, l)
 
 			ctx, cancel := context.WithCancel(c)
@@ -87,7 +71,7 @@ func (x *Agent) Serve(pctx context.Context) error {
 				cancel()
 			}()
 
-			if err := a.action(ctx); err != nil {
+			if err := w.run(ctx); err != nil {
 				return err
 			}
 
@@ -108,7 +92,7 @@ func (x *Agent) Shutdown(ctx context.Context) error {
 	done := make(chan struct{})
 
 	go func() {
-		// graceful
+		// graceful shutdown
 		x.wg.Wait()
 
 		close(done)
@@ -121,4 +105,36 @@ func (x *Agent) Shutdown(ctx context.Context) error {
 	}
 
 	return nil
+}
+
+func (x *Agent) Done() <-chan struct{} {
+	return x.done
+}
+
+// Host register worker func to workers
+// never added new one once serving
+func (x *Agent) Host(name string, run func(ctx context.Context) error) {
+	if x.serving.Load() {
+		return
+	}
+
+	a := &worker{
+		name: name,
+		run:  run,
+	}
+
+	x.workers = append(x.workers, a)
+}
+
+// Go exec with go func to support it could graceful shutdown
+func (x *Agent) Go(ctx context.Context, action func(ctx context.Context) error) {
+	x.wg.Add(1)
+
+	go func() {
+		defer x.wg.Done()
+
+		if err := action(ctx); err != nil {
+			logr.FromContext(ctx).Error(err)
+		}
+	}()
 }

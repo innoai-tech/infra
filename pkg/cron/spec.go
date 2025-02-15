@@ -1,6 +1,7 @@
 package cron
 
 import (
+	"context"
 	"fmt"
 	"github.com/robfig/cron/v3"
 	"iter"
@@ -9,9 +10,9 @@ import (
 
 type Spec string
 
-func (spec Spec) TimeSeq() iter.Seq[time.Time] {
+func (spec Spec) Times(ctx context.Context) iter.Seq[time.Time] {
 	s, _ := cron.ParseStandard(string(spec))
-	return TimeSeq(s)
+	return Times(ctx, s)
 }
 
 func (spec Spec) Schedule() cron.Schedule {
@@ -36,7 +37,7 @@ func (spec *Spec) UnmarshalText(text []byte) error {
 	return nil
 }
 
-func TimeSeq(schedule cron.Schedule) iter.Seq[time.Time] {
+func Times(ctx context.Context, schedule cron.Schedule) iter.Seq[time.Time] {
 	if schedule == nil {
 		return func(yield func(time.Time) bool) {
 
@@ -54,8 +55,10 @@ func TimeSeq(schedule cron.Schedule) iter.Seq[time.Time] {
 
 		for {
 			select {
-			case v := <-timer.C:
-				if !yield(v) {
+			case <-ctx.Done():
+				return
+			case v, ok := <-timer.C:
+				if !ok || !yield(v) {
 					return
 				}
 			}
