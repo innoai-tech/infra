@@ -29,14 +29,14 @@ func ParseAppConfig(s string) AppConfig {
 
 type AppConfig map[string]string
 
-const AppConfigPrefx = "APP_CONFIG__"
+const EnvVarPrefix = "APP_CONFIG__"
 
 func (c AppConfig) LoadFromEnviron(kv []string) {
 	for i := range kv {
 		keyValue := strings.SplitN(kv[i], "=", 2)
 		key := keyValue[0]
-		if len(keyValue) >= 2 && strings.HasPrefix(key, AppConfigPrefx) {
-			c[key[len(AppConfigPrefx):]] = keyValue[1]
+		if len(keyValue) >= 2 && strings.HasPrefix(key, EnvVarPrefix) {
+			c[key[len(EnvVarPrefix):]] = keyValue[1]
 		}
 	}
 }

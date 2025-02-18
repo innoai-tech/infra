@@ -2,26 +2,24 @@ package otel
 
 import (
 	"context"
-	"github.com/innoai-tech/infra/pkg/appinfo"
-	"go.opentelemetry.io/otel/sdk/resource"
-	semconv "go.opentelemetry.io/otel/semconv/v1.24.0"
 	"time"
-
-	prometheusclient "github.com/prometheus/client_golang/prometheus"
-	"github.com/prometheus/client_golang/prometheus/collectors"
-	"go.opentelemetry.io/otel/exporters/otlp/otlpmetric/otlpmetricgrpc"
-	"go.opentelemetry.io/otel/exporters/prometheus"
-	sdkmetric "go.opentelemetry.io/otel/sdk/metric"
 
 	"github.com/go-courier/logr"
 	"github.com/innoai-tech/infra/internal/otel"
+	"github.com/innoai-tech/infra/pkg/appinfo"
 	"github.com/innoai-tech/infra/pkg/configuration"
+	prometheusclient "github.com/prometheus/client_golang/prometheus"
+	"github.com/prometheus/client_golang/prometheus/collectors"
+	"go.opentelemetry.io/otel/exporters/otlp/otlpmetric/otlpmetricgrpc"
 	"go.opentelemetry.io/otel/exporters/otlp/otlptrace"
 	"go.opentelemetry.io/otel/exporters/otlp/otlptrace/otlptracegrpc"
-	"golang.org/x/sync/errgroup"
-
+	"go.opentelemetry.io/otel/exporters/prometheus"
 	sdklog "go.opentelemetry.io/otel/sdk/log"
+	sdkmetric "go.opentelemetry.io/otel/sdk/metric"
+	"go.opentelemetry.io/otel/sdk/resource"
 	sdktrace "go.opentelemetry.io/otel/sdk/trace"
+	semconv "go.opentelemetry.io/otel/semconv/v1.24.0"
+	"golang.org/x/sync/errgroup"
 )
 
 type LogLevel = otel.LogLevel

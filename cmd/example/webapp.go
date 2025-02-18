@@ -10,7 +10,7 @@ func init() {
 	cli.AddTo(App, &Webapp{})
 }
 
-// Start webapp serve
+// Webapp Start webapp serve
 type Webapp struct {
 	cli.C `component:"webapp"`
 	otel.Otel

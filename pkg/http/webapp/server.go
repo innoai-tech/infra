@@ -205,7 +205,6 @@ func (o *opt) sendFile(f fs.FS, w http.ResponseWriter, r *http.Request, path str
 
 	w.WriteHeader(http.StatusOK)
 	if _, err := io.Copy(w, bytes.NewBuffer(data)); err != nil {
-
 	}
 }
 

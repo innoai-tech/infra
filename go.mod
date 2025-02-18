@@ -2,12 +2,19 @@ module github.com/innoai-tech/infra
 
 go 1.24.0
 
+tool github.com/innoai-tech/infra/cmd/example
+
+tool (
+	github.com/innoai-tech/infra/internal/cmd/devtool
+	mvdan.cc/gofumpt
+)
+
 require (
 	github.com/go-courier/logr v0.3.1
 	github.com/innoai-tech/openapi-playground v0.0.0-20250217025637-a5b0801600d4
 	github.com/octohelm/courier v0.0.0-20250213104025-f21d0877d28c
 	github.com/octohelm/enumeration v0.0.0-20250115091102-ddf41951d733
-	github.com/octohelm/gengo v0.0.0-20250213040207-59af51fbf311
+	github.com/octohelm/gengo v0.0.0-20250218091145-bf40744cf564
 	github.com/octohelm/x v0.0.0-20250213100717-a5d72cc790e0
 )
 

@@ -2,10 +2,9 @@ package otel
 
 import (
 	"context"
+	"errors"
 	"testing"
 	"time"
-
-	"errors"
 
 	"github.com/go-courier/logr"
 	"github.com/innoai-tech/infra/pkg/configuration"

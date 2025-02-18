@@ -18,9 +18,11 @@ var DurationHistogramBoundaries = []float64{
 	10,
 }
 
-const B = 1
-const KiB = 1024 * B
-const MiB = 1024 * KiB
+const (
+	B   = 1
+	KiB = 1024 * B
+	MiB = 1024 * KiB
+)
 
 var SizeHistogramBoundaries = []float64{
 	512 * B,

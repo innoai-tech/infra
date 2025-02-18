@@ -4,9 +4,8 @@ import (
 	nethttp "net/http"
 	"strings"
 
-	"github.com/innoai-tech/infra/cmd/example/ui"
-
 	"github.com/innoai-tech/infra/cmd/example/apis"
+	"github.com/innoai-tech/infra/cmd/example/ui"
 	"github.com/innoai-tech/infra/pkg/cli"
 	"github.com/innoai-tech/infra/pkg/http"
 	"github.com/innoai-tech/infra/pkg/otel"

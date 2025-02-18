@@ -5,6 +5,7 @@ import (
 	"net/url"
 )
 
+// Info provide app info
 // +gengo:injectable:provider
 type Info struct {
 	App       *App

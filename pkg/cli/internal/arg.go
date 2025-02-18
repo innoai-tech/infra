@@ -56,7 +56,6 @@ func (as Args) Validate(args []string) error {
 			if err := encodingx.UnmarshalText(a.Value, []byte(args[i])); err != nil {
 				return err
 			}
-
 		}
 	}
 	return nil

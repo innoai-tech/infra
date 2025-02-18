@@ -2,14 +2,12 @@ package org
 
 import (
 	"context"
+	"errors"
 	"net/http"
 	"time"
 
-	"errors"
-
-	"github.com/octohelm/courier/pkg/statuserror"
-
 	"github.com/octohelm/courier/pkg/courierhttp"
+	"github.com/octohelm/courier/pkg/statuserror"
 )
 
 // 查询组织信息

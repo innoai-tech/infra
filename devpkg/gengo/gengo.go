@@ -8,15 +8,18 @@ import (
 
 type Gengo struct {
 	Entrypoint []string `arg:""`
+	// generate for all packages
+	All bool `flag:",omitzero" alias:"a"`
 }
 
 func (g *Gengo) Run(ctx context.Context) error {
 	c, err := gengo.NewContext(&gengo.GeneratorArgs{
+		Entrypoint:         g.Entrypoint,
+		OutputFileBaseName: "zz_generated",
+		All:                g.All,
 		Globals: map[string][]string{
 			"gengo:runtimedoc": {},
 		},
-		Entrypoint:         g.Entrypoint,
-		OutputFileBaseName: "zz_generated",
 	})
 	if err != nil {
 		return err

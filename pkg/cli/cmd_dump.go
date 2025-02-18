@@ -181,5 +181,5 @@ config: %q: string | *%q
 		return err
 	}
 
-	return os.WriteFile(path.Join(dest, fmt.Sprintf("%s.cue", componentName)), data, 0600)
+	return os.WriteFile(path.Join(dest, fmt.Sprintf("%s.cue", componentName)), data, 0o600)
 }

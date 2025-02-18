@@ -13,8 +13,7 @@ import (
 	sdklog "go.opentelemetry.io/otel/sdk/log"
 )
 
-type jsonExporter struct {
-}
+type jsonExporter struct{}
 
 func (e *jsonExporter) Export(ctx context.Context, records []sdklog.Record) error {
 	for _, r := range records {

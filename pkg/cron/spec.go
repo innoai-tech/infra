@@ -3,9 +3,10 @@ package cron
 import (
 	"context"
 	"fmt"
-	"github.com/robfig/cron/v3"
 	"iter"
 	"time"
+
+	"github.com/robfig/cron/v3"
 )
 
 type Spec string
@@ -40,7 +41,6 @@ func (spec *Spec) UnmarshalText(text []byte) error {
 func Times(ctx context.Context, schedule cron.Schedule) iter.Seq[time.Time] {
 	if schedule == nil {
 		return func(yield func(time.Time) bool) {
-
 		}
 	}
 

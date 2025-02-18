@@ -15,7 +15,7 @@ import (
 	_ "github.com/octohelm/gengo/devpkg/runtimedocgen"
 )
 
-var App = cli.NewApp("tool", "dev")
+var App = cli.NewApp("devtool", "dev")
 
 func init() {
 	c := &struct {
@@ -24,7 +24,8 @@ func init() {
 		gengo.Gengo
 	}{}
 
-	c.LogLevel = otel.DebugLevel
+	c.LogLevel = otel.InfoLevel
+	c.LogFormat = otel.LogFormatText
 
 	cli.AddTo(App, c)
 }
