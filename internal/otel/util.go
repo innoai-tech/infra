@@ -16,8 +16,6 @@ func normalizeKeyValues(keysAndValues []any) []log.KeyValue {
 	for i := 0; i < len(keysAndValues); i++ {
 		switch x := keysAndValues[i].(type) {
 		case []slog.Attr:
-			slog.GroupValue()
-
 			keyValues = append(keyValues, slices.Map(x, func(e slog.Attr) log.KeyValue {
 				return log.KeyValue{
 					Key:   e.Key,
@@ -140,6 +138,9 @@ func LogAnyValue(value any) log.Value {
 		}
 		return log.MapValue(keyValues...)
 	default:
+		if x, ok := v.(interface{ Unwrap() any }); ok {
+			return LogAnyValue(x.Unwrap())
+		}
 		return log.StringValue(slog.AnyValue(v).String())
 	}
 }
