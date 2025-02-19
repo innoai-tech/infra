@@ -133,7 +133,7 @@ func (x *Agent) Go(ctx context.Context, action func(ctx context.Context) error) 
 	go func() {
 		defer x.wg.Done()
 
-		if err := action(ctx); err != nil {
+		if err := action(configuration.Background(ctx)); err != nil {
 			logr.FromContext(ctx).Error(err)
 		}
 	}()
