@@ -2,6 +2,7 @@ package agent
 
 import (
 	"context"
+	"fmt"
 	"log/slog"
 	"sync"
 	"sync/atomic"
@@ -131,6 +132,12 @@ func (x *Agent) Go(ctx context.Context, action func(ctx context.Context) error) 
 	x.wg.Add(1)
 
 	go func() {
+		defer func() {
+			if e := recover(); e != nil {
+				logr.FromContext(ctx).Error(fmt.Errorf("panic: %#v", e))
+			}
+		}()
+
 		defer x.wg.Done()
 
 		if err := action(configuration.Background(ctx)); err != nil {
