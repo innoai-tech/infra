@@ -81,7 +81,7 @@ func (list Singletons) Configurators() iter.Seq[any] {
 
 func (list Singletons) Init(ctx context.Context) (context.Context, error) {
 	configurators := slices.Collect(list.Configurators())
-	ctx = ContextWithContextInjector(ctx, ComposeContextInjector(configurators...))
+	ctx = ContextInjectorInjectContext(ctx, ComposeContextInjector(configurators...))
 	return ctx, Init(ctx, configurators...)
 }
 

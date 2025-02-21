@@ -74,15 +74,15 @@ func (e *jsonExporter) print(w io.Writer, r sdklog.Record) error {
 		}
 	}
 
-	if err := e.keyValueTo(enc, "spanName", r.InstrumentationScope().Name); err != nil {
+	if err := e.keyValueTo(enc, "trace.span.name", r.InstrumentationScope().Name); err != nil {
 		return err
 	}
 
-	if err := e.keyValueTo(enc, "traceID", r.TraceID().String()); err != nil {
+	if err := e.keyValueTo(enc, "trace.id", r.TraceID().String()); err != nil {
 		return err
 	}
 
-	if err := e.keyValueTo(enc, "spanID", r.SpanID().String()); err != nil {
+	if err := e.keyValueTo(enc, "trace.span.id", r.SpanID().String()); err != nil {
 		return err
 	}
 

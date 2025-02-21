@@ -7,10 +7,6 @@ import (
 	contextx "github.com/octohelm/x/context"
 )
 
-type ContextInjector interface {
-	InjectContext(ctx context.Context) context.Context
-}
-
 func Background(ctx context.Context) context.Context {
 	return ContextInjectorFromContext(ctx).InjectContext(context.Background())
 }
@@ -20,6 +16,10 @@ func InjectContext(ctx context.Context, contextInjectors ...ContextInjector) con
 		ctx = contextInjector.InjectContext(ctx)
 	}
 	return ctx
+}
+
+type ContextInjector interface {
+	InjectContext(ctx context.Context) context.Context
 }
 
 func ComposeContextInjector(configurators ...any) ContextInjector {
@@ -40,11 +40,11 @@ func ComposeContextInjector(configurators ...any) ContextInjector {
 }
 
 type composeContextInjector struct {
-	contextInjectors iter.Seq[ContextInjector]
+	injectors iter.Seq[ContextInjector]
 }
 
 func (c *composeContextInjector) InjectContext(ctx context.Context) context.Context {
-	for contextInjector := range c.contextInjectors {
+	for contextInjector := range c.injectors {
 		ctx = contextInjector.InjectContext(ctx)
 	}
 	return ctx
@@ -52,7 +52,7 @@ func (c *composeContextInjector) InjectContext(ctx context.Context) context.Cont
 
 type contextInjectorCtx struct{}
 
-func ContextWithContextInjector(ctx context.Context, ci ContextInjector) context.Context {
+func ContextInjectorInjectContext(ctx context.Context, ci ContextInjector) context.Context {
 	return contextx.WithValue(ctx, contextInjectorCtx{}, ci)
 }
 

@@ -4,6 +4,7 @@ import (
 	"context"
 	"fmt"
 	"log/slog"
+	"reflect"
 	"sync"
 	"sync/atomic"
 
@@ -18,14 +19,28 @@ type worker struct {
 }
 
 type Agent struct {
+	kind    string
 	done    chan struct{}
 	closed  atomic.Bool
 	serving atomic.Bool
 	wg      sync.WaitGroup
+
 	workers []*worker
 }
 
 func (x *Agent) Init(ctx context.Context) error {
+	if v, ok := configuration.CurrentInstanceFromContext(ctx); ok {
+		if kindGetter, ok := v.(interface{ GetKind() string }); ok {
+			x.kind = kindGetter.GetKind()
+		} else {
+			t := reflect.TypeOf(v)
+			for t.Kind() == reflect.Ptr {
+				t = t.Elem()
+			}
+			x.kind = t.Name()
+		}
+	}
+
 	x.done = make(chan struct{})
 	return nil
 }
@@ -47,23 +62,24 @@ func (x *Agent) Serve(pctx context.Context) error {
 	contextInjector := configuration.ContextInjectorFromContext(pctx)
 
 	eg := &errgroup.Group{}
-
 	for _, w := range x.workers {
-
 		l := logr.FromContext(pctx)
 
-		if w.name != "" {
-			l = l.WithValues(slog.String("worker.name", w.name))
+		if x.kind != "" {
+			l = l.WithValues(slog.String("agent.kind", x.kind))
 		}
 
-		l.Info("agent worker serving...")
+		if w.name != "" {
+			l = l.WithValues(slog.String("agent.worker", w.name))
+		}
+
+		l.Info("serving")
 
 		x.wg.Add(1)
 		eg.Go(func() error {
 			defer x.wg.Done()
 
-			c := contextInjector.InjectContext(context.Background())
-			c = configuration.ContextWithContextInjector(c, contextInjector)
+			c := configuration.ContextInjectorInjectContext(context.Background(), contextInjector)
 			c = logr.LoggerInjectContext(c, l)
 
 			ctx, cancel := context.WithCancel(c)
@@ -132,16 +148,23 @@ func (x *Agent) Go(ctx context.Context, action func(ctx context.Context) error) 
 	x.wg.Add(1)
 
 	go func() {
+		// pick first to get agent/worker scope
+		l := logr.FromContext(ctx)
+
 		defer func() {
 			if e := recover(); e != nil {
-				logr.FromContext(ctx).Error(fmt.Errorf("panic: %#v", e))
+				l.Error(fmt.Errorf("panic: %#v", e))
 			}
 		}()
 
 		defer x.wg.Done()
 
-		if err := action(configuration.Background(ctx)); err != nil {
-			logr.FromContext(ctx).Error(err)
+		c := logr.LoggerInjectContext(configuration.Background(ctx), l)
+		cc, l2 := l.Start(c, "Go")
+		defer l2.End()
+
+		if err := action(cc); err != nil {
+			l2.Error(err)
 		}
 	}()
 }

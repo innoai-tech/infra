@@ -72,7 +72,7 @@ func (e *prettyExporter) print(f io.Writer, r sdklog.Record) error {
 	attrs := map[string]any{}
 
 	if name := r.InstrumentationScope().Name; name != "" {
-		attrs["spanName"] = name
+		attrs["trace.span.name"] = name
 	}
 
 	for attr := range r.WalkAttributes {

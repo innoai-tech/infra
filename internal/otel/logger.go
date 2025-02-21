@@ -118,7 +118,7 @@ func (lc *loggerContext) emit(level logr.Level, msg fmt.Stringer, keyValues []lo
 		if !ok {
 			lp = lc.loggerProvider
 		}
-		lc.logger = lp.Logger("app")
+		lc.logger = lp.Logger("")
 	}
 
 	var rec log.Record
@@ -145,7 +145,7 @@ func (lc *loggerContext) emit(level logr.Level, msg fmt.Stringer, keyValues []lo
 	}
 
 	if lc.parentID.IsValid() {
-		rec.AddAttributes(log.String("parentSpanID", lc.parentID.String()))
+		rec.AddAttributes(log.String("trace.parent.span.id", lc.parentID.String()))
 	}
 
 	rec.SetTimestamp(time.Now())

@@ -206,7 +206,7 @@ func initConfigurator(ctx context.Context, configurator any) (err error) {
 	}
 
 	if c, ok := configurator.(CanInit); ok {
-		return c.Init(ctx)
+		return c.Init(CurrentInstanceInjectContext(ctx, configurator))
 	}
 	return nil
 }
