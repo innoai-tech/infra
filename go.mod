@@ -11,10 +11,10 @@ tool (
 
 require (
 	github.com/go-courier/logr v0.3.2
-	github.com/innoai-tech/openapi-playground v0.0.0-20250217025637-a5b0801600d4
-	github.com/octohelm/courier v0.0.0-20250219103641-30623382bba0
+	github.com/innoai-tech/openapi-playground v0.0.0-20250225023948-0828144660a9
+	github.com/octohelm/courier v0.0.0-20250222040508-4bf173e5ff61
 	github.com/octohelm/enumeration v0.0.0-20250115091102-ddf41951d733
-	github.com/octohelm/gengo v0.0.0-20250219103331-fc799ce3110a
+	github.com/octohelm/gengo v0.0.0-20250225091908-fe5a392970d3
 	github.com/octohelm/x v0.0.0-20250213100717-a5d72cc790e0
 )
 
@@ -23,7 +23,7 @@ require (
 	github.com/andybalholm/brotli v1.1.1
 	github.com/fatih/color v1.18.0
 	github.com/felixge/httpsnoop v1.0.4
-	github.com/go-json-experiment/json v0.0.0-20250213060926-925ba3f173fa
+	github.com/go-json-experiment/json v0.0.0-20250223041408-d3c622f1b874
 	github.com/prometheus/client_golang v1.21.0
 	github.com/robfig/cron/v3 v3.0.1
 	github.com/spf13/cobra v1.9.1
@@ -52,7 +52,7 @@ require (
 	github.com/go-logr/logr v1.4.2 // indirect
 	github.com/go-logr/stdr v1.2.2 // indirect
 	github.com/gogo/protobuf v1.3.2 // indirect
-	github.com/google/go-cmp v0.6.0 // indirect
+	github.com/google/go-cmp v0.7.0 // indirect
 	github.com/google/uuid v1.6.0 // indirect
 	github.com/grpc-ecosystem/grpc-gateway/v2 v2.26.1 // indirect
 	github.com/inconshreveable/mousetrap v1.1.0 // indirect

@@ -10,6 +10,8 @@ type Gengo struct {
 	Entrypoint []string `arg:""`
 	// generate for all packages
 	All bool `flag:",omitzero" alias:"a"`
+	// force generate without cache
+	Force bool `flag:",omitzero"`
 }
 
 func (g *Gengo) Run(ctx context.Context) error {
@@ -17,6 +19,7 @@ func (g *Gengo) Run(ctx context.Context) error {
 		Entrypoint:         g.Entrypoint,
 		OutputFileBaseName: "zz_generated",
 		All:                g.All,
+		Force:              g.Force,
 		Globals: map[string][]string{
 			"gengo:runtimedoc": {},
 		},
