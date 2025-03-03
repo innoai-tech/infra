@@ -8,7 +8,8 @@ import (
 )
 
 func Background(ctx context.Context) context.Context {
-	return ContextInjectorFromContext(ctx).InjectContext(context.Background())
+	i := ContextInjectorFromContext(ctx)
+	return ContextInjectorInjectContext(i.InjectContext(context.Background()), i)
 }
 
 func InjectContext(ctx context.Context, contextInjectors ...ContextInjector) context.Context {
