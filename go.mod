@@ -1,6 +1,6 @@
 module github.com/innoai-tech/infra
 
-go 1.24.0
+go 1.24.1
 
 tool github.com/innoai-tech/infra/cmd/example
 
@@ -11,11 +11,11 @@ tool (
 
 require (
 	github.com/go-courier/logr v0.3.2
-	github.com/innoai-tech/openapi-playground v0.0.0-20250225023948-0828144660a9
-	github.com/octohelm/courier v0.0.0-20250222040508-4bf173e5ff61
+	github.com/innoai-tech/openapi-playground v0.0.0-20250328073857-3387e5947fdb
+	github.com/octohelm/courier v0.0.0-20250328062733-f414c6503803
 	github.com/octohelm/enumeration v0.0.0-20250115091102-ddf41951d733
-	github.com/octohelm/gengo v0.0.0-20250225091908-fe5a392970d3
-	github.com/octohelm/x v0.0.0-20250213100717-a5d72cc790e0
+	github.com/octohelm/gengo v0.0.0-20250326091949-b027fe02828d
+	github.com/octohelm/x v0.0.0-20250307053041-306f2dec9027
 )
 
 require (
@@ -40,8 +40,8 @@ require (
 	go.opentelemetry.io/otel/sdk/log v0.10.0
 	go.opentelemetry.io/otel/sdk/metric v1.34.0
 	go.opentelemetry.io/otel/trace v1.34.0
-	golang.org/x/net v0.35.0
-	golang.org/x/sync v0.11.0
+	golang.org/x/net v0.37.0
+	golang.org/x/sync v0.12.0
 )
 
 require (
@@ -62,22 +62,22 @@ require (
 	github.com/mattn/go-colorable v0.1.14 // indirect
 	github.com/mattn/go-isatty v0.0.20 // indirect
 	github.com/munnerz/goautoneg v0.0.0-20191010083416-a7dc8b61c822 // indirect
-	github.com/onsi/gomega v1.36.2 // indirect
+	github.com/onsi/gomega v1.36.3 // indirect
 	github.com/pelletier/go-toml/v2 v2.2.3 // indirect
 	github.com/prometheus/client_model v0.6.1 // indirect
 	github.com/prometheus/common v0.62.0 // indirect
 	github.com/prometheus/procfs v0.15.1 // indirect
 	go.opentelemetry.io/auto/sdk v1.1.0 // indirect
 	go.opentelemetry.io/proto/otlp v1.5.0 // indirect
-	golang.org/x/mod v0.23.0 // indirect
-	golang.org/x/sys v0.30.0 // indirect
-	golang.org/x/text v0.22.0 // indirect
-	golang.org/x/tools v0.30.0 // indirect
+	golang.org/x/mod v0.24.0 // indirect
+	golang.org/x/sys v0.31.0 // indirect
+	golang.org/x/text v0.23.0 // indirect
+	golang.org/x/tools v0.31.0 // indirect
 	google.golang.org/genproto/googleapis/api v0.0.0-20250219182151-9fdb1cabc7b2 // indirect
 	google.golang.org/genproto/googleapis/rpc v0.0.0-20250219182151-9fdb1cabc7b2 // indirect
 	google.golang.org/grpc v1.70.0 // indirect
 	google.golang.org/protobuf v1.36.5 // indirect
 	gopkg.in/yaml.v3 v3.0.1 // indirect
-	k8s.io/apimachinery v0.32.2 // indirect
+	k8s.io/apimachinery v0.32.3 // indirect
 	mvdan.cc/gofumpt v0.7.0 // indirect
 )
