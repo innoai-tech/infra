@@ -12,10 +12,10 @@ func init() {
 	R.Register(courier.NewRouter(&ArchiveZip{}))
 }
 
-func (*ArchiveZip) ResponseContent() any {
+func (ArchiveZip) ResponseContent() any {
 	return new(ZipFile)
 }
 
-func (*ArchiveZip) ResponseData() *ZipFile {
+func (ArchiveZip) ResponseData() *ZipFile {
 	return new(ZipFile)
 }

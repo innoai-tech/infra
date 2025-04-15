@@ -6,18 +6,17 @@ package org
 
 import (
 	courier "github.com/octohelm/courier/pkg/courier"
-	statuserror "github.com/octohelm/courier/pkg/statuserror"
 )
 
 func init() {
 	R.Register(courier.NewRouter(&CreateOrg{}))
 }
 
-func (*CreateOrg) ResponseContent() any {
+func (CreateOrg) ResponseContent() any {
 	return nil
 }
 
-func (*CreateOrg) ResponseData() *courier.NoContent {
+func (CreateOrg) ResponseData() *courier.NoContent {
 	return new(courier.NoContent)
 }
 
@@ -25,11 +24,11 @@ func init() {
 	R.Register(courier.NewRouter(&DeleteOrg{}))
 }
 
-func (*DeleteOrg) ResponseContent() any {
+func (DeleteOrg) ResponseContent() any {
 	return nil
 }
 
-func (*DeleteOrg) ResponseData() *courier.NoContent {
+func (DeleteOrg) ResponseData() *courier.NoContent {
 	return new(courier.NoContent)
 }
 
@@ -37,36 +36,26 @@ func init() {
 	R.Register(courier.NewRouter(&GetOrg{}))
 }
 
-func (*GetOrg) ResponseContent() any {
+func (GetOrg) ResponseContent() any {
 	return new(Detail)
 }
 
-func (*GetOrg) ResponseData() *Detail {
+func (GetOrg) ResponseData() *Detail {
 	return new(Detail)
-}
-
-func (*GetOrg) ResponseErrors() []error {
-	return []error{
-		&(statuserror.Descriptor{
-			Code:    "statuserror.statusError",
-			Message: "{code}{message={err},statusCode={statusCode}}",
-			Status:  500,
-		}),
-	}
 }
 
 func init() {
 	R.Register(courier.NewRouter(&ListOrg{}))
 }
 
-func (*ListOrg) ResponseStatusCode() int {
+func (ListOrg) ResponseStatusCode() int {
 	return 200
 }
 
-func (*ListOrg) ResponseContent() any {
+func (ListOrg) ResponseContent() any {
 	return new(DataList)
 }
 
-func (*ListOrg) ResponseData() *DataList {
+func (ListOrg) ResponseData() *DataList {
 	return new(DataList)
 }
