@@ -12,9 +12,9 @@ tool (
 require (
 	github.com/go-courier/logr v0.3.2
 	github.com/innoai-tech/openapi-playground v0.0.0-20250408023930-bf1005638989
-	github.com/octohelm/courier v0.0.0-20250409025123-af965993745b
+	github.com/octohelm/courier v0.0.0-20250416054450-c6bcc185d5c3
 	github.com/octohelm/enumeration v0.0.0-20250115091102-ddf41951d733
-	github.com/octohelm/gengo v0.0.0-20250326091949-b027fe02828d
+	github.com/octohelm/gengo v0.0.0-20250418031154-d14a228621d4
 	github.com/octohelm/x v0.0.0-20250409031213-9c254440c2b8
 )
 
@@ -23,7 +23,7 @@ require (
 	github.com/andybalholm/brotli v1.1.1
 	github.com/fatih/color v1.18.0
 	github.com/felixge/httpsnoop v1.0.4
-	github.com/go-json-experiment/json v0.0.0-20250223041408-d3c622f1b874
+	github.com/go-json-experiment/json v0.0.0-20250417205406-170dfdcf87d1
 	github.com/prometheus/client_golang v1.22.0
 	github.com/robfig/cron/v3 v3.0.1
 	github.com/spf13/cobra v1.9.1
@@ -65,7 +65,7 @@ require (
 	github.com/pelletier/go-toml/v2 v2.2.4 // indirect
 	github.com/prometheus/client_model v0.6.2 // indirect
 	github.com/prometheus/common v0.63.0 // indirect
-	github.com/prometheus/procfs v0.16.0 // indirect
+	github.com/prometheus/procfs v0.16.1 // indirect
 	go.opentelemetry.io/auto/sdk v1.1.0 // indirect
 	go.opentelemetry.io/proto/otlp v1.5.0 // indirect
 	golang.org/x/mod v0.24.0 // indirect

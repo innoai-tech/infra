@@ -13,10 +13,22 @@ type Spec string
 
 func (spec Spec) Times(ctx context.Context) iter.Seq[time.Time] {
 	s, _ := cron.ParseStandard(string(spec))
+	if s == nil {
+		return func(yield func(time.Time) bool) {
+
+		}
+	}
 	return Times(ctx, s)
 }
 
+func (spec Spec) IsZero() bool {
+	return spec == ""
+}
+
 func (spec Spec) Schedule() cron.Schedule {
+	if spec == "@never" {
+		return nil
+	}
 	s, _ := cron.ParseStandard(string(spec))
 	return s
 }
@@ -26,6 +38,7 @@ func (spec *Spec) UnmarshalText(text []byte) error {
 
 	switch s {
 	case "@never":
+		*spec = Spec(s)
 		return nil
 	default:
 		_, err := cron.ParseStandard(s)

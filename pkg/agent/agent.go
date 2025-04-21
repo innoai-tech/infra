@@ -2,7 +2,6 @@ package agent
 
 import (
 	"context"
-	"fmt"
 	"log/slog"
 	"reflect"
 	"sync"
@@ -151,11 +150,11 @@ func (x *Agent) Go(ctx context.Context, action func(ctx context.Context) error) 
 		// pick first to get agent/worker scope
 		l := logr.FromContext(ctx)
 
-		defer func() {
-			if e := recover(); e != nil {
-				l.Error(fmt.Errorf("panic: %#v", e))
-			}
-		}()
+		//defer func() {
+		//	if e := recover(); e != nil {
+		//		l.Error(fmt.Errorf("panic: %#v", e))
+		//	}
+		//}()
 
 		defer x.wg.Done()
 
