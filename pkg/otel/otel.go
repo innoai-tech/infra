@@ -57,6 +57,8 @@ type Otel struct {
 
 	enabledLevel logr.Level
 
+	dynamicLogProcessor *dynamicLogProcessor
+
 	info *appinfo.Info `inject:",opt"`
 }
 
@@ -87,10 +89,17 @@ func (o *Otel) InjectContext(ctx context.Context) context.Context {
 
 	return configuration.InjectContext(
 		ctx,
+		configuration.InjectContextFunc(LogProcessorRegistryInjectContext, LogProcessorRegistry(o.dynamicLogProcessor)),
 		configuration.InjectContextFunc(logr.WithLogger, l),
 		configuration.InjectContextFunc(otel.GathererContext.Inject, o.promGatherer),
 		configuration.InjectContextFunc(otel.MeterProviderContext.Inject, otel.MeterProvider(o.meterProvider)),
 	)
+}
+
+func (o *Otel) beforeInit(ctx context.Context) error {
+	o.dynamicLogProcessor = &dynamicLogProcessor{}
+
+	return nil
 }
 
 func (o *Otel) afterInit(ctx context.Context) error {
@@ -124,7 +133,10 @@ func (o *Otel) afterInit(ctx context.Context) error {
 	}
 
 	logOpts := []sdklog.LoggerProviderOption{
-		sdklog.WithProcessor(sdklog.NewSimpleProcessor(otel.SlogExporter(o.LogFormat))),
+		sdklog.WithProcessor(
+			sdklog.NewSimpleProcessor(otel.SlogExporter(o.LogFormat)),
+		),
+		sdklog.WithProcessor(o.dynamicLogProcessor),
 	}
 
 	meterOpts := []sdkmetric.Option{
@@ -168,8 +180,10 @@ func (o *Otel) afterInit(ctx context.Context) error {
 		}
 		meterOpts = append(meterOpts,
 			sdkmetric.WithReader(
-				sdkmetric.NewPeriodicReader(exporter,
-					sdkmetric.WithInterval(time.Duration(o.MetricCollectIntervalSeconds)*time.Second)),
+				sdkmetric.NewPeriodicReader(
+					exporter,
+					sdkmetric.WithInterval(time.Duration(o.MetricCollectIntervalSeconds)*time.Second),
+				),
 			),
 		)
 	}

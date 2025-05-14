@@ -12,7 +12,7 @@ tool (
 require (
 	github.com/go-courier/logr v0.3.2
 	github.com/innoai-tech/openapi-playground v0.0.0-20250422032150-6455c64a7612
-	github.com/octohelm/courier v0.0.0-20250416054450-c6bcc185d5c3
+	github.com/octohelm/courier v0.0.0-20250512054309-8e482c9572b7
 	github.com/octohelm/enumeration v0.0.0-20250115091102-ddf41951d733
 	github.com/octohelm/gengo v0.0.0-20250418031154-d14a228621d4
 	github.com/octohelm/x v0.0.0-20250409031213-9c254440c2b8
@@ -40,8 +40,8 @@ require (
 	go.opentelemetry.io/otel/sdk/log v0.11.0
 	go.opentelemetry.io/otel/sdk/metric v1.35.0
 	go.opentelemetry.io/otel/trace v1.35.0
-	golang.org/x/net v0.39.0
-	golang.org/x/sync v0.13.0
+	golang.org/x/net v0.40.0
+	golang.org/x/sync v0.14.0
 )
 
 require (
@@ -67,13 +67,13 @@ require (
 	github.com/prometheus/common v0.63.0 // indirect
 	github.com/prometheus/procfs v0.16.1 // indirect
 	go.opentelemetry.io/auto/sdk v1.1.0 // indirect
-	go.opentelemetry.io/proto/otlp v1.5.0 // indirect
+	go.opentelemetry.io/proto/otlp v1.6.0 // indirect
 	golang.org/x/mod v0.24.0 // indirect
-	golang.org/x/sys v0.32.0 // indirect
-	golang.org/x/text v0.24.0 // indirect
-	golang.org/x/tools v0.32.0 // indirect
-	google.golang.org/genproto/googleapis/api v0.0.0-20250425173222-7b384671a197 // indirect
-	google.golang.org/genproto/googleapis/rpc v0.0.0-20250425173222-7b384671a197 // indirect
+	golang.org/x/sys v0.33.0 // indirect
+	golang.org/x/text v0.25.0 // indirect
+	golang.org/x/tools v0.33.0 // indirect
+	google.golang.org/genproto/googleapis/api v0.0.0-20250512202823-5a2f75b736a9 // indirect
+	google.golang.org/genproto/googleapis/rpc v0.0.0-20250512202823-5a2f75b736a9 // indirect
 	google.golang.org/grpc v1.72.0 // indirect
 	google.golang.org/protobuf v1.36.6 // indirect
 	gopkg.in/yaml.v3 v3.0.1 // indirect
