@@ -1,6 +1,6 @@
 module github.com/innoai-tech/infra
 
-go 1.24.3
+go 1.24.4
 
 tool github.com/innoai-tech/infra/cmd/example
 
@@ -11,7 +11,7 @@ tool (
 
 require (
 	github.com/go-courier/logr v0.3.2
-	github.com/innoai-tech/openapi-playground v0.0.0-20250422032150-6455c64a7612
+	github.com/innoai-tech/openapi-playground v0.0.0-20250616084037-3de653afd232
 	github.com/octohelm/courier v0.0.0-20250605014724-269e1e89a1c1
 	github.com/octohelm/enumeration v0.0.0-20250115091102-ddf41951d733
 	github.com/octohelm/gengo v0.0.0-20250418031154-d14a228621d4
@@ -19,7 +19,7 @@ require (
 )
 
 require (
-	cuelang.org/go v0.13.0
+	cuelang.org/go v0.13.1
 	github.com/andybalholm/brotli v1.1.1
 	github.com/fatih/color v1.18.0
 	github.com/felixge/httpsnoop v1.0.4
@@ -40,8 +40,8 @@ require (
 	go.opentelemetry.io/otel/sdk/log v0.12.2
 	go.opentelemetry.io/otel/sdk/metric v1.36.0
 	go.opentelemetry.io/otel/trace v1.36.0
-	golang.org/x/net v0.40.0
-	golang.org/x/sync v0.14.0
+	golang.org/x/net v0.41.0
+	golang.org/x/sync v0.15.0
 )
 
 require (
@@ -49,7 +49,7 @@ require (
 	github.com/cenkalti/backoff/v5 v5.0.2 // indirect
 	github.com/cespare/xxhash/v2 v2.3.0 // indirect
 	github.com/cockroachdb/apd/v3 v3.2.1 // indirect
-	github.com/go-logr/logr v1.4.3 // indirect
+	github.com/go-logr/logr v1.4.2 // indirect
 	github.com/go-logr/stdr v1.2.2 // indirect
 	github.com/gogo/protobuf v1.3.2 // indirect
 	github.com/google/go-cmp v0.7.0 // indirect
@@ -67,14 +67,14 @@ require (
 	github.com/prometheus/common v0.64.0 // indirect
 	github.com/prometheus/procfs v0.16.1 // indirect
 	go.opentelemetry.io/auto/sdk v1.1.0 // indirect
-	go.opentelemetry.io/proto/otlp v1.7.0 // indirect
-	golang.org/x/mod v0.24.0 // indirect
+	go.opentelemetry.io/proto/otlp v1.6.0 // indirect
+	golang.org/x/mod v0.25.0 // indirect
 	golang.org/x/sys v0.33.0 // indirect
-	golang.org/x/text v0.25.0 // indirect
+	golang.org/x/text v0.26.0 // indirect
 	golang.org/x/tools v0.33.0 // indirect
-	google.golang.org/genproto/googleapis/api v0.0.0-20250603155806-513f23925822 // indirect
-	google.golang.org/genproto/googleapis/rpc v0.0.0-20250603155806-513f23925822 // indirect
-	google.golang.org/grpc v1.72.2 // indirect
+	google.golang.org/genproto/googleapis/api v0.0.0-20250519155744-55703ea1f237 // indirect
+	google.golang.org/genproto/googleapis/rpc v0.0.0-20250519155744-55703ea1f237 // indirect
+	google.golang.org/grpc v1.72.1 // indirect
 	google.golang.org/protobuf v1.36.6 // indirect
 	gopkg.in/yaml.v3 v3.0.1 // indirect
 	k8s.io/apimachinery v0.33.1 // indirect

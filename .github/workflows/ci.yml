@@ -10,7 +10,8 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
+      - uses: extractions/setup-just@v3
       - uses: actions/setup-go@v5
         with:
-          go-version: '^1.23'
-      - run: make test
+          go-version: '^1.24'
+      - run: just test-race

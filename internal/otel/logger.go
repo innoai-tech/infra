@@ -112,15 +112,18 @@ type loggerContext struct {
 	logger         log.Logger
 }
 
-func (lc *loggerContext) emit(level logr.Level, msg fmt.Stringer, keyValues []log.KeyValue) {
+func (lc *loggerContext) getLogger() log.Logger {
 	if lc.logger == nil {
 		lp, ok := LoggerProviderContext.MayFrom(lc.ctx)
 		if !ok {
 			lp = lc.loggerProvider
 		}
-		lc.logger = lp.Logger("")
+		return lp.Logger("")
 	}
+	return lc.logger
+}
 
+func (lc *loggerContext) emit(level logr.Level, msg fmt.Stringer, keyValues []log.KeyValue) {
 	var rec log.Record
 
 	switch level {
@@ -151,7 +154,7 @@ func (lc *loggerContext) emit(level logr.Level, msg fmt.Stringer, keyValues []lo
 	rec.SetTimestamp(time.Now())
 	rec.SetBody(log.StringValue(msg.String()))
 
-	lc.logger.Emit(lc.ctx, rec)
+	lc.getLogger().Emit(lc.ctx, rec)
 }
 
 func (l *loggerContext) info(level logr.Level, msg fmt.Stringer, keyValues []log.KeyValue) {
