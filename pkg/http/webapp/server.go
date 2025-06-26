@@ -2,6 +2,7 @@ package webapp
 
 import (
 	"bytes"
+	"cmp"
 	"compress/gzip"
 	"context"
 	"fmt"
@@ -11,6 +12,7 @@ import (
 	"net/http"
 	"os"
 	"path"
+	"path/filepath"
 	"runtime"
 	"strings"
 	"sync"
@@ -197,7 +199,7 @@ func (o *opt) sendFile(f fs.FS, w http.ResponseWriter, r *http.Request, path str
 		path = path[1:]
 	}
 
-	data, err := o.loadOrProcess(f, path, o.resolveBaseHref(r))
+	data, err := o.loadOrProcess(f, path, o.resolveBaseHref(r.Header.Get(HeaderAppBaseHref)))
 	if err != nil {
 		w.WriteHeader(http.StatusNotFound)
 		return
@@ -254,11 +256,20 @@ func (o *opt) htmlHandler(f fs.FS) http.Handler {
 	})
 }
 
-func (o *opt) resolveBaseHref(r *http.Request) string {
-	if appBaseHref := r.Header.Get(HeaderAppBaseHref); appBaseHref != "" {
-		return appBaseHref
+func (o *opt) resolveBaseHref(headerAppBaseHref string) string {
+	baseHref := o.baseHref
+	p := filepath.Clean(cmp.Or(headerAppBaseHref) + baseHref)
+	if p == "/" {
+		return "/"
 	}
-	return o.baseHref
+	return p + "/"
+}
+
+func (o *opt) build(optFns ...OptFunc) *opt {
+	for i := range optFns {
+		optFns[i](o)
+	}
+	return o
 }
 
 const (
@@ -266,13 +277,7 @@ const (
 )
 
 func ServeFS(f fs.FS, optFns ...OptFunc) http.Handler {
-	o := &opt{
-		baseHref: "/",
-	}
-
-	for i := range optFns {
-		optFns[i](o)
-	}
+	o := (&opt{baseHref: "/"}).build(optFns...)
 
 	html := o.htmlHandler(f)
 	static := o.staticFileHandler(f)
@@ -285,7 +290,7 @@ func ServeFS(f fs.FS, optFns ...OptFunc) http.Handler {
 			return
 		}
 
-		baseHref := o.resolveBaseHref(r)
+		baseHref := o.resolveBaseHref(r.Header.Get(HeaderAppBaseHref))
 
 		if baseHref != "/" {
 			if !strings.HasPrefix(r.URL.Path+"/", o.baseHref) {
