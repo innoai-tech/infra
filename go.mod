@@ -12,7 +12,7 @@ tool (
 require (
 	github.com/go-courier/logr v0.3.2
 	github.com/innoai-tech/openapi-playground v0.0.0-20250624093833-6727740c68de
-	github.com/octohelm/courier v0.0.0-20250626030519-93d6fe589100
+	github.com/octohelm/courier v0.0.0-20250703075201-298ec05e0543
 	github.com/octohelm/enumeration v0.0.0-20250115091102-ddf41951d733
 	github.com/octohelm/gengo v0.0.0-20250418031154-d14a228621d4
 	github.com/octohelm/x v0.0.0-20250409031213-9c254440c2b8
@@ -23,7 +23,7 @@ require (
 	github.com/andybalholm/brotli v1.2.0
 	github.com/fatih/color v1.18.0
 	github.com/felixge/httpsnoop v1.0.4
-	github.com/go-json-experiment/json v0.0.0-20250625182306-a9cfae7f3654
+	github.com/go-json-experiment/json v0.0.0-20250626171732-1a886bd29d1b
 	github.com/prometheus/client_golang v1.22.0
 	github.com/robfig/cron/v3 v3.0.1
 	github.com/spf13/cobra v1.9.1
