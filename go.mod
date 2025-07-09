@@ -11,11 +11,11 @@ tool (
 
 require (
 	github.com/go-courier/logr v0.3.2
-	github.com/innoai-tech/openapi-playground v0.0.0-20250624093833-6727740c68de
-	github.com/octohelm/courier v0.0.0-20250703075201-298ec05e0543
+	github.com/innoai-tech/openapi-playground v0.0.0-20250704100217-a0c62af5366b
+	github.com/octohelm/courier v0.0.0-20250709084559-8e79357f00d0
 	github.com/octohelm/enumeration v0.0.0-20250115091102-ddf41951d733
 	github.com/octohelm/gengo v0.0.0-20250418031154-d14a228621d4
-	github.com/octohelm/x v0.0.0-20250409031213-9c254440c2b8
+	github.com/octohelm/x v0.0.0-20250708033748-64c90ed759d0
 )
 
 require (

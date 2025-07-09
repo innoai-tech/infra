@@ -1,7 +1,9 @@
 package internal
 
 import (
+	"bytes"
 	"encoding"
+	"encoding/csv"
 	"fmt"
 	"reflect"
 	"strings"
@@ -103,7 +105,11 @@ func (f *FlagVar) Set(s string) error {
 			return nil
 		}
 
-		list := strings.Split(s, ",")
+		r := csv.NewReader(bytes.NewBufferString(s))
+		list, err := r.Read()
+		if err != nil {
+			return err
+		}
 
 		if !f.changed {
 			values := reflect.MakeSlice(f.Value.Type(), len(list), len(list))
@@ -122,6 +128,7 @@ func (f *FlagVar) Set(s string) error {
 				f.Value.Set(reflect.Append(f.Value, elemRv.Elem()))
 			}
 		}
+
 		f.changed = true
 		return nil
 	}
