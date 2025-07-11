@@ -1,6 +1,6 @@
 module github.com/innoai-tech/infra
 
-go 1.24.4
+go 1.24.5
 
 tool github.com/innoai-tech/infra/cmd/example
 
@@ -14,8 +14,8 @@ require (
 	github.com/innoai-tech/openapi-playground v0.0.0-20250704100217-a0c62af5366b
 	github.com/octohelm/courier v0.0.0-20250709084559-8e79357f00d0
 	github.com/octohelm/enumeration v0.0.0-20250115091102-ddf41951d733
-	github.com/octohelm/gengo v0.0.0-20250418031154-d14a228621d4
-	github.com/octohelm/x v0.0.0-20250708033748-64c90ed759d0
+	github.com/octohelm/gengo v0.0.0-20250711045910-061ca3315825
+	github.com/octohelm/x v0.0.0-20250711043442-cd4ae88da273
 )
 
 require (
@@ -23,7 +23,7 @@ require (
 	github.com/andybalholm/brotli v1.2.0
 	github.com/fatih/color v1.18.0
 	github.com/felixge/httpsnoop v1.0.4
-	github.com/go-json-experiment/json v0.0.0-20250626171732-1a886bd29d1b
+	github.com/go-json-experiment/json v0.0.0-20250709061156-d2cd4771eb1b
 	github.com/prometheus/client_golang v1.22.0
 	github.com/robfig/cron/v3 v3.0.1
 	github.com/spf13/cobra v1.9.1
@@ -40,8 +40,8 @@ require (
 	go.opentelemetry.io/otel/sdk/log v0.13.0
 	go.opentelemetry.io/otel/sdk/metric v1.37.0
 	go.opentelemetry.io/otel/trace v1.37.0
-	golang.org/x/net v0.41.0
-	golang.org/x/sync v0.15.0
+	golang.org/x/net v0.42.0
+	golang.org/x/sync v0.16.0
 )
 
 require (
@@ -68,9 +68,9 @@ require (
 	github.com/prometheus/procfs v0.16.1 // indirect
 	go.opentelemetry.io/auto/sdk v1.1.0 // indirect
 	go.opentelemetry.io/proto/otlp v1.7.0 // indirect
-	golang.org/x/mod v0.25.0 // indirect
-	golang.org/x/sys v0.33.0 // indirect
-	golang.org/x/text v0.26.0 // indirect
+	golang.org/x/mod v0.26.0 // indirect
+	golang.org/x/sys v0.34.0 // indirect
+	golang.org/x/text v0.27.0 // indirect
 	golang.org/x/tools v0.34.0 // indirect
 	google.golang.org/genproto/googleapis/api v0.0.0-20250603155806-513f23925822 // indirect
 	google.golang.org/genproto/googleapis/rpc v0.0.0-20250603155806-513f23925822 // indirect

@@ -28,8 +28,8 @@ type FlagVar struct {
 	changed bool
 }
 
-func (f *FlagVar) FromEnvVars(vars map[string]string) error {
-	if v, ok := vars[f.EnvVar]; ok {
+func (f *FlagVar) FromEnvVars(vars EnvVars) error {
+	if v, ok := vars.Get(f.EnvVar); ok {
 		if err := f.Set(v); err != nil {
 			return fmt.Errorf("set value from %s failed: %w", f.EnvVar, err)
 		}

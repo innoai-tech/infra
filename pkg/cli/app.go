@@ -101,15 +101,11 @@ func (a *app) newFrom(cc Command, parent Command) *cobra.Command {
 			return c.dumpK8sConfiguration(ctx, "./cuepkg/component")
 		}
 
-		envVars := make(map[string]string)
-
-		for _, kv := range os.Environ() {
-			parts := strings.SplitN(kv, "=", 2)
-			envVars[strings.ToUpper(parts[0])] = parts[1]
-		}
+		envVars := internal.EnvVarsFromEnviron(os.Environ())
 
 		for i := range c.flagVars {
 			f := c.flagVars[i]
+
 			if err := f.FromEnvVars(envVars); err != nil {
 				return err
 			}
