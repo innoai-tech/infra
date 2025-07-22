@@ -96,7 +96,7 @@ func LogAndMetricHandler() func(handler http.Handler) http.Handler {
 			nextHandler.ServeHTTP(loggerRw, req.WithContext(ctx))
 
 			enabledLevel := logr.InfoLevel
-			if logLevel := req.Header.Get("x-log-level"); logLevel != "" {
+			if logLevel := req.Header.Get("x-enable-log-level"); logLevel != "" {
 				lvl, err := logr.ParseLevel(strings.ToLower(logLevel))
 				if err == nil {
 					enabledLevel = lvl

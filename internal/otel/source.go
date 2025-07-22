@@ -3,7 +3,7 @@ package otel
 import (
 	"fmt"
 	"log/slog"
-	"path/filepath"
+	"path"
 	"runtime"
 
 	"go.opentelemetry.io/otel/log"
@@ -26,6 +26,6 @@ type Source slog.Source
 func (s Source) AsKeyValues() []log.KeyValue {
 	return []log.KeyValue{
 		log.String("source.func", s.Function),
-		log.String("source.file", fmt.Sprintf("%s:%d", filepath.Base(s.File), s.Line)),
+		log.String("source.file", fmt.Sprintf("%s:%d", path.Base(s.File), s.Line)),
 	}
 }

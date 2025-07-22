@@ -12,7 +12,6 @@ import (
 	"net/http"
 	"os"
 	"path"
-	"path/filepath"
 	"runtime"
 	"strings"
 	"sync"
@@ -258,7 +257,7 @@ func (o *opt) htmlHandler(f fs.FS) http.Handler {
 
 func (o *opt) resolveBaseHref(headerAppBaseHref string) string {
 	baseHref := o.baseHref
-	p := filepath.Clean(cmp.Or(headerAppBaseHref) + baseHref)
+	p := path.Clean(cmp.Or(headerAppBaseHref) + baseHref)
 	if p == "/" {
 		return "/"
 	}

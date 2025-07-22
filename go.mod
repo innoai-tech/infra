@@ -12,10 +12,10 @@ tool (
 require (
 	github.com/go-courier/logr v0.3.2
 	github.com/innoai-tech/openapi-playground v0.0.0-20250704100217-a0c62af5366b
-	github.com/octohelm/courier v0.0.0-20250709084559-8e79357f00d0
+	github.com/octohelm/courier v0.0.0-20250718061230-74edffef15fa
 	github.com/octohelm/enumeration v0.0.0-20250115091102-ddf41951d733
 	github.com/octohelm/gengo v0.0.0-20250711045910-061ca3315825
-	github.com/octohelm/x v0.0.0-20250711043442-cd4ae88da273
+	github.com/octohelm/x v0.0.0-20250718061117-5256cd84ed4c
 )
 
 require (
@@ -23,7 +23,7 @@ require (
 	github.com/andybalholm/brotli v1.2.0
 	github.com/fatih/color v1.18.0
 	github.com/felixge/httpsnoop v1.0.4
-	github.com/go-json-experiment/json v0.0.0-20250709061156-d2cd4771eb1b
+	github.com/go-json-experiment/json v0.0.0-20250714165856-be8212f5270d
 	github.com/prometheus/client_golang v1.22.0
 	github.com/robfig/cron/v3 v3.0.1
 	github.com/spf13/cobra v1.9.1
@@ -71,12 +71,12 @@ require (
 	golang.org/x/mod v0.26.0 // indirect
 	golang.org/x/sys v0.34.0 // indirect
 	golang.org/x/text v0.27.0 // indirect
-	golang.org/x/tools v0.34.0 // indirect
+	golang.org/x/tools v0.35.0 // indirect
 	google.golang.org/genproto/googleapis/api v0.0.0-20250603155806-513f23925822 // indirect
 	google.golang.org/genproto/googleapis/rpc v0.0.0-20250603155806-513f23925822 // indirect
 	google.golang.org/grpc v1.73.0 // indirect
 	google.golang.org/protobuf v1.36.6 // indirect
 	gopkg.in/yaml.v3 v3.0.1 // indirect
-	k8s.io/apimachinery v0.33.2 // indirect
+	k8s.io/apimachinery v0.33.3 // indirect
 	mvdan.cc/gofumpt v0.8.0 // indirect
 )
