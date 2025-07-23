@@ -54,17 +54,16 @@ func addConfigurator(c *C, flags *pflag.FlagSet, target any, name string, appNam
 		envPrefix = fmt.Sprintf("%s_", appName)
 	}
 
-	collectFlagsFromConfigurator(c, flags, target, name, envPrefix, "")
+	collectFlagsFromConfigurator(c, flags, reflect.ValueOf(target), name, envPrefix, "")
 }
 
-func collectFlagsFromConfigurator(c *C, flags *pflag.FlagSet, target any, prefix string, envPrefix string, parentDoc string) {
-	rv, ok := target.(reflect.Value)
-	if !ok {
-		rv = reflect.ValueOf(target)
-	}
-
+func collectFlagsFromConfigurator(c *C, flags *pflag.FlagSet, rv reflect.Value, prefix string, envPrefix string, parentDoc string) {
 	for rv.Kind() == reflect.Ptr {
 		rv = rv.Elem()
+	}
+
+	if rv.Kind() != reflect.Struct {
+		return
 	}
 
 	var docer CanRuntimeDoc
@@ -114,7 +113,7 @@ func collectFlagsFromConfigurator(c *C, flags *pflag.FlagSet, target any, prefix
 			continue
 		}
 
-		ff := &internal.FlagVar{
+		flagVar := &internal.FlagVar{
 			Value: fv,
 		}
 
@@ -130,14 +129,14 @@ func collectFlagsFromConfigurator(c *C, flags *pflag.FlagSet, target any, prefix
 				flagName = name
 			}
 
-			ff.Required = !(tt.Has("omitempty") || tt.Has("omitzero"))
+			flagVar.Required = !(tt.Has("omitempty") || tt.Has("omitzero"))
 
-			ff.Expose = tt.Get("expose")
-			ff.Secret = tt.Has("secret")
-			ff.Volume = tt.Has("volume")
+			flagVar.Expose = tt.Get("expose")
+			flagVar.Secret = tt.Has("secret")
+			flagVar.Volume = tt.Has("volume")
 
 			if alias, ok := ft.Tag.Lookup("alias"); ok {
-				ff.Alias = alias
+				flagVar.Alias = alias
 			}
 		}
 
@@ -167,7 +166,17 @@ func collectFlagsFromConfigurator(c *C, flags *pflag.FlagSet, target any, prefix
 			}
 		}
 
-		if ft.Type.Kind() == reflect.Struct && ff.Type() != "string" {
+		if ft.Type.Kind() == reflect.Map && ft.Type.Key().Kind() == reflect.String && flagVar.Type() != "string" {
+			mr := flagVar.Value.MapRange()
+
+			for mr.Next() {
+				collectFlagsFromConfigurator(c, flags, mr.Value(), flagName+"_"+mr.Key().String(), envPrefix, doc)
+			}
+
+			continue
+		}
+
+		if ft.Type.Kind() == reflect.Struct && flagVar.Type() != "string" {
 			if ft.Anonymous {
 				collectFlagsFromConfigurator(c, flags, fv, prefix, envPrefix, doc)
 			} else {
@@ -177,15 +186,15 @@ func collectFlagsFromConfigurator(c *C, flags *pflag.FlagSet, target any, prefix
 		}
 
 		if can, ok := fv.Interface().(interface{ EnumValues() []any }); ok {
-			ff.EnumValues = can.EnumValues()
+			flagVar.EnumValues = can.EnumValues()
 		}
 
-		ff.Name = camelcase.LowerKebabCase(flagName)
-		ff.EnvVar = camelcase.UpperSnakeCase(fmt.Sprintf("%s%s", envPrefix, flagName))
-		ff.Desc = doc
+		flagVar.Name = camelcase.LowerKebabCase(flagName)
+		flagVar.EnvVar = camelcase.UpperSnakeCase(fmt.Sprintf("%s%s", envPrefix, flagName))
+		flagVar.Desc = doc
 
-		c.flagVars = append(c.flagVars, ff)
+		c.flagVars = append(c.flagVars, flagVar)
 
-		ff.Apply(flags)
+		flagVar.Apply(flags)
 	}
 }

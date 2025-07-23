@@ -21,6 +21,7 @@ require (
 require (
 	cuelang.org/go v0.13.2
 	github.com/andybalholm/brotli v1.2.0
+	github.com/davecgh/go-spew v1.1.2-0.20180830191138-d8f796af33cc
 	github.com/fatih/color v1.18.0
 	github.com/felixge/httpsnoop v1.0.4
 	github.com/go-json-experiment/json v0.0.0-20250714165856-be8212f5270d

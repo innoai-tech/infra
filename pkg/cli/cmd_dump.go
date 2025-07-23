@@ -8,9 +8,8 @@ import (
 	"path"
 	"strings"
 
-	"github.com/innoai-tech/infra/pkg/cli/internal"
-
 	cueformat "cuelang.org/go/cue/format"
+	"github.com/innoai-tech/infra/pkg/cli/internal"
 	"github.com/octohelm/gengo/pkg/camelcase"
 	"github.com/octohelm/gengo/pkg/gengo"
 	"github.com/octohelm/x/slices"

@@ -55,6 +55,7 @@ func (f *FlagVar) String() string {
 	if strings.HasSuffix(f.Type(), "Slice") {
 		return "[" + f.DefaultValue() + "]"
 	}
+
 	return f.DefaultValue()
 }
 
@@ -81,9 +82,11 @@ func (f *FlagVar) Type() string {
 	if _, ok := f.Value.Interface().(encoding.TextMarshaler); ok {
 		return "string"
 	}
+
 	if f.Value.Kind() == reflect.Slice {
 		return f.typ(f.Value.Type().Elem()) + "Slice"
 	}
+
 	return f.typ(f.Value.Type())
 }
 
@@ -93,9 +96,11 @@ func (f *FlagVar) typ(t reflect.Type) string {
 	if ok := t.Implements(textMarshaler); ok {
 		return "string"
 	}
+
 	if t.Kind() == reflect.Ptr {
 		return t.Elem().Kind().String()
 	}
+
 	return t.Kind().String()
 }
 
