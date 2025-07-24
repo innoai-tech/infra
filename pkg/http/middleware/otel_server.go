@@ -109,6 +109,7 @@ func LogAndMetricHandler() func(handler http.Handler) http.Handler {
 			l := logr.FromContext(ctx).WithValues(
 				slog.String("http.client_ip", util.ClientIP(req)),
 				slog.String("http.method", req.Method),
+				slog.String("http.proto", req.Proto),
 				slog.String("http.url", omitAuthorization(req.URL)),
 				slog.Int("http.status_code", loggerRw.statusCode),
 				slog.String("user_agent.original", requestHeader.Get("User-Agent")),

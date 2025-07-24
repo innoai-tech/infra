@@ -65,8 +65,8 @@ func (rt *LogRoundTripper) RoundTrip(req *http.Request) (*http.Response, error) 
 		metrichttp.ClientResponseSize.Record(ctx, resp.ContentLength, metric.WithAttributes(attrs...))
 
 		l = l.WithValues(
-			slog.String("http.method", req.Method),
 			slog.Int("http.status_code", resp.StatusCode),
+			slog.String("http.proto", resp.Proto),
 		)
 	}
 
@@ -78,7 +78,7 @@ func (rt *LogRoundTripper) RoundTrip(req *http.Request) (*http.Response, error) 
 	}
 
 	if err == nil {
-		if resp.StatusCode > http.StatusBadRequest {
+		if resp != nil && resp.StatusCode > http.StatusBadRequest {
 			l.Warn(errors.New("http request failed"))
 		} else {
 			l.Info("success")
