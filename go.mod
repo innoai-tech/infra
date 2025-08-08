@@ -11,12 +11,14 @@ tool (
 
 require (
 	github.com/go-courier/logr v0.3.2
-	github.com/innoai-tech/openapi-playground v0.0.0-20250704100217-a0c62af5366b
-	github.com/octohelm/courier v0.0.0-20250724091819-c62b25f1061a
+	github.com/innoai-tech/openapi-playground v0.0.0-20250725094748-ae14bc2288b0
+	github.com/octohelm/courier v0.0.0-20250725013153-ba5922ad6c47
 	github.com/octohelm/enumeration v0.0.0-20250115091102-ddf41951d733
 	github.com/octohelm/gengo v0.0.0-20250711045910-061ca3315825
 	github.com/octohelm/x v0.0.0-20250718061117-5256cd84ed4c
 )
+
+replace cuelang.org/go => cuelang.org/go v0.13.2
 
 require (
 	cuelang.org/go v0.13.2
@@ -41,7 +43,7 @@ require (
 	go.opentelemetry.io/otel/sdk/log v0.13.0
 	go.opentelemetry.io/otel/sdk/metric v1.37.0
 	go.opentelemetry.io/otel/trace v1.37.0
-	golang.org/x/net v0.42.0
+	golang.org/x/net v0.43.0
 	golang.org/x/sync v0.16.0
 )
 
@@ -72,8 +74,8 @@ require (
 	go.opentelemetry.io/auto/sdk v1.1.0 // indirect
 	go.opentelemetry.io/proto/otlp v1.7.0 // indirect
 	golang.org/x/mod v0.26.0 // indirect
-	golang.org/x/sys v0.34.0 // indirect
-	golang.org/x/text v0.27.0 // indirect
+	golang.org/x/sys v0.35.0 // indirect
+	golang.org/x/text v0.28.0 // indirect
 	golang.org/x/tools v0.35.0 // indirect
 	google.golang.org/genproto/googleapis/api v0.0.0-20250721164621-a45f3dfb1074 // indirect
 	google.golang.org/genproto/googleapis/rpc v0.0.0-20250721164621-a45f3dfb1074 // indirect

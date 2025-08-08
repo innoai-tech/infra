@@ -313,7 +313,7 @@ func ServeFS(f fs.FS, optFns ...OptFunc) http.Handler {
 			return
 		}
 
-		if ext := path.Ext(requestPath); ext != "" && ext != ".html" {
+		if ext := path.Ext(requestPath); ext != "" && mime.TypeByExtension(ext) != "" && ext != ".html" {
 			switch requestPath {
 			case "/favicon.ico":
 				expires(w.Header(), 24*time.Hour)
