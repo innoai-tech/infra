@@ -2,7 +2,9 @@ package agent
 
 import (
 	"context"
+	"fmt"
 	"log/slog"
+	"os"
 	"reflect"
 	"sync"
 	"sync/atomic"
@@ -10,6 +12,10 @@ import (
 	"github.com/go-courier/logr"
 	"github.com/innoai-tech/infra/pkg/configuration"
 	"golang.org/x/sync/errgroup"
+)
+
+var (
+	agentNotHandlePanic = os.Getenv("AGENT_NOT_HANDLE_PANIC") == "1"
 )
 
 type worker struct {
@@ -150,11 +156,18 @@ func (x *Agent) Go(ctx context.Context, action func(ctx context.Context) error) 
 		// pick first to get agent/worker scope
 		l := logr.FromContext(ctx)
 
-		//defer func() {
-		//	if e := recover(); e != nil {
-		//		l.Error(fmt.Errorf("panic: %#v", e))
-		//	}
-		//}()
+		if !agentNotHandlePanic {
+			defer func() {
+				if e := recover(); e != nil {
+					switch x := e.(type) {
+					case error:
+						l.Error(x)
+					default:
+						l.Error(fmt.Errorf("panic: %#v", e))
+					}
+				}
+			}()
+		}
 
 		defer x.wg.Done()
 
