@@ -152,6 +152,12 @@ func Shutdown(c context.Context, configuratorCanShutdowns ...CanShutdown) error 
 	g := &errgroup.Group{}
 
 	for _, canShutdown := range configuratorCanShutdowns {
+		if d, ok := canShutdown.(CanDisabled); ok {
+			if d.Disabled(c) {
+				continue
+			}
+		}
+
 		g.Go(func() error {
 			ctx, cancel := context.WithTimeout(c, timeout)
 			defer cancel()

@@ -11,11 +11,11 @@ tool (
 
 require (
 	github.com/go-courier/logr v0.3.2
-	github.com/innoai-tech/openapi-playground v0.0.0-20250821051843-bef438562f2d
+	github.com/innoai-tech/openapi-playground v0.0.0-20250922033759-a11cccdcca08
 	github.com/octohelm/courier v0.0.0-20250911025954-866a054d768f
 	github.com/octohelm/enumeration v0.0.0-20250115091102-ddf41951d733
 	github.com/octohelm/gengo v0.0.0-20250909020815-1e94629296bc
-	github.com/octohelm/x v0.0.0-20250905103750-d1a271ae07dd
+	github.com/octohelm/x v0.0.0-20250919072528-261b8ad794b6
 )
 
 require (
@@ -69,18 +69,18 @@ require (
 	github.com/prometheus/common v0.66.1 // indirect
 	github.com/prometheus/otlptranslator v1.0.0 // indirect
 	github.com/prometheus/procfs v0.17.0 // indirect
-	github.com/protocolbuffers/txtpbfmt v0.0.0-20250627152318-f293424e46b5 // indirect
-	go.opentelemetry.io/auto/sdk v1.1.0 // indirect
+	github.com/protocolbuffers/txtpbfmt v0.0.0-20250903173655-cf07efcaeff7 // indirect
+	go.opentelemetry.io/auto/sdk v1.2.1 // indirect
 	go.opentelemetry.io/proto/otlp v1.8.0 // indirect
-	go.yaml.in/yaml/v2 v2.4.2 // indirect
+	go.yaml.in/yaml/v2 v2.4.3 // indirect
 	golang.org/x/mod v0.28.0 // indirect
 	golang.org/x/sys v0.36.0 // indirect
 	golang.org/x/text v0.29.0 // indirect
 	golang.org/x/tools v0.37.0 // indirect
-	google.golang.org/genproto/googleapis/api v0.0.0-20250908214217-97024824d090 // indirect
-	google.golang.org/genproto/googleapis/rpc v0.0.0-20250908214217-97024824d090 // indirect
-	google.golang.org/grpc v1.75.0 // indirect
-	google.golang.org/protobuf v1.36.8 // indirect
+	google.golang.org/genproto/googleapis/api v0.0.0-20250922171735-9219d122eba9 // indirect
+	google.golang.org/genproto/googleapis/rpc v0.0.0-20250922171735-9219d122eba9 // indirect
+	google.golang.org/grpc v1.75.1 // indirect
+	google.golang.org/protobuf v1.36.9 // indirect
 	gopkg.in/yaml.v3 v3.0.1 // indirect
 	k8s.io/apimachinery v0.34.1 // indirect
 	mvdan.cc/gofumpt v0.9.1 // indirect
