@@ -159,6 +159,10 @@ func Shutdown(c context.Context, configuratorCanShutdowns ...CanShutdown) error 
 		}
 
 		g.Go(func() error {
+			if d, ok := canShutdown.(WithShutdownTimeout); ok {
+				timeout = d.ShutdownTimeout(c)
+			}
+
 			ctx, cancel := context.WithTimeout(c, timeout)
 			defer cancel()
 
@@ -241,6 +245,10 @@ type PostServeRunner interface {
 
 type CanShutdown interface {
 	Shutdown(ctx context.Context) error
+}
+
+type WithShutdownTimeout interface {
+	ShutdownTimeout(ctx context.Context) time.Duration
 }
 
 type CanDisabled interface {
