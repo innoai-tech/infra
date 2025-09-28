@@ -6,6 +6,7 @@ import (
 	"strings"
 	"sync"
 
+	"github.com/innoai-tech/infra/pkg/http/basehref"
 	"github.com/innoai-tech/infra/pkg/http/webapp"
 	openapiview "github.com/innoai-tech/openapi-playground"
 	"github.com/octohelm/courier/pkg/courierhttp/handler/httprouter"
@@ -33,7 +34,7 @@ func (v *openapiView) Upgrade(w http.ResponseWriter, r *http.Request) error {
 	}))
 
 	// openapi playground should ignore HeaderAppBaseHref
-	r.Header.Del(webapp.HeaderAppBaseHref)
+	r.Header.Del(basehref.HeaderAppBaseHref)
 
 	getHandler.(func() http.Handler)().ServeHTTP(w, r)
 

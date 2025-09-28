@@ -17,6 +17,7 @@ import (
 	"sync"
 	"time"
 
+	"github.com/innoai-tech/infra/pkg/http/basehref"
 	"github.com/innoai-tech/infra/pkg/http/compress"
 	"github.com/octohelm/courier/pkg/courierhttp/handler"
 
@@ -198,7 +199,7 @@ func (o *opt) sendFile(f fs.FS, w http.ResponseWriter, r *http.Request, path str
 		path = path[1:]
 	}
 
-	data, err := o.loadOrProcess(f, path, o.resolveBaseHref(r.Header.Get(HeaderAppBaseHref)))
+	data, err := o.loadOrProcess(f, path, o.resolveBaseHref(r.Header.Get(basehref.HeaderAppBaseHref)))
 	if err != nil {
 		w.WriteHeader(http.StatusNotFound)
 		return
@@ -271,10 +272,6 @@ func (o *opt) build(optFns ...OptFunc) *opt {
 	return o
 }
 
-const (
-	HeaderAppBaseHref = "X-App-Base-Href"
-)
-
 func ServeFS(f fs.FS, optFns ...OptFunc) http.Handler {
 	o := (&opt{baseHref: "/"}).build(optFns...)
 
@@ -289,7 +286,7 @@ func ServeFS(f fs.FS, optFns ...OptFunc) http.Handler {
 			return
 		}
 
-		baseHref := o.resolveBaseHref(r.Header.Get(HeaderAppBaseHref))
+		baseHref := o.resolveBaseHref(r.Header.Get(basehref.HeaderAppBaseHref))
 
 		if baseHref != "/" {
 			if !strings.HasPrefix(r.URL.Path+"/", o.baseHref) {
