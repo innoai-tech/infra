@@ -11,8 +11,8 @@ import (
 	"go.opentelemetry.io/otel/attribute"
 	"go.opentelemetry.io/otel/metric"
 
-	"github.com/go-courier/logr"
 	"github.com/innoai-tech/infra/pkg/http/middleware/metrichttp"
+	"github.com/octohelm/x/logr"
 	"go.opentelemetry.io/contrib/propagators/b3"
 	"go.opentelemetry.io/otel/propagation"
 )

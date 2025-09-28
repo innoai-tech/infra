@@ -4,10 +4,10 @@ import (
 	"context"
 	"time"
 
-	"github.com/go-courier/logr"
 	"github.com/innoai-tech/infra/internal/otel"
 	"github.com/innoai-tech/infra/pkg/appinfo"
 	"github.com/innoai-tech/infra/pkg/configuration"
+	"github.com/octohelm/x/logr"
 	prometheusclient "github.com/prometheus/client_golang/prometheus"
 	"github.com/prometheus/client_golang/prometheus/collectors"
 	"go.opentelemetry.io/otel/exporters/otlp/otlpmetric/otlpmetricgrpc"

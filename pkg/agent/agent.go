@@ -9,8 +9,8 @@ import (
 	"sync"
 	"sync/atomic"
 
-	"github.com/go-courier/logr"
 	"github.com/innoai-tech/infra/pkg/configuration"
+	"github.com/octohelm/x/logr"
 	"golang.org/x/sync/errgroup"
 )
 

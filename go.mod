@@ -10,12 +10,12 @@ tool (
 )
 
 require (
-	github.com/go-courier/logr v0.3.2
+	github.com/go-courier/logr v0.4.0 // indirect
 	github.com/innoai-tech/openapi-playground v0.0.0-20250922033759-a11cccdcca08
 	github.com/octohelm/courier v0.0.0-20250911025954-866a054d768f
 	github.com/octohelm/enumeration v0.0.0-20250115091102-ddf41951d733
 	github.com/octohelm/gengo v0.0.0-20250909020815-1e94629296bc
-	github.com/octohelm/x v0.0.0-20250919072528-261b8ad794b6
+	github.com/octohelm/x v0.0.0-20250928045151-6a49847969fd
 )
 
 require (

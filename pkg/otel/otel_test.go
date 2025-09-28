@@ -6,8 +6,8 @@ import (
 	"testing"
 	"time"
 
-	"github.com/go-courier/logr"
 	"github.com/innoai-tech/infra/pkg/configuration"
+	"github.com/octohelm/x/logr"
 	testingx "github.com/octohelm/x/testing"
 )
 

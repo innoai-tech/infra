@@ -82,7 +82,7 @@ package main
 import (
 	"context"
 
-	"github.com/go-courier/logr"
+	"github.com/octohelm/x/logr"
 	"github.com/innoai-tech/infra/pkg/otel"
 	"github.com/innoai-tech/infra/pkg/cli"
 )
