@@ -174,7 +174,12 @@ func (o *Otel) afterInit(ctx context.Context) error {
 	}
 
 	if o.MetricCollectorEndpoint != "" {
-		exporter, err := otlpmetricgrpc.New(ctx, otlpmetricgrpc.WithEndpoint(o.MetricCollectorEndpoint))
+		exporter, err := otlpmetricgrpc.New(
+			ctx,
+			otlpmetricgrpc.WithEndpoint(o.MetricCollectorEndpoint),
+			otlpmetricgrpc.WithInsecure(),
+			otlpmetricgrpc.WithTimeout(3*time.Second),
+		)
 		if err != nil {
 			return err
 		}
