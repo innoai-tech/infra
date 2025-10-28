@@ -119,7 +119,7 @@ func (f *FlagVar) Set(s string) error {
 		if !f.changed {
 			values := reflect.MakeSlice(f.Value.Type(), len(list), len(list))
 			for i := 0; i < values.Len(); i++ {
-				if err := encodingx.UnmarshalText(values.Index(i), []byte(list[i])); err != nil {
+				if err := f.unmarshalText(values.Index(i), []byte(list[i])); err != nil {
 					return err
 				}
 			}
@@ -127,7 +127,7 @@ func (f *FlagVar) Set(s string) error {
 		} else {
 			for i := range list {
 				elemRv := reflect.New(f.Value.Type().Elem())
-				if err := encodingx.UnmarshalText(elemRv, []byte(list[i])); err != nil {
+				if err := f.unmarshalText(elemRv, []byte(list[i])); err != nil {
 					return err
 				}
 				f.Value.Set(reflect.Append(f.Value, elemRv.Elem()))
@@ -138,7 +138,17 @@ func (f *FlagVar) Set(s string) error {
 		return nil
 	}
 
-	return encodingx.UnmarshalText(f.Value, []byte(s))
+	return f.unmarshalText(f.Value, []byte(s))
+}
+
+func (f *FlagVar) unmarshalText(target any, text []byte) error {
+	// skip unmarshal if optional
+	if len(text) == 0 {
+		if !f.Required {
+			return nil
+		}
+	}
+	return encodingx.UnmarshalText(target, text)
 }
 
 func (f *FlagVar) Usage() string {

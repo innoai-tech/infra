@@ -14,9 +14,7 @@ import (
 	"golang.org/x/sync/errgroup"
 )
 
-var (
-	agentNotHandlePanic = os.Getenv("AGENT_NOT_HANDLE_PANIC") == "1"
-)
+var agentNotHandlePanic = os.Getenv("AGENT_NOT_HANDLE_PANIC") == "1"
 
 type worker struct {
 	name string

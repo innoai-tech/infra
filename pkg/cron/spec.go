@@ -15,7 +15,6 @@ func (spec Spec) Times(ctx context.Context) iter.Seq[time.Time] {
 	s, _ := cron.ParseStandard(string(spec))
 	if s == nil {
 		return func(yield func(time.Time) bool) {
-
 		}
 	}
 	return Times(ctx, s)

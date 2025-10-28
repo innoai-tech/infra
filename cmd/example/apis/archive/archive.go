@@ -70,5 +70,5 @@ func (z *ZipFile) Upgrade(w http.ResponseWriter, r *http.Request) (err error) {
 		}
 	}
 
-	return
+	return err
 }

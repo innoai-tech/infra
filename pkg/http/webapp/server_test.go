@@ -1,8 +1,9 @@
 package webapp
 
 import (
-	"github.com/octohelm/x/testing/bdd"
 	"testing"
+
+	"github.com/octohelm/x/testing/bdd"
 )
 
 func TestOpt(t *testing.T) {

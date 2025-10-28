@@ -1,10 +1,11 @@
 package internal
 
 import (
-	"github.com/davecgh/go-spew/spew"
-	"github.com/octohelm/x/testing/bdd"
 	"reflect"
 	"testing"
+
+	"github.com/davecgh/go-spew/spew"
+	"github.com/octohelm/x/testing/bdd"
 )
 
 type SomeStruct struct {
