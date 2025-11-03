@@ -8,8 +8,9 @@ import (
 	"reflect"
 	"strings"
 
-	encodingx "github.com/octohelm/x/encoding"
 	"github.com/spf13/pflag"
+
+	encodingx "github.com/octohelm/x/encoding"
 )
 
 type FlagVar struct {

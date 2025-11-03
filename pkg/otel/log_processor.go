@@ -4,10 +4,11 @@ import (
 	"context"
 	"sync"
 
-	"github.com/innoai-tech/infra/internal/otel"
 	"go.opentelemetry.io/otel/log"
 	sdklog "go.opentelemetry.io/otel/sdk/log"
 	"golang.org/x/sync/errgroup"
+
+	"github.com/innoai-tech/infra/internal/otel"
 )
 
 func LogValue(v log.Value) any {

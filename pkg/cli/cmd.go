@@ -7,11 +7,13 @@ import (
 	"reflect"
 	"strings"
 
+	"github.com/spf13/pflag"
+
+	"github.com/octohelm/gengo/pkg/camelcase"
+
 	"github.com/innoai-tech/infra/pkg/appinfo"
 	"github.com/innoai-tech/infra/pkg/cli/internal"
 	"github.com/innoai-tech/infra/pkg/configuration"
-	"github.com/octohelm/gengo/pkg/camelcase"
-	"github.com/spf13/pflag"
 )
 
 type Command interface {

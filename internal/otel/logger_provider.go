@@ -1,8 +1,9 @@
 package otel
 
 import (
-	contextx "github.com/octohelm/x/context"
 	"go.opentelemetry.io/otel/log"
+
+	contextx "github.com/octohelm/x/context"
 )
 
 type LoggerProvider = log.LoggerProvider

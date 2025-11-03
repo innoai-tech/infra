@@ -1,5 +1,6 @@
 export INFRA_CLI_DEBUG := "1"
 example := "go tool example"
+devtool := "go tool devtool"
 
 serve-example:
     {{ example }} serve -c \
@@ -21,16 +22,16 @@ update:
     go get -u ./...
 
 test:
-    CGO_ENABLED=0 go test -failfast ./...
+    CGO_ENABLED=0 go test -count=1 -failfast ./...
 
 test-race:
-    CGO_ENABLED=1 go test -v -race ./...
+    CGO_ENABLED=1 go test -count=1 -race ./...
 
 fmt:
-    go tool gofumpt -l -w .
+    {{ devtool }} fmt -l -w .
 
 gen:
-    go tool devtool gen -a ./cmd/example
+    {{ devtool }} gen -a ./cmd/example
 
 hey:
     hey -z 5m http://localhost:8081/api/example/v0/orgs

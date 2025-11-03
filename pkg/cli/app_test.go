@@ -4,8 +4,9 @@ import (
 	"context"
 	"testing"
 
-	"github.com/innoai-tech/infra/pkg/cli"
 	testingx "github.com/octohelm/x/testing"
+
+	"github.com/innoai-tech/infra/pkg/cli"
 )
 
 type Do struct {

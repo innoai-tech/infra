@@ -6,9 +6,10 @@ import (
 	"testing"
 	"time"
 
-	"github.com/innoai-tech/infra/pkg/configuration"
 	"github.com/octohelm/x/logr"
 	testingx "github.com/octohelm/x/testing"
+
+	"github.com/innoai-tech/infra/pkg/configuration"
 )
 
 func Setup(t testing.TB, c any) context.Context {

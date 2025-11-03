@@ -8,13 +8,14 @@ import (
 	"strconv"
 	"time"
 
+	"go.opentelemetry.io/contrib/propagators/b3"
 	"go.opentelemetry.io/otel/attribute"
 	"go.opentelemetry.io/otel/metric"
+	"go.opentelemetry.io/otel/propagation"
+
+	"github.com/octohelm/x/logr"
 
 	"github.com/innoai-tech/infra/pkg/http/middleware/metrichttp"
-	"github.com/octohelm/x/logr"
-	"go.opentelemetry.io/contrib/propagators/b3"
-	"go.opentelemetry.io/otel/propagation"
 )
 
 func NewLogRoundTripper() func(roundTripper http.RoundTripper) http.RoundTripper {

@@ -3,9 +3,12 @@ package etc
 import (
 	"bufio"
 	"bytes"
-	_ "embed"
 	"mime"
 	"strings"
+)
+
+import (
+	_ "embed"
 )
 
 //go:embed mime.types

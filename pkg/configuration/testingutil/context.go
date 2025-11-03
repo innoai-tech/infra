@@ -5,9 +5,11 @@ import (
 	"os"
 	"testing"
 
-	"github.com/innoai-tech/infra/pkg/configuration"
-	testingx "github.com/octohelm/x/testing"
 	"golang.org/x/sync/errgroup"
+
+	testingx "github.com/octohelm/x/testing"
+
+	"github.com/innoai-tech/infra/pkg/configuration"
 )
 
 func BuildContext[T any](t testing.TB, initial func(*T)) (context.Context, *T) {

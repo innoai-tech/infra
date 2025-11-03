@@ -1,8 +1,9 @@
 package metrichttp
 
 import (
-	"github.com/innoai-tech/infra/pkg/otel/metric"
 	sdkmetric "go.opentelemetry.io/otel/sdk/metric"
+
+	"github.com/innoai-tech/infra/pkg/otel/metric"
 )
 
 var (

@@ -2,18 +2,17 @@ module github.com/innoai-tech/infra
 
 go 1.25.3
 
-tool github.com/innoai-tech/infra/cmd/example
-
 tool (
+	github.com/innoai-tech/infra/cmd/example
 	github.com/innoai-tech/infra/internal/cmd/devtool
-	mvdan.cc/gofumpt
 )
 
+// +gengo:import:group=0_controlled
 require (
 	github.com/innoai-tech/openapi-playground v0.0.0-20251027043054-9a91cd376e3e
 	github.com/octohelm/courier v0.0.0-20251010073531-57524a0631a3
 	github.com/octohelm/enumeration v0.0.0-20250115091102-ddf41951d733
-	github.com/octohelm/gengo v0.0.0-20250928050614-7aa009184957
+	github.com/octohelm/gengo v0.0.0-20251031090256-3806c0e4d0f8
 	github.com/octohelm/x v0.0.0-20251028032356-02d7b8d1c824
 )
 

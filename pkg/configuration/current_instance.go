@@ -1,6 +1,8 @@
 package configuration
 
-import "context"
+import (
+	"context"
+)
 
 type currentInstanceCtx struct{}
 

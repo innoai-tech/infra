@@ -9,10 +9,12 @@ import (
 	"strings"
 
 	cueformat "cuelang.org/go/cue/format"
-	"github.com/innoai-tech/infra/pkg/cli/internal"
+
 	"github.com/octohelm/gengo/pkg/camelcase"
 	"github.com/octohelm/gengo/pkg/gengo"
 	"github.com/octohelm/x/slices"
+
+	"github.com/innoai-tech/infra/pkg/cli/internal"
 )
 
 func (c *C) dumpK8sConfiguration(ctx context.Context, dest string) error {

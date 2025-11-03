@@ -5,10 +5,11 @@ import (
 	"fmt"
 	"time"
 
-	"github.com/octohelm/x/logr"
 	"go.opentelemetry.io/otel/codes"
 	"go.opentelemetry.io/otel/log"
 	"go.opentelemetry.io/otel/trace"
+
+	"github.com/octohelm/x/logr"
 )
 
 func NewLogger(ctx context.Context, levelEnabled logr.Level) logr.Logger {

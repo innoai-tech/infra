@@ -11,16 +11,18 @@ import (
 	"slices"
 	"time"
 
-	"github.com/innoai-tech/infra/internal/otel"
-	"github.com/innoai-tech/infra/pkg/appinfo"
-	"github.com/innoai-tech/infra/pkg/configuration"
-	"github.com/innoai-tech/infra/pkg/http/middleware"
+	"golang.org/x/net/http2"
+	"golang.org/x/net/http2/h2c"
+
 	"github.com/octohelm/courier/pkg/courier"
 	"github.com/octohelm/courier/pkg/courierhttp/handler"
 	"github.com/octohelm/courier/pkg/courierhttp/handler/httprouter"
 	"github.com/octohelm/x/logr"
-	"golang.org/x/net/http2"
-	"golang.org/x/net/http2/h2c"
+
+	"github.com/innoai-tech/infra/internal/otel"
+	"github.com/innoai-tech/infra/pkg/appinfo"
+	"github.com/innoai-tech/infra/pkg/configuration"
+	"github.com/innoai-tech/infra/pkg/http/middleware"
 )
 
 // +gengo:injectable

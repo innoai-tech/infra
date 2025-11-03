@@ -4,10 +4,6 @@ import (
 	"context"
 	"time"
 
-	"github.com/innoai-tech/infra/internal/otel"
-	"github.com/innoai-tech/infra/pkg/appinfo"
-	"github.com/innoai-tech/infra/pkg/configuration"
-	"github.com/octohelm/x/logr"
 	prometheusclient "github.com/prometheus/client_golang/prometheus"
 	"github.com/prometheus/client_golang/prometheus/collectors"
 	"go.opentelemetry.io/otel/exporters/otlp/otlpmetric/otlpmetricgrpc"
@@ -20,6 +16,12 @@ import (
 	sdktrace "go.opentelemetry.io/otel/sdk/trace"
 	semconv "go.opentelemetry.io/otel/semconv/v1.24.0"
 	"golang.org/x/sync/errgroup"
+
+	"github.com/octohelm/x/logr"
+
+	"github.com/innoai-tech/infra/internal/otel"
+	"github.com/innoai-tech/infra/pkg/appinfo"
+	"github.com/innoai-tech/infra/pkg/configuration"
 )
 
 type LogLevel = otel.LogLevel

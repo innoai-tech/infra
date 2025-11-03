@@ -9,9 +9,11 @@ import (
 	"sync"
 	"sync/atomic"
 
-	"github.com/innoai-tech/infra/pkg/configuration"
-	"github.com/octohelm/x/logr"
 	"golang.org/x/sync/errgroup"
+
+	"github.com/octohelm/x/logr"
+
+	"github.com/innoai-tech/infra/pkg/configuration"
 )
 
 var agentNotHandlePanic = os.Getenv("AGENT_NOT_HANDLE_PANIC") == "1"

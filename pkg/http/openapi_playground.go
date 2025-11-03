@@ -6,10 +6,11 @@ import (
 	"strings"
 	"sync"
 
-	"github.com/innoai-tech/infra/pkg/http/basehref"
-	"github.com/innoai-tech/infra/pkg/http/webapp"
 	openapiview "github.com/innoai-tech/openapi-playground"
 	"github.com/octohelm/courier/pkg/courierhttp/handler/httprouter"
+
+	"github.com/innoai-tech/infra/pkg/http/basehref"
+	"github.com/innoai-tech/infra/pkg/http/webapp"
 )
 
 func init() {

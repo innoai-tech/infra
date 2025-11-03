@@ -11,16 +11,17 @@ import (
 	"time"
 
 	"github.com/prometheus/client_golang/prometheus"
-
-	"github.com/innoai-tech/infra/pkg/http/middleware/metrichttp"
-	"github.com/octohelm/courier/pkg/courierhttp"
-	"github.com/octohelm/courier/pkg/courierhttp/util"
-	"github.com/octohelm/x/logr"
 	"github.com/prometheus/client_golang/prometheus/promhttp"
 	"go.opentelemetry.io/contrib/propagators/b3"
 	"go.opentelemetry.io/otel/attribute"
 	"go.opentelemetry.io/otel/metric"
 	"go.opentelemetry.io/otel/propagation"
+
+	"github.com/octohelm/courier/pkg/courierhttp"
+	"github.com/octohelm/courier/pkg/courierhttp/util"
+	"github.com/octohelm/x/logr"
+
+	"github.com/innoai-tech/infra/pkg/http/middleware/metrichttp"
 )
 
 func MetricHandler(gatherer prometheus.Gatherer) func(handler http.Handler) http.Handler {

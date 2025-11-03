@@ -5,9 +5,10 @@ import (
 	"log/slog"
 	"time"
 
-	"github.com/octohelm/x/slices"
 	"go.opentelemetry.io/otel/attribute"
 	"go.opentelemetry.io/otel/log"
+
+	"github.com/octohelm/x/slices"
 )
 
 func normalizeKeyValues(keysAndValues []any) []log.KeyValue {

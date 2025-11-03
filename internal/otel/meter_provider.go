@@ -3,11 +3,12 @@ package otel
 import (
 	"context"
 
-	contextx "github.com/octohelm/x/context"
 	"github.com/prometheus/client_golang/prometheus"
 	"go.opentelemetry.io/otel/metric"
 	"go.opentelemetry.io/otel/metric/noop"
 	sdkmetric "go.opentelemetry.io/otel/sdk/metric"
+
+	contextx "github.com/octohelm/x/context"
 )
 
 type (

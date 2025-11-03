@@ -1,12 +1,12 @@
 package middleware
 
-// copy from https://github.com/gorilla/handlers/blob/master/cors.go
-
 import (
 	"net/http"
 	"strconv"
 	"strings"
 )
+
+// copy from https://github.com/gorilla/handlers/blob/master/cors.go
 
 func DefaultCORS(opts ...CORSOption) func(http.Handler) http.Handler {
 	return CORS(

@@ -17,13 +17,15 @@ import (
 	"sync"
 	"time"
 
-	"github.com/innoai-tech/infra/pkg/http/basehref"
-	"github.com/innoai-tech/infra/pkg/http/compress"
 	"github.com/octohelm/courier/pkg/courierhttp/handler"
-
-	"github.com/innoai-tech/infra/pkg/http/webapp/appconfig"
 	"github.com/octohelm/x/logr"
 
+	"github.com/innoai-tech/infra/pkg/http/basehref"
+	"github.com/innoai-tech/infra/pkg/http/compress"
+	"github.com/innoai-tech/infra/pkg/http/webapp/appconfig"
+)
+
+import (
 	_ "github.com/innoai-tech/infra/pkg/http/webapp/etc"
 )
 

@@ -4,10 +4,13 @@ import (
 	"context"
 	"os"
 
+	"github.com/octohelm/gengo/pkg/format"
+
 	"github.com/innoai-tech/infra/devpkg/gengo"
 	"github.com/innoai-tech/infra/pkg/cli"
-	"github.com/innoai-tech/infra/pkg/otel"
+)
 
+import (
 	_ "github.com/octohelm/courier/devpkg/clientgen"
 	_ "github.com/octohelm/courier/devpkg/injectablegen"
 	_ "github.com/octohelm/courier/devpkg/operatorgen"
@@ -18,16 +21,15 @@ import (
 var App = cli.NewApp("devtool", "dev")
 
 func init() {
-	c := &struct {
+	cli.AddTo(App, &struct {
 		cli.C `name:"gen"`
-		otel.Otel
 		gengo.Gengo
-	}{}
+	}{})
 
-	c.LogLevel = otel.InfoLevel
-	c.LogFormat = otel.LogFormatText
-
-	cli.AddTo(App, c)
+	cli.AddTo(App, &struct {
+		cli.C `name:"fmt"`
+		format.Project
+	}{})
 }
 
 func main() {
