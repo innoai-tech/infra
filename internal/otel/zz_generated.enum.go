@@ -25,7 +25,7 @@ func ParseLogFormatLabelString(label string) (LogFormat, error) {
 		return LogFormatText, nil
 
 	default:
-		return "", InvalidLogFormat
+		return *new(LogFormat), InvalidLogFormat
 	}
 }
 
@@ -61,7 +61,7 @@ func ParseLogLevelLabelString(label string) (LogLevel, error) {
 		return WarnLevel, nil
 
 	default:
-		return "", InvalidLogLevel
+		return *new(LogLevel), InvalidLogLevel
 	}
 }
 

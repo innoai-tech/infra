@@ -134,9 +134,9 @@ config: %q: string | *%q
 				_, _ = fmt.Fprintf(b, `
 		readinessProbe: {
 			httpGet: {
-				path: "/", 
-				port: ports.%q
-				scheme: "HTTP"
+				path: _ | *"/", 
+				port: _ | *ports.%q
+				scheme: _ | *"HTTP"
 			}
 			initialDelaySeconds: _ | *5
             timeoutSeconds:      _ | *1

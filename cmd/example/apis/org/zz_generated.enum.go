@@ -62,9 +62,9 @@ func (v Type) String() string {
 		return "GOV"
 	case TYPE__COMPANY:
 		return "COMPANY"
-
 	case TYPE_UNKNOWN:
 		return "UNKNOWN"
+
 	default:
 		return fmt.Sprintf("UNKNOWN_%d", v)
 	}

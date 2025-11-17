@@ -41,9 +41,9 @@ import (
 
 			readinessProbe: {
 				httpGet: {
-					path:   "/"
-					port:   ports."http"
-					scheme: "HTTP"
+					path:   _ | *"/"
+					port:   _ | *ports."http"
+					scheme: _ | *"HTTP"
 				}
 				initialDelaySeconds: _ | *5
 				timeoutSeconds:      _ | *1
