@@ -8,8 +8,8 @@ github.com/innoai-tech/infra/pkg/appinfo h1:ph8L4kix9SNvjizs2D2Jk/aKHtLLg0q2stTr
 github.com/innoai-tech/infra/pkg/cli h1:EREKBUhbVLlJvtjUPx5hfNyVw/0LLBBIIAKqOo80t/Y=
 github.com/innoai-tech/infra/pkg/cli/internal h1:WL2qdbiz/ia0Gg5Y4ft0Jnix5Ks28/eW3IiD4cB9YA8=
 github.com/innoai-tech/infra/pkg/configuration h1:Z1lD+hTH2svm58GZ/+lzUt0ChqlFKS/z8IZMCxpx2VE=
-github.com/innoai-tech/infra/pkg/http h1:RNvWRs6xt6V6RNQnP2f80FRIw8GwUIolnCH+d3pjcL8=
-github.com/innoai-tech/infra/pkg/http/basehref h1:ANW7VRk/1R0g57ME9dlzA/DY+zoG/Ak4FGW+UPCYNXs=
+github.com/innoai-tech/infra/pkg/http h1:wULSaH12UpiFKvZzSr81pLaJh0HX6+hk93PIMvj4xRg=
+github.com/innoai-tech/infra/pkg/http/basehref h1:/T+xaP4xHrGAE6AYx+fujpcHrc1kBMLu6fnJEXIrl2U=
 github.com/innoai-tech/infra/pkg/http/compress h1:J3GCZbFW39LdNJhKJbWByX+RWYbqFopl3mcjfCHNC6w=
 github.com/innoai-tech/infra/pkg/http/middleware h1:1VN8jDTX7iy6B6cmt5Ij9tv1Hn6qA0ZgUPwjh6KEEQA=
 github.com/innoai-tech/infra/pkg/http/middleware/metrichttp h1:p26xkql9BU8/L4L6mZ0+Prqy2hV3Eo3PSpzYI0aE56A=

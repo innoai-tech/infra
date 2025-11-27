@@ -9,15 +9,15 @@ tool (
 
 // +gengo:import:group=0_controlled
 require (
-	github.com/innoai-tech/openapi-playground v0.0.0-20251111061647-ea7fa0b4e949
+	github.com/innoai-tech/openapi-playground v0.0.0-20251127014822-02b09270952f
 	github.com/octohelm/courier v0.0.0-20251010073531-57524a0631a3
 	github.com/octohelm/enumeration v0.0.0-20251117072411-c5ede10316bf
-	github.com/octohelm/gengo v0.0.0-20251114091141-71223c119bda
+	github.com/octohelm/gengo v0.0.0-20251125103713-731c4bb80518
 	github.com/octohelm/x v0.0.0-20251028032356-02d7b8d1c824
 )
 
 require (
-	cuelang.org/go v0.15.0
+	cuelang.org/go v0.15.1
 	github.com/andybalholm/brotli v1.2.0
 	github.com/davecgh/go-spew v1.1.2-0.20180830191138-d8f796af33cc
 	github.com/fatih/color v1.18.0
@@ -64,10 +64,10 @@ require (
 	github.com/munnerz/goautoneg v0.0.0-20191010083416-a7dc8b61c822 // indirect
 	github.com/pelletier/go-toml/v2 v2.2.4 // indirect
 	github.com/prometheus/client_model v0.6.2 // indirect
-	github.com/prometheus/common v0.67.2 // indirect
+	github.com/prometheus/common v0.67.4 // indirect
 	github.com/prometheus/otlptranslator v1.0.0 // indirect
 	github.com/prometheus/procfs v0.19.2 // indirect
-	github.com/protocolbuffers/txtpbfmt v0.0.0-20251016062345-16587c79cd91 // indirect
+	github.com/protocolbuffers/txtpbfmt v0.0.0-20251124094003-fcb97cc64c7b // indirect
 	go.opentelemetry.io/auto/sdk v1.2.1 // indirect
 	go.opentelemetry.io/proto/otlp v1.9.0 // indirect
 	go.yaml.in/yaml/v2 v2.4.3 // indirect
@@ -76,9 +76,9 @@ require (
 	golang.org/x/sys v0.38.0 // indirect
 	golang.org/x/text v0.31.0 // indirect
 	golang.org/x/tools v0.39.0 // indirect
-	google.golang.org/genproto/googleapis/api v0.0.0-20251111163417-95abcf5c77ba // indirect
-	google.golang.org/genproto/googleapis/rpc v0.0.0-20251111163417-95abcf5c77ba // indirect
-	google.golang.org/grpc v1.76.0 // indirect
+	google.golang.org/genproto/googleapis/api v0.0.0-20251124214823-79d6a2a48846 // indirect
+	google.golang.org/genproto/googleapis/rpc v0.0.0-20251124214823-79d6a2a48846 // indirect
+	google.golang.org/grpc v1.77.0 // indirect
 	google.golang.org/protobuf v1.36.10 // indirect
 	k8s.io/apimachinery v0.34.2 // indirect
 	mvdan.cc/gofumpt v0.9.2 // indirect
