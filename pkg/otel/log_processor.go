@@ -36,6 +36,10 @@ func (d *dynamicLogProcessor) RegisterLogProcessor(p sdklog.Processor) {
 
 var _ sdklog.Processor = &dynamicLogProcessor{}
 
+func (d *dynamicLogProcessor) Enabled(ctx context.Context, param sdklog.EnabledParameters) bool {
+	return true
+}
+
 func (d *dynamicLogProcessor) OnEmit(ctx context.Context, record *sdklog.Record) error {
 	for k := range d.m.Range {
 		_ = k.(sdklog.Processor).OnEmit(ctx, record)
