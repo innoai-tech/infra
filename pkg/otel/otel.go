@@ -4,6 +4,7 @@ import (
 	"context"
 	"time"
 
+	"github.com/innoai-tech/infra/pkg/otel/metric"
 	prometheusclient "github.com/prometheus/client_golang/prometheus"
 	"github.com/prometheus/client_golang/prometheus/collectors"
 	"go.opentelemetry.io/otel/exporters/otlp/otlpmetric/otlpmetricgrpc"
@@ -185,6 +186,7 @@ func (o *Otel) afterInit(ctx context.Context) error {
 		if err != nil {
 			return err
 		}
+
 		meterOpts = append(meterOpts,
 			sdkmetric.WithReader(
 				sdkmetric.NewPeriodicReader(
@@ -194,6 +196,8 @@ func (o *Otel) afterInit(ctx context.Context) error {
 			),
 		)
 	}
+
+	meterOpts = append(meterOpts, metric.GetMetricViewsOption())
 
 	o.loggerProvider = sdklog.NewLoggerProvider(logOpts...)
 	o.tracerProvider = sdktrace.NewTracerProvider(tracerOpts...)

@@ -1,6 +1,6 @@
 module github.com/innoai-tech/infra
 
-go 1.25.4
+go 1.25.5
 
 tool (
 	github.com/innoai-tech/infra/cmd/example
@@ -10,14 +10,14 @@ tool (
 // +gengo:import:group=0_controlled
 require (
 	github.com/innoai-tech/openapi-playground v0.0.0-20251218020217-13ee667fe9ca
-	github.com/octohelm/courier v0.0.0-20251010073531-57524a0631a3
+	github.com/octohelm/courier v0.0.0-20260108095509-4b709c0b526c
 	github.com/octohelm/enumeration v0.0.0-20251117072411-c5ede10316bf
-	github.com/octohelm/gengo v0.0.0-20251125103713-731c4bb80518
+	github.com/octohelm/gengo v0.0.0-20251223082640-0fa9a703560f
 	github.com/octohelm/x v0.0.0-20251028032356-02d7b8d1c824
 )
 
 require (
-	cuelang.org/go v0.15.1
+	cuelang.org/go v0.15.3
 	github.com/andybalholm/brotli v1.2.0
 	github.com/davecgh/go-spew v1.1.2-0.20180830191138-d8f796af33cc
 	github.com/fatih/color v1.18.0
@@ -39,7 +39,7 @@ require (
 	go.opentelemetry.io/otel/sdk/log v0.15.0
 	go.opentelemetry.io/otel/sdk/metric v1.39.0
 	go.opentelemetry.io/otel/trace v1.39.0
-	golang.org/x/net v0.48.0
+	golang.org/x/net v0.49.0
 	golang.org/x/sync v0.19.0
 )
 
@@ -51,7 +51,6 @@ require (
 	github.com/emicklei/proto v1.14.2 // indirect
 	github.com/go-logr/logr v1.4.3 // indirect
 	github.com/go-logr/stdr v1.2.2 // indirect
-	github.com/gogo/protobuf v1.3.2 // indirect
 	github.com/google/go-cmp v0.7.0 // indirect
 	github.com/google/uuid v1.6.0 // indirect
 	github.com/grpc-ecosystem/grpc-gateway/v2 v2.27.3 // indirect
@@ -73,8 +72,8 @@ require (
 	go.yaml.in/yaml/v2 v2.4.3 // indirect
 	go.yaml.in/yaml/v3 v3.0.4 // indirect
 	golang.org/x/mod v0.31.0 // indirect
-	golang.org/x/sys v0.39.0 // indirect
-	golang.org/x/text v0.32.0 // indirect
+	golang.org/x/sys v0.40.0 // indirect
+	golang.org/x/text v0.33.0 // indirect
 	golang.org/x/tools v0.40.0 // indirect
 	google.golang.org/genproto/googleapis/api v0.0.0-20251213004720-97cd9d5aeac2 // indirect
 	google.golang.org/genproto/googleapis/rpc v0.0.0-20251213004720-97cd9d5aeac2 // indirect

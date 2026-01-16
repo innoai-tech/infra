@@ -4,8 +4,23 @@ import (
 	"fmt"
 	"time"
 
-	"go.opentelemetry.io/otel/sdk/metric"
+	syncx "github.com/octohelm/x/sync"
+	sdkmetric "go.opentelemetry.io/otel/sdk/metric"
 )
+
+var metricViews = syncx.Map[string, []View]{}
+
+func GetMetricViewsOption() sdkmetric.Option {
+	views := make([]sdkmetric.View, 0)
+
+	for _, vv := range metricViews.Range {
+		for _, v := range vv {
+			views = append(views, sdkmetric.NewView(v.Instrument, v.Stream))
+		}
+	}
+
+	return sdkmetric.WithView(views...)
+}
 
 func newOption(name string, optFuncs ...OptionFunc) *option {
 	o := &option{}
@@ -13,6 +28,11 @@ func newOption(name string, optFuncs ...OptionFunc) *option {
 
 	for i := range optFuncs {
 		optFuncs[i](o)
+	}
+
+	// records views
+	if len(o.Views) > 0 {
+		metricViews.Store(name, o.Views)
 	}
 
 	return o
@@ -46,15 +66,15 @@ func WithView(view func(m Metric) View) OptionFunc {
 	}
 }
 
-func WithAggregation(aggregation metric.Aggregation) OptionFunc {
+func WithAggregation(aggregation sdkmetric.Aggregation) OptionFunc {
 	return WithView(func(m Metric) View {
 		return View{
-			Instrument: metric.Instrument{
+			Instrument: sdkmetric.Instrument{
 				Name:        m.Name,
 				Unit:        m.Unit,
 				Description: m.Description,
 			},
-			Stream: metric.Stream{
+			Stream: sdkmetric.Stream{
 				Name:        m.Name,
 				Aggregation: aggregation,
 			},
@@ -65,8 +85,8 @@ func WithAggregation(aggregation metric.Aggregation) OptionFunc {
 func WithAggregationFunc(typ string, d time.Duration) OptionFunc {
 	return WithView(func(m Metric) View {
 		return View{
-			Instrument: metric.Instrument{
-				Kind: metric.InstrumentKindObservableGauge,
+			Instrument: sdkmetric.Instrument{
+				Kind: sdkmetric.InstrumentKindObservableGauge,
 				Name: fmt.Sprintf("%s__%s.%0.0fs", m.Name, typ, d.Seconds()),
 				Unit: m.Unit,
 			},
