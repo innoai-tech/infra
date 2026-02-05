@@ -10,10 +10,10 @@ import (
 	"sync"
 	"sync/atomic"
 
-	"cuelang.org/go/cue/cuecontext"
 	cueformat "cuelang.org/go/cue/format"
-	"cuelang.org/go/encoding/gocode/gocodec"
 	"github.com/fatih/color"
+	"github.com/go-json-experiment/json"
+	"github.com/go-json-experiment/json/jsontext"
 	"go.opentelemetry.io/otel/log"
 	sdklog "go.opentelemetry.io/otel/sdk/log"
 )
@@ -95,10 +95,13 @@ func (e *prettyExporter) print(f io.Writer, r sdklog.Record) error {
 }
 
 func marshal(v any) ([]byte, error) {
-	codec := gocodec.New(cuecontext.New(), nil)
-	val, err := codec.Decode(v)
+	raw, err := json.Marshal(v, json.Deterministic(true), jsontext.WithIndent("  "))
 	if err != nil {
 		return nil, err
 	}
-	return cueformat.Node(val.Syntax(), cueformat.Simplify())
+	// skip [] {}
+	if len(raw) == 2 && (raw[0] == '[' || raw[0] == '{') {
+		return nil, nil
+	}
+	return cueformat.Source(raw, cueformat.Simplify())
 }

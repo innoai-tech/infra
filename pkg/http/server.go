@@ -5,10 +5,13 @@ import (
 	"compress/gzip"
 	"context"
 	"crypto/tls"
+	"fmt"
 	"net"
 	"net/http"
 	"runtime"
 	"slices"
+	"sync"
+	"sync/atomic"
 	"time"
 
 	"golang.org/x/net/http2"
@@ -18,6 +21,7 @@ import (
 	"github.com/octohelm/courier/pkg/courierhttp/handler"
 	"github.com/octohelm/courier/pkg/courierhttp/handler/httprouter"
 	"github.com/octohelm/x/logr"
+	"github.com/octohelm/x/ptr"
 
 	"github.com/innoai-tech/infra/internal/otel"
 	"github.com/innoai-tech/infra/pkg/appinfo"
@@ -43,6 +47,9 @@ type Server struct {
 	routerHandlers []handler.Middleware
 
 	info *appinfo.Info `inject:",opt"`
+
+	ready    sync.WaitGroup
+	endpoint atomic.Pointer[string]
 }
 
 func (s *Server) SetDefaults() {
@@ -132,7 +139,7 @@ func (s *Server) afterInit(ctx context.Context) error {
 
 	globalHandlers := slices.Concat(
 		[]handler.Middleware{
-			middleware.MetricHandler(otel.GathererContext.From(ctx)),
+			middleware.MetricHandler(otel.MetricReaderContext.From(ctx)),
 			middleware.DefaultCORS(s.corsOptions...),
 			middleware.PProfHandler(s.EnableDebug),
 		},
@@ -148,7 +155,19 @@ func (s *Server) afterInit(ctx context.Context) error {
 		Handler:           h2c.NewHandler(handler.ApplyMiddlewares(globalHandlers...)(r), &http2.Server{}),
 	}
 
+	// for listen waiting
+	s.ready.Add(1)
+
 	return nil
+}
+
+func (s *Server) Endpoint() string {
+	s.ready.Wait()
+
+	if v := s.endpoint.Load(); v != nil {
+		return *v
+	}
+	return ""
 }
 
 func (s *Server) Serve(ctx context.Context) error {
@@ -160,18 +179,37 @@ func (s *Server) Serve(ctx context.Context) error {
 
 	svc := s.svc
 
-	tpe := "http"
+	proto := "http"
 	if s.tlsProvider != nil {
-		tpe = "https"
+		proto = "https"
 	}
 
-	l.Info("serve %s %s on %s (%s/%s)", s.serviceName(ctx), tpe, svc.Addr, runtime.GOOS, runtime.GOARCH)
+	host, port, err := net.SplitHostPort(svc.Addr)
+	if err != nil {
+		return nil
+	}
+	if host == "" {
+		host = "0.0.0.0"
+	}
 
 	ln, err := net.Listen("tcp", svc.Addr)
 	if err != nil {
 		return err
 	}
 	defer ln.Close()
+
+	if port == "0" {
+		_, p, _ := net.SplitHostPort(ln.Addr().String())
+		port = p
+	}
+
+	addr := net.JoinHostPort(host, port)
+
+	l.Info("serve %s %s://%s (%s/%s)", s.serviceName(ctx), proto, addr, runtime.GOOS, runtime.GOARCH)
+
+	s.endpoint.Store(ptr.Ptr(fmt.Sprintf("%s://%s", proto, addr)))
+
+	s.ready.Done()
 
 	if s.tlsProvider != nil {
 		svc.TLSConfig = s.tlsProvider.TLSConfig()

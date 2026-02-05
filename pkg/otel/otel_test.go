@@ -7,30 +7,13 @@ import (
 	"time"
 
 	"github.com/octohelm/x/logr"
-	testingx "github.com/octohelm/x/testing"
+	testingv2 "github.com/octohelm/x/testing/v2"
 
 	"github.com/innoai-tech/infra/pkg/configuration"
 )
 
-func Setup(t testing.TB, c any) context.Context {
-	t.Helper()
-
-	ctx := context.Background()
-	err := configuration.Init(ctx, c)
-
-	testingx.Expect(t, err, testingx.Be[error](nil))
-
-	t.Cleanup(func() {
-		if canShutdown, ok := c.(configuration.CanShutdown); ok {
-			_ = configuration.Shutdown(ctx, canShutdown)
-		}
-	})
-
-	return configuration.InjectContext(ctx, c.(configuration.ContextInjector))
-}
-
 func TestLog(t *testing.T) {
-	ctx := Setup(t, &Otel{
+	ctx := setup(t, &Otel{
 		LogLevel: DebugLevel,
 	})
 
@@ -60,5 +43,23 @@ func otherActions(ctx context.Context) {
 	time.Sleep(200 * time.Millisecond)
 
 	log.WithValues("test2", 2).Info("test")
-	log.Error(errors.New("other action failed."))
+	log.Error(errors.New("other action failed"))
+}
+
+func setup(t testing.TB, c any) context.Context {
+	t.Helper()
+
+	ctx := t.Context()
+
+	testingv2.Must(t, func() error {
+		return configuration.Init(ctx, c)
+	})
+
+	t.Cleanup(func() {
+		if canShutdown, ok := c.(configuration.CanShutdown); ok {
+			_ = configuration.Shutdown(ctx, canShutdown)
+		}
+	})
+
+	return configuration.InjectContext(ctx, c.(configuration.ContextInjector))
 }

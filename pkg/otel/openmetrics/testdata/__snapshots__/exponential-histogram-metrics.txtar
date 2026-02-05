@@ -1,0 +1,6 @@
+-- metrics --
+# HELP test_exponential_histogram An exponential histogram test
+# TYPE test_exponential_histogram histogram
+test_exponential_histogram_sum{type="exponential"} 500.5
+test_exponential_histogram_count{type="exponential"} 100
+# EOF

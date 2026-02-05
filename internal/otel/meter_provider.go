@@ -3,7 +3,6 @@ package otel
 import (
 	"context"
 
-	"github.com/prometheus/client_golang/prometheus"
 	"go.opentelemetry.io/otel/metric"
 	"go.opentelemetry.io/otel/metric/noop"
 	sdkmetric "go.opentelemetry.io/otel/sdk/metric"
@@ -13,10 +12,10 @@ import (
 
 type (
 	MeterProvider = metric.MeterProvider
-	Reader        = sdkmetric.Reader
+	MetricReader  = sdkmetric.Reader
 )
 
-var GathererContext = contextx.New[prometheus.Gatherer]()
+var MetricReaderContext = contextx.New[MetricReader]()
 
 var MeterProviderContext = contextx.New[MeterProvider](contextx.WithDefaultsFunc(func() metric.MeterProvider {
 	return noop.NewMeterProvider()

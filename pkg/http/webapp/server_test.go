@@ -3,40 +3,50 @@ package webapp
 import (
 	"testing"
 
-	"github.com/octohelm/x/testing/bdd"
+	. "github.com/octohelm/x/testing/v2"
 )
 
 func TestOpt(t *testing.T) {
-	b := bdd.FromT(t)
-
-	b.Given("with /", func(b bdd.T) {
+	t.Run("with /", func(t *testing.T) {
 		o := (&opt{}).build(WithBaseHref("/"))
 
-		b.When("without header X-App-Base-Href", func(b bdd.T) {
-			b.Then("keep static",
-				bdd.Equal("/", o.resolveBaseHref("")),
+		t.Run("without header X-App-Base-Href", func(t *testing.T) {
+			Then(t, "base href keep static",
+				Expect(
+					o.resolveBaseHref(""),
+					Equal("/"),
+				),
 			)
 		})
 
-		b.When("with header X-App-Base-Href", func(b bdd.T) {
-			b.Then("use header value",
-				bdd.Equal("/clusters/test/x-app/", o.resolveBaseHref("/clusters/test/x-app/")),
+		t.Run("with header X-App-Base-Href", func(t *testing.T) {
+			Then(t, "base href use header value",
+				Expect(
+					o.resolveBaseHref("/clusters/test/x-app/"),
+					Equal("/clusters/test/x-app/"),
+				),
 			)
 		})
 	})
 
-	b.Given("with /base/", func(b bdd.T) {
+	t.Run("with /base/", func(t *testing.T) {
 		o := (&opt{}).build(WithBaseHref("/base/"))
 
-		b.When("without header X-App-Base-Href", func(b bdd.T) {
-			b.Then("keep static",
-				bdd.Equal("/base/", o.resolveBaseHref("")),
+		t.Run("without header X-App-Base-Href", func(t *testing.T) {
+			Then(t, "base href keep static",
+				Expect(
+					o.resolveBaseHref(""),
+					Equal("/base/"),
+				),
 			)
 		})
 
-		b.When("with header X-App-Base-Href", func(b bdd.T) {
-			b.Then("use header value",
-				bdd.Equal("/clusters/test/x-app/base/", o.resolveBaseHref("/clusters/test/x-app/")),
+		t.Run("with header X-App-Base-Href", func(t *testing.T) {
+			Then(t, "base href use header value",
+				Expect(
+					o.resolveBaseHref("/clusters/test/x-app/"),
+					Equal("/clusters/test/x-app/base/"),
+				),
 			)
 		})
 	})

@@ -4,6 +4,7 @@ devtool := "go tool devtool"
 
 serve-example:
     {{ example }} serve -c \
+        --log-format=text \
     	--server-addr=:8081
 
 dump-k8s-example:

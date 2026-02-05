@@ -1,0 +1,5 @@
+-- metrics --
+# HELP http_request_count_total Total HTTP requests
+# TYPE http_request_count_total counter
+http_request_count_total{method="GET",path="/api"} 1024
+# EOF

@@ -4,13 +4,11 @@ import (
 	"context"
 	"time"
 
-	"github.com/innoai-tech/infra/pkg/otel/metric"
-	prometheusclient "github.com/prometheus/client_golang/prometheus"
-	"github.com/prometheus/client_golang/prometheus/collectors"
+	"go.opentelemetry.io/contrib/instrumentation/host"
+	"go.opentelemetry.io/contrib/instrumentation/runtime"
 	"go.opentelemetry.io/otel/exporters/otlp/otlpmetric/otlpmetricgrpc"
 	"go.opentelemetry.io/otel/exporters/otlp/otlptrace"
 	"go.opentelemetry.io/otel/exporters/otlp/otlptrace/otlptracegrpc"
-	"go.opentelemetry.io/otel/exporters/prometheus"
 	sdklog "go.opentelemetry.io/otel/sdk/log"
 	sdkmetric "go.opentelemetry.io/otel/sdk/metric"
 	"go.opentelemetry.io/otel/sdk/resource"
@@ -23,6 +21,7 @@ import (
 	"github.com/innoai-tech/infra/internal/otel"
 	"github.com/innoai-tech/infra/pkg/appinfo"
 	"github.com/innoai-tech/infra/pkg/configuration"
+	"github.com/innoai-tech/infra/pkg/otel/metric"
 )
 
 type LogLevel = otel.LogLevel
@@ -56,7 +55,8 @@ type Otel struct {
 	tracerProvider *sdktrace.TracerProvider
 	loggerProvider *sdklog.LoggerProvider
 	meterProvider  *sdkmetric.MeterProvider
-	promGatherer   prometheusclient.Gatherer
+
+	metricReader sdkmetric.Reader
 
 	enabledLevel logr.Level
 
@@ -94,8 +94,8 @@ func (o *Otel) InjectContext(ctx context.Context) context.Context {
 		ctx,
 		configuration.InjectContextFunc(LogProcessorRegistryInjectContext, LogProcessorRegistry(o.dynamicLogProcessor)),
 		configuration.InjectContextFunc(logr.WithLogger, l),
-		configuration.InjectContextFunc(otel.GathererContext.Inject, o.promGatherer),
 		configuration.InjectContextFunc(otel.MeterProviderContext.Inject, otel.MeterProvider(o.meterProvider)),
+		configuration.InjectContextFunc(otel.MetricReaderContext.Inject, o.metricReader),
 	)
 }
 
@@ -112,24 +112,7 @@ func (o *Otel) afterInit(ctx context.Context) error {
 	}
 	o.enabledLevel = enabledLevel
 
-	pr := prometheusclient.NewRegistry()
-
-	if err := pr.Register(collectors.NewProcessCollector(collectors.ProcessCollectorOpts{})); err != nil {
-		return err
-	}
-	if err := pr.Register(collectors.NewGoCollector()); err != nil {
-		return err
-	}
-
-	o.promGatherer = pr
-
-	prometheusReader, err := prometheus.New(
-		prometheus.WithRegisterer(pr),
-		prometheus.WithoutScopeInfo(),
-	)
-	if err != nil {
-		return err
-	}
+	o.metricReader = sdkmetric.NewManualReader()
 
 	tracerOpts := []sdktrace.TracerProviderOption{
 		sdktrace.WithSampler(sdktrace.AlwaysSample()),
@@ -143,7 +126,7 @@ func (o *Otel) afterInit(ctx context.Context) error {
 	}
 
 	meterOpts := []sdkmetric.Option{
-		sdkmetric.WithReader(prometheusReader),
+		sdkmetric.WithReader(o.metricReader),
 	}
 
 	if info := o.info; info != nil {
@@ -197,11 +180,21 @@ func (o *Otel) afterInit(ctx context.Context) error {
 		)
 	}
 
-	meterOpts = append(meterOpts, metric.GetMetricViewsOption())
+	meterOpts = append(
+		meterOpts,
+		metric.GetMetricViewsOption(),
+	)
 
 	o.loggerProvider = sdklog.NewLoggerProvider(logOpts...)
 	o.tracerProvider = sdktrace.NewTracerProvider(tracerOpts...)
 	o.meterProvider = sdkmetric.NewMeterProvider(meterOpts...)
+
+	if err := host.Start(host.WithMeterProvider(o.meterProvider)); err != nil {
+		return err
+	}
+	if err := runtime.Start(runtime.WithMeterProvider(o.meterProvider)); err != nil {
+		return err
+	}
 
 	return nil
 }

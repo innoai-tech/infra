@@ -3,26 +3,28 @@ package internal
 import (
 	"testing"
 
-	"github.com/octohelm/x/testing/bdd"
+	. "github.com/octohelm/x/testing/v2"
 )
 
 func TestEnvVars(t *testing.T) {
-	bdd.FromT(t).Given("environ", func(b bdd.T) {
+	t.Run("GIVEN environ with ENV_VAR_1", func(t *testing.T) {
 		envVars := EnvVarsFromEnviron([]string{
 			"env_var_1=1",
 		})
 
-		b.When("get by full env var", func(b bdd.T) {
+		t.Run("WHEN get by full name with underscores", func(t *testing.T) {
 			v, _ := envVars.Get("ENV_VAR_1")
-			b.Then("success",
-				bdd.Equal("1", v),
+
+			Then(t, "it should return the value",
+				Expect(v, Equal("1")),
 			)
 		})
 
-		b.When("get by full env var without lodash", func(b bdd.T) {
+		t.Run("WHEN get by name without underscores", func(t *testing.T) {
 			v, _ := envVars.Get("ENVVAR1")
-			b.Then("success",
-				bdd.Equal("1", v),
+
+			Then(t, "it should still return the normalized value",
+				Expect(v, Equal("1")),
 			)
 		})
 	})

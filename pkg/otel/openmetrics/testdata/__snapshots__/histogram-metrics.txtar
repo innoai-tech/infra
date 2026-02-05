@@ -1,0 +1,9 @@
+-- metrics --
+# HELP test_histogram A test histogram
+# TYPE test_histogram histogram
+test_histogram_bucket{env="prod",le="2"} 1
+test_histogram_bucket{env="prod",le="4"} 2
+test_histogram_bucket{env="prod",le="+Inf"} 3
+test_histogram_sum{env="prod"} 9
+test_histogram_count{env="prod"} 3
+# EOF

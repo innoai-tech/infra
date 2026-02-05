@@ -1,0 +1,5 @@
+-- metrics --
+# HELP system_cpu_usage Current CPU usage percentage
+# TYPE system_cpu_usage gauge
+system_cpu_usage{instance="srv-01"} 0.75
+# EOF

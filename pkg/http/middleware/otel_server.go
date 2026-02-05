@@ -10,23 +10,33 @@ import (
 	"strings"
 	"time"
 
-	"github.com/prometheus/client_golang/prometheus"
-	"github.com/prometheus/client_golang/prometheus/promhttp"
 	"go.opentelemetry.io/contrib/propagators/b3"
 	"go.opentelemetry.io/otel/attribute"
 	"go.opentelemetry.io/otel/metric"
 	"go.opentelemetry.io/otel/propagation"
+	sdkmetric "go.opentelemetry.io/otel/sdk/metric"
+	"go.opentelemetry.io/otel/sdk/metric/metricdata"
 
 	"github.com/octohelm/courier/pkg/courierhttp"
 	"github.com/octohelm/courier/pkg/courierhttp/util"
 	"github.com/octohelm/x/logr"
 
 	"github.com/innoai-tech/infra/pkg/http/middleware/metrichttp"
+	"github.com/innoai-tech/infra/pkg/otel/openmetrics"
 )
 
-func MetricHandler(gatherer prometheus.Gatherer) func(handler http.Handler) http.Handler {
-	h := promhttp.HandlerFor(gatherer, promhttp.HandlerOpts{
-		EnableOpenMetrics: true,
+func MetricHandler(metricReader sdkmetric.Reader) func(handler http.Handler) http.Handler {
+	h := http.HandlerFunc(func(rw http.ResponseWriter, r *http.Request) {
+		metrics := &metricdata.ResourceMetrics{}
+
+		if err := metricReader.Collect(r.Context(), metrics); err != nil {
+			http.Error(rw, err.Error(), http.StatusInternalServerError)
+			return
+		}
+
+		rw.Header().Set("Content-Type", openmetrics.ContentType)
+		rw.WriteHeader(http.StatusOK)
+		_ = openmetrics.WriteResourceMetrics(rw, metrics)
 	})
 
 	return func(handler http.Handler) http.Handler {

@@ -4,8 +4,9 @@ import (
 	"fmt"
 	"time"
 
-	syncx "github.com/octohelm/x/sync"
 	sdkmetric "go.opentelemetry.io/otel/sdk/metric"
+
+	syncx "github.com/octohelm/x/sync"
 )
 
 var metricViews = syncx.Map[string, []View]{}

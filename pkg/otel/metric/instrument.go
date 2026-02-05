@@ -3,8 +3,9 @@ package metric
 import (
 	"context"
 
-	"github.com/innoai-tech/infra/internal/otel"
 	otelmetric "go.opentelemetry.io/otel/metric"
+
+	"github.com/innoai-tech/infra/internal/otel"
 )
 
 type Int64Counter interface {
