@@ -81,7 +81,7 @@ func (e *prettyExporter) print(f io.Writer, r sdklog.Record) error {
 
 	data, err := marshal(attrs)
 	if err != nil {
-		panic(err)
+		panic(fmt.Errorf("failed to marshal: %+v", attrs))
 	}
 
 	if len(data) > 0 {
@@ -95,7 +95,11 @@ func (e *prettyExporter) print(f io.Writer, r sdklog.Record) error {
 }
 
 func marshal(v any) ([]byte, error) {
-	raw, err := json.Marshal(v, json.Deterministic(true), jsontext.WithIndent("  "))
+	raw, err := json.Marshal(v,
+		json.Deterministic(true),
+		jsontext.AllowInvalidUTF8(true),
+		jsontext.WithIndent("  "),
+	)
 	if err != nil {
 		return nil, err
 	}

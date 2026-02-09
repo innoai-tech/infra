@@ -13,7 +13,7 @@ require (
 	github.com/octohelm/courier v0.0.0-20260108095509-4b709c0b526c
 	github.com/octohelm/enumeration v0.0.0-20251117072411-c5ede10316bf
 	github.com/octohelm/gengo v0.0.0-20260209070247-7b87ba87a8d9
-	github.com/octohelm/x v0.0.0-20260209062350-0af9cf4d4286
+	github.com/octohelm/x v0.0.0-20260209071844-fac361cc7823
 )
 
 require (

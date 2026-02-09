@@ -77,8 +77,8 @@ github.com/octohelm/exp v0.0.0-20250610043704-ec5e24647f61 h1:skBtjnzQDcHbtyRi+7
 github.com/octohelm/exp v0.0.0-20250610043704-ec5e24647f61/go.mod h1:2BGG1LIYNHUcguQusVv2e33QzFD/G+7po6K+kdLjYnQ=
 github.com/octohelm/gengo v0.0.0-20260209070247-7b87ba87a8d9 h1:1OkP5CdwX7WnAo6MHwxHu2SJUIXs2EB1/nuCVmILRTw=
 github.com/octohelm/gengo v0.0.0-20260209070247-7b87ba87a8d9/go.mod h1:Jm/FC3Ol8IJhA06F/AvEq0ygnhoyA20/fbFNs9sIFoY=
-github.com/octohelm/x v0.0.0-20260209062350-0af9cf4d4286 h1:ORsEKLQaNSMVKKxjYdyjeGffTYTeo1/1D8B5fV0dcm4=
-github.com/octohelm/x v0.0.0-20260209062350-0af9cf4d4286/go.mod h1:2cF/ZAbj1rkTGwI9Mz/vfTl9Lt0oeukd0jqdmNKHtLw=
+github.com/octohelm/x v0.0.0-20260209071844-fac361cc7823 h1:nb81XUh/OvFazclAztkBNaoF5KafT9v0TKWW+2JAvY8=
+github.com/octohelm/x v0.0.0-20260209071844-fac361cc7823/go.mod h1:2cF/ZAbj1rkTGwI9Mz/vfTl9Lt0oeukd0jqdmNKHtLw=
 github.com/opencontainers/go-digest v1.0.0 h1:apOUWs51W5PlhuyGyz9FCeeBIOUDA/6nW8Oi/yOhh5U=
 github.com/opencontainers/go-digest v1.0.0/go.mod h1:0JzlMkj0TRzQZfJkVvzbP0HBR3IKzErnv2BNG4W4MAM=
 github.com/opencontainers/image-spec v1.1.1 h1:y0fUlFfIZhPF1W537XOLg0/fcx6zcHCJwooC2xJA040=
