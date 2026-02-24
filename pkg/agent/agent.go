@@ -39,7 +39,7 @@ func (x *Agent) Init(ctx context.Context) error {
 			x.kind = kindGetter.GetKind()
 		} else {
 			t := reflect.TypeOf(v)
-			for t.Kind() == reflect.Ptr {
+			for t.Kind() == reflect.Pointer {
 				t = t.Elem()
 			}
 			x.kind = t.Name()

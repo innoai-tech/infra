@@ -121,8 +121,8 @@ func parseMetric(line string) (*Metric, string) {
 
 	baseName := fullName
 	for _, suffix := range []string{"_bucket", "_sum", "_count", "_min", "_max"} {
-		if strings.HasSuffix(fullName, suffix) {
-			baseName = strings.TrimSuffix(fullName, suffix)
+		if before, ok := strings.CutSuffix(fullName, suffix); ok {
+			baseName = before
 			break
 		}
 	}

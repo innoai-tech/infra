@@ -2,6 +2,7 @@ package middleware
 
 import (
 	"net/http"
+	"slices"
 	"strconv"
 	"strings"
 )
@@ -133,7 +134,7 @@ func (ch *cors) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 			w.Header().Set(CorsMaxAgeHeader, strconv.Itoa(ch.maxAge))
 		}
 
-		if !ch.isMatch(method, defaultCorsMethods) {
+		if !slices.Contains(defaultCorsMethods, method) {
 			w.Header().Set(CorsAllowMethodsHeader, method)
 		}
 	} else {
@@ -154,14 +155,8 @@ func (ch *cors) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 	if ch.allowedOriginValidator == nil && len(ch.allowedOrigins) == 0 {
 		returnOrigin = "*"
 	} else {
-		for _, o := range ch.allowedOrigins {
-			// A configuration of * is different than explicitly setting an allowed
-			// origin. Returning arbitrary origin headers in an access control allow
-			// origin header is unsafe and is not required by any use case.
-			if o == CorsOriginMatchAll {
-				returnOrigin = "*"
-				break
-			}
+		if slices.Contains(ch.allowedOrigins, CorsOriginMatchAll) {
+			returnOrigin = "*"
 		}
 	}
 
@@ -269,11 +264,9 @@ func AllowedMethods(methods []string) CORSOption {
 // Note: Passing in a []string{"*"} will allow any domain.
 func AllowedOrigins(origins []string) CORSOption {
 	return func(ch *cors) error {
-		for _, v := range origins {
-			if v == CorsOriginMatchAll {
-				ch.allowedOrigins = []string{CorsOriginMatchAll}
-				return nil
-			}
+		if slices.Contains(origins, CorsOriginMatchAll) {
+			ch.allowedOrigins = []string{CorsOriginMatchAll}
+			return nil
 		}
 
 		ch.allowedOrigins = origins
@@ -380,11 +373,5 @@ func (ch *cors) isOriginAllowed(origin string) bool {
 }
 
 func (ch *cors) isMatch(needle string, haystack []string) bool {
-	for _, v := range haystack {
-		if v == needle {
-			return true
-		}
-	}
-
-	return false
+	return slices.Contains(haystack, needle)
 }

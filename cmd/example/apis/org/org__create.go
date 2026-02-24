@@ -12,7 +12,7 @@ type CreateOrg struct {
 	Info                   `in:"body"`
 }
 
-func (c *CreateOrg) Output(ctx context.Context) (interface{}, error) {
+func (c *CreateOrg) Output(ctx context.Context) (any, error) {
 	return nil, nil
 }
 

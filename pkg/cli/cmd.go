@@ -60,7 +60,7 @@ func addConfigurator(c *C, flags *pflag.FlagSet, target any, name string, appNam
 }
 
 func collectFlagsFromConfigurator(c *C, flags *pflag.FlagSet, rv reflect.Value, prefix string, envPrefix string, parentDoc string) {
-	for rv.Kind() == reflect.Ptr {
+	for rv.Kind() == reflect.Pointer {
 		rv = rv.Elem()
 	}
 

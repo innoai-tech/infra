@@ -29,6 +29,7 @@ test-race:
     CGO_ENABLED=1 go test -count=1 -race ./...
 
 fmt:
+    go fix ./...
     {{ devtool }} fmt -l -w .
 
 gen:

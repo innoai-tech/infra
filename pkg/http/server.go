@@ -21,7 +21,6 @@ import (
 	"github.com/octohelm/courier/pkg/courierhttp/handler"
 	"github.com/octohelm/courier/pkg/courierhttp/handler/httprouter"
 	"github.com/octohelm/x/logr"
-	"github.com/octohelm/x/ptr"
 
 	"github.com/innoai-tech/infra/internal/otel"
 	"github.com/innoai-tech/infra/pkg/appinfo"
@@ -207,7 +206,7 @@ func (s *Server) Serve(ctx context.Context) error {
 
 	l.Info("serve %s %s://%s (%s/%s)", s.serviceName(ctx), proto, addr, runtime.GOOS, runtime.GOARCH)
 
-	s.endpoint.Store(ptr.Ptr(fmt.Sprintf("%s://%s", proto, addr)))
+	s.endpoint.Store(new(fmt.Sprintf("%s://%s", proto, addr)))
 
 	s.ready.Done()
 

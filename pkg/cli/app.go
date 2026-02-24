@@ -136,7 +136,7 @@ func (a *app) newFrom(cc Command, parent Command) *cobra.Command {
 func (a *app) bindCommand(c *cobra.Command, info *C, v any) {
 	rv := reflect.ValueOf(v)
 
-	if rv.Kind() != reflect.Ptr || rv.Elem().Kind() != reflect.Struct {
+	if rv.Kind() != reflect.Pointer || rv.Elem().Kind() != reflect.Struct {
 		panic(fmt.Errorf("only support a ptr struct value, but got %#v", v))
 	}
 

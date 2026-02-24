@@ -14,7 +14,7 @@ func SingletonsFromStruct(v any) (singletons Singletons) {
 		rv = reflect.ValueOf(v)
 	}
 
-	for rv.Kind() == reflect.Ptr {
+	for rv.Kind() == reflect.Pointer {
 		rv = rv.Elem()
 	}
 

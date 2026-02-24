@@ -98,7 +98,7 @@ func (f *FlagVar) typ(t reflect.Type) string {
 		return "string"
 	}
 
-	if t.Kind() == reflect.Ptr {
+	if t.Kind() == reflect.Pointer {
 		return t.Elem().Kind().String()
 	}
 
