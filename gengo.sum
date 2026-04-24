@@ -1,9 +1,3 @@
-github.com/innoai-tech/infra/cmd/example h1:d6tByW9wepkaOxYa0kgzvLvvURR0rRjdZC9rVIs3jLA=
-github.com/innoai-tech/infra/cmd/example/apis h1:wZyXlSB8wOVkILRbrbvHaESwnGdTLpzCZ7irSeddEvg=
-github.com/innoai-tech/infra/cmd/example/apis/archive h1:oKuc6px2Jcz7ZQ4r2DrF/NGw8ocnUKl+HQGfKAhodGI=
-github.com/innoai-tech/infra/cmd/example/apis/org h1:cZGf3LDZiAW4Lv9CQkiYiYxw23uRYrrCZ1TkYIX61M8=
-github.com/innoai-tech/infra/cmd/example/ui h1:e+oElqjeyTlylnQ8gY/q2btH9hUTUN/MXttQrmYjdX8=
-github.com/innoai-tech/infra/internal/otel h1:cI0gY63PXSu1wCLEbLzJprGspOjRRQuAp4WhCqArykU=
 github.com/innoai-tech/infra/pkg/appinfo h1:ph8L4kix9SNvjizs2D2Jk/aKHtLLg0q2stTrqC2jEPA=
 github.com/innoai-tech/infra/pkg/cli h1:EREKBUhbVLlJvtjUPx5hfNyVw/0LLBBIIAKqOo80t/Y=
 github.com/innoai-tech/infra/pkg/cli/internal h1:WL2qdbiz/ia0Gg5Y4ft0Jnix5Ks28/eW3IiD4cB9YA8=

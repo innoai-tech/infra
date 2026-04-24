@@ -16,14 +16,17 @@ import (
 	"github.com/innoai-tech/infra/pkg/configuration"
 )
 
+// AppOptionFunc 用于修改应用级元数据。
 type AppOptionFunc = func(*appinfo.App)
 
+// WithImageNamespace 设置应用镜像命名空间。
 func WithImageNamespace(imageNamespace string) AppOptionFunc {
 	return func(a *appinfo.App) {
 		a.ImageNamespace = imageNamespace
 	}
 }
 
+// NewApp 创建一个新的 CLI 应用根命令。
 func NewApp(name string, version string, fns ...AppOptionFunc) Command {
 	a := &app{
 		version: version,

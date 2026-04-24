@@ -16,20 +16,24 @@ import (
 	"github.com/innoai-tech/infra/pkg/configuration"
 )
 
+// Command 表示可参与 CLI 命令树组装的对象。
 type Command interface {
 	Cmd() *C
 }
 
+// CanPreRun 表示命令支持在执行前做预处理。
 type CanPreRun interface {
 	PreRun(ctx context.Context) error
 }
 
+// AddTo 将子命令挂到父命令下并返回该子命令。
 func AddTo[T Command](parent Command, c T) T {
 	cc := parent.Cmd()
 	cc.subcommands = append(cc.subcommands, c)
 	return c
 }
 
+// C 承载命令定义、参数、flags 与 singleton 元数据。
 type C struct {
 	info appinfo.Info
 
@@ -42,10 +46,12 @@ type C struct {
 	singletons configuration.Singletons
 }
 
+// Cmd 返回当前命令描述对象。
 func (c *C) Cmd() *C {
 	return c
 }
 
+// CanRuntimeDoc 表示命令可提供运行时文档描述。
 type CanRuntimeDoc interface {
 	RuntimeDoc(names ...string) ([]string, bool)
 }

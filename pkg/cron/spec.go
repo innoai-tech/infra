@@ -9,8 +9,10 @@ import (
 	"github.com/robfig/cron/v3"
 )
 
+// Spec 表示一个标准 cron 表达式。
 type Spec string
 
+// Times 基于 spec 按触发时间持续产出 time.Time。
 func (spec Spec) Times(ctx context.Context) iter.Seq[time.Time] {
 	s, _ := cron.ParseStandard(string(spec))
 	if s == nil {
@@ -20,10 +22,14 @@ func (spec Spec) Times(ctx context.Context) iter.Seq[time.Time] {
 	return Times(ctx, s)
 }
 
+// IsZero 返回 spec 是否为空。
 func (spec Spec) IsZero() bool {
 	return spec == ""
 }
 
+// Schedule 将 spec 解析为 cron 调度器。
+//
+// `@never` 会被视为显式禁用，因此返回 nil。
 func (spec Spec) Schedule() cron.Schedule {
 	if spec == "@never" {
 		return nil
@@ -32,6 +38,7 @@ func (spec Spec) Schedule() cron.Schedule {
 	return s
 }
 
+// UnmarshalText 校验并加载文本形式的 cron 表达式。
 func (spec *Spec) UnmarshalText(text []byte) error {
 	s := string(text)
 
@@ -50,6 +57,7 @@ func (spec *Spec) UnmarshalText(text []byte) error {
 	return nil
 }
 
+// Times 基于给定 schedule 按触发时间持续产出 time.Time。
 func Times(ctx context.Context, schedule cron.Schedule) iter.Seq[time.Time] {
 	if schedule == nil {
 		return func(yield func(time.Time) bool) {

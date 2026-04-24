@@ -15,7 +15,7 @@ type Gengo struct {
 }
 
 func (g *Gengo) Run(ctx context.Context) error {
-	c, err := gengo.NewContext(&gengo.GeneratorArgs{
+	c, err := gengo.NewExecutor(&gengo.GeneratorArgs{
 		Entrypoint:         g.Entrypoint,
 		OutputFileBaseName: "zz_generated",
 		All:                g.All,

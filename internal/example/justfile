@@ -1,0 +1,29 @@
+# List example entrypoints.
+default:
+    just --list
+
+# Run the example server on :8081.
+serve:
+    go run ./cmd/example serve -c \
+        --log-format=text \
+        --server-addr=:8081
+
+# Regenerate example routes and generated outputs.
+gen:
+    go generate ./cmd/example/...
+
+# Dump the example Kubernetes component manifests.
+dump-k8s:
+    go run ./cmd/example serve --dump-k8s
+
+# Serve the bundled example webapp.
+webapp:
+    go run ./cmd/example webapp --root ./cmd/example/ui/dist --ver=test
+
+# Serve the bundled example webapp without history fallback.
+webapp-debug:
+    go run ./cmd/example webapp --disable-history-fallback --root ./cmd/example/ui/dist
+
+# Load test the running example API on localhost:8081.
+hey:
+    hey -z 5m http://localhost:8081/api/example/v0/orgs

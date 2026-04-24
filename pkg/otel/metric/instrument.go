@@ -5,7 +5,7 @@ import (
 
 	otelmetric "go.opentelemetry.io/otel/metric"
 
-	"github.com/innoai-tech/infra/internal/otel"
+	"github.com/innoai-tech/infra/pkg/otel/internal/otel"
 )
 
 type Int64Counter interface {

@@ -14,6 +14,7 @@ import (
 	"sync/atomic"
 	"time"
 
+	sdkmetric "go.opentelemetry.io/otel/sdk/metric"
 	"golang.org/x/net/http2"
 	"golang.org/x/net/http2/h2c"
 
@@ -22,10 +23,10 @@ import (
 	"github.com/octohelm/courier/pkg/courierhttp/handler/httprouter"
 	"github.com/octohelm/x/logr"
 
-	"github.com/innoai-tech/infra/internal/otel"
 	"github.com/innoai-tech/infra/pkg/appinfo"
 	"github.com/innoai-tech/infra/pkg/configuration"
 	"github.com/innoai-tech/infra/pkg/http/middleware"
+	otelmetric "github.com/innoai-tech/infra/pkg/otel/metric"
 )
 
 // +gengo:injectable
@@ -42,6 +43,7 @@ type Server struct {
 	svc  *http.Server
 
 	tlsProvider    Provider
+	metricReader   sdkmetric.Reader
 	globalHandlers []handler.Middleware
 	routerHandlers []handler.Middleware
 
@@ -51,6 +53,7 @@ type Server struct {
 	endpoint atomic.Pointer[string]
 }
 
+// SetDefaults 根据 TLS 配置补齐默认监听地址。
 func (s *Server) SetDefaults() {
 	if s.tlsProvider != nil {
 		if s.Addr == "" {
@@ -64,26 +67,37 @@ func (s *Server) SetDefaults() {
 	}
 }
 
+// SetCorsOptions 设置全局 CORS 选项。
 func (s *Server) SetCorsOptions(options ...middleware.CORSOption) {
 	s.corsOptions = options
 }
 
+// ApplyRouter 绑定 courier 路由树。
 func (s *Server) ApplyRouter(r courier.Router) {
 	s.root = r
 }
 
+// SetName 覆盖默认服务名。
 func (s *Server) SetName(name string) {
 	s.name = name
 }
 
+// SetTLSProvoder 设置 TLS 配置提供者。
 func (s *Server) SetTLSProvoder(tlsProvider Provider) {
 	s.tlsProvider = tlsProvider
 }
 
+// SetMetricReader 显式设置指标 reader，避免完全依赖上下文注入。
+func (s *Server) SetMetricReader(reader sdkmetric.Reader) {
+	s.metricReader = reader
+}
+
+// ApplyRouterHandlers 为业务路由追加中间件。
 func (s *Server) ApplyRouterHandlers(handlers ...handler.Middleware) {
 	s.routerHandlers = append(s.routerHandlers, handlers...)
 }
 
+// ApplyGlobalHandlers 为整个 HTTP 服务追加中间件。
 func (s *Server) ApplyGlobalHandlers(handlers ...handler.Middleware) {
 	s.globalHandlers = append(s.globalHandlers, handlers...)
 }
@@ -102,6 +116,7 @@ func (s *Server) serviceName(ctx context.Context) string {
 	return "unknown/v0"
 }
 
+// NewHandler 基于给定路由构建最终 HTTP handler。
 func (s *Server) NewHandler(ctx context.Context, root courier.Router) (http.Handler, error) {
 	return httprouter.New(
 		root,
@@ -126,6 +141,15 @@ func (s *Server) afterInit(ctx context.Context) error {
 		return nil
 	}
 
+	metricReader := s.metricReader
+	if metricReader == nil {
+		if injected, ok := otelmetric.ReaderContext.MayFrom(ctx); ok {
+			metricReader = injected
+		} else {
+			metricReader = sdkmetric.NewManualReader()
+		}
+	}
+
 	var r http.Handler = http.NewServeMux()
 
 	if s.root != nil {
@@ -138,7 +162,7 @@ func (s *Server) afterInit(ctx context.Context) error {
 
 	globalHandlers := slices.Concat(
 		[]handler.Middleware{
-			middleware.MetricHandler(otel.MetricReaderContext.From(ctx)),
+			middleware.MetricHandler(metricReader),
 			middleware.DefaultCORS(s.corsOptions...),
 			middleware.PProfHandler(s.EnableDebug),
 		},
@@ -160,6 +184,7 @@ func (s *Server) afterInit(ctx context.Context) error {
 	return nil
 }
 
+// Endpoint 返回实际监听成功后的对外地址。
 func (s *Server) Endpoint() string {
 	s.ready.Wait()
 
@@ -169,6 +194,7 @@ func (s *Server) Endpoint() string {
 	return ""
 }
 
+// Serve 启动 HTTP 服务并记录最终监听地址。
 func (s *Server) Serve(ctx context.Context) error {
 	if s.svc == nil {
 		return nil
@@ -218,6 +244,7 @@ func (s *Server) Serve(ctx context.Context) error {
 	return svc.Serve(ln)
 }
 
+// Shutdown 优雅关闭底层 HTTP 服务。
 func (s *Server) Shutdown(ctx context.Context) error {
 	if s.svc == nil {
 		return nil
@@ -225,6 +252,7 @@ func (s *Server) Shutdown(ctx context.Context) error {
 	return s.svc.Shutdown(ctx)
 }
 
+// Provider 表示可提供 TLS 配置的对象。
 type Provider interface {
 	TLSConfig() *tls.Config
 }

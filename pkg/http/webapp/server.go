@@ -29,6 +29,7 @@ import (
 	_ "github.com/innoai-tech/infra/pkg/http/webapp/etc"
 )
 
+// Server 承载前端构建产物并暴露静态站点服务。
 type Server struct {
 	// app env name
 	Env string `flag:",omitempty"`
@@ -52,10 +53,12 @@ type Server struct {
 	svc *http.Server
 }
 
+// BindFS 绑定一个自定义文件系统作为静态资源来源。
 func (s *Server) BindFS(f fs.FS) {
 	s.fs = f
 }
 
+// SetDefaults 补齐基础运行默认值。
 func (s *Server) SetDefaults() {
 	if s.BaseHref == "" {
 		s.BaseHref = "/"
@@ -70,6 +73,7 @@ func (s *Server) SetDefaults() {
 	}
 }
 
+// Init 初始化底层 HTTP server 和静态资源处理器。
 func (s *Server) Init(ctx context.Context) error {
 	if s.svc != nil {
 		return nil
@@ -102,6 +106,7 @@ func (s *Server) Init(ctx context.Context) error {
 	return nil
 }
 
+// Serve 启动 HTTP 服务。
 func (s *Server) Serve(ctx context.Context) error {
 	if s.svc == nil {
 		return nil
@@ -114,30 +119,36 @@ func (s *Server) Serve(ctx context.Context) error {
 	return s.svc.ListenAndServe()
 }
 
+// Shutdown 优雅关闭 HTTP 服务。
 func (s *Server) Shutdown(ctx context.Context) error {
 	return s.svc.Shutdown(ctx)
 }
 
+// OptFunc 修改静态资源服务选项。
 type OptFunc func(o *opt)
 
+// WithAppConfig 注入前端运行时配置。
 func WithAppConfig(appConfig map[string]string) OptFunc {
 	return func(o *opt) {
 		o.appConfig = appConfig
 	}
 }
 
+// WithAppEnv 注入应用环境标识。
 func WithAppEnv(appEnv string) OptFunc {
 	return func(o *opt) {
 		o.appEnv = appEnv
 	}
 }
 
+// WithAppVersion 注入应用版本。
 func WithAppVersion(appVersion string) OptFunc {
 	return func(o *opt) {
 		o.appVersion = appVersion
 	}
 }
 
+// WithBaseHref 设置站点基础路径。
 func WithBaseHref(baseHref string) OptFunc {
 	return func(o *opt) {
 		o.baseHref = baseHref
@@ -148,12 +159,14 @@ func WithBaseHref(baseHref string) OptFunc {
 	}
 }
 
+// DisableHistoryFallback 控制是否禁用 SPA history fallback。
 func DisableHistoryFallback(disableHistoryFallback bool) OptFunc {
 	return func(o *opt) {
 		o.disableHistoryFallback = disableHistoryFallback
 	}
 }
 
+// DisableCSP 控制是否关闭默认的 iframe 安全头。
 func DisableCSP(disableCSP bool) OptFunc {
 	return func(o *opt) {
 		o.disableCSP = disableCSP
@@ -274,6 +287,7 @@ func (o *opt) build(optFns ...OptFunc) *opt {
 	return o
 }
 
+// ServeFS 基于给定文件系统创建静态站点处理器。
 func ServeFS(f fs.FS, optFns ...OptFunc) http.Handler {
 	o := (&opt{baseHref: "/"}).build(optFns...)
 

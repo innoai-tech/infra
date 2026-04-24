@@ -18,25 +18,33 @@ import (
 
 	"github.com/octohelm/x/logr"
 
-	"github.com/innoai-tech/infra/internal/otel"
 	"github.com/innoai-tech/infra/pkg/appinfo"
 	"github.com/innoai-tech/infra/pkg/configuration"
+	"github.com/innoai-tech/infra/pkg/otel/internal/otel"
 	"github.com/innoai-tech/infra/pkg/otel/metric"
 )
 
+// LogLevel 表示日志输出级别。
 type LogLevel = otel.LogLevel
 
 const (
+	// ErrorLevel 表示仅输出 error 级别日志。
 	ErrorLevel = otel.ErrorLevel
-	WarnLevel  = otel.WarnLevel
-	InfoLevel  = otel.InfoLevel
+	// WarnLevel 表示输出 warn 及以上级别日志。
+	WarnLevel = otel.WarnLevel
+	// InfoLevel 表示输出 info 及以上级别日志。
+	InfoLevel = otel.InfoLevel
+	// DebugLevel 表示输出 debug 及以上级别日志。
 	DebugLevel = otel.DebugLevel
 )
 
+// LogFormat 表示日志输出格式。
 type LogFormat = otel.LogFormat
 
 const (
+	// LogFormatText 表示文本日志格式。
 	LogFormatText = otel.LogFormatText
+	// LogFormatJSON 表示 JSON 日志格式。
 	LogFormatJSON = otel.LogFormatJSON
 )
 
@@ -65,6 +73,7 @@ type Otel struct {
 	info *appinfo.Info `inject:",opt"`
 }
 
+// SetDefaults 补齐默认日志级别、格式和指标上报周期。
 func (o *Otel) SetDefaults() {
 	if o.LogLevel == "" {
 		o.LogLevel = InfoLevel
@@ -81,6 +90,7 @@ func (o *Otel) SetDefaults() {
 	}
 }
 
+// InjectContext 将日志、trace、metric 相关 provider 注入上下文。
 func (o *Otel) InjectContext(ctx context.Context) context.Context {
 	ctx = configuration.InjectContext(
 		ctx,
@@ -199,6 +209,7 @@ func (o *Otel) afterInit(ctx context.Context) error {
 	return nil
 }
 
+// Shutdown 刷新并关闭 trace、log、metric provider。
 func (o *Otel) Shutdown(c context.Context) error {
 	eg, ctx := errgroup.WithContext(c)
 

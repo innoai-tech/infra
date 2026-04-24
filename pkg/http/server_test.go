@@ -11,7 +11,7 @@ import (
 	"github.com/octohelm/x/cmp"
 	. "github.com/octohelm/x/testing/v2"
 
-	exampleapis "github.com/innoai-tech/infra/cmd/example/apis"
+	exampleroutes "github.com/innoai-tech/infra/internal/example/cmd/example/routes"
 	"github.com/innoai-tech/infra/pkg/configuration"
 	"github.com/innoai-tech/infra/pkg/configuration/testingutil"
 	infrahttp "github.com/innoai-tech/infra/pkg/http"
@@ -27,7 +27,7 @@ func TestServer(t *testing.T) {
 	},
 	) {
 		c.Addr = ":0"
-		c.Server.ApplyRouter(exampleapis.R)
+		c.Server.ApplyRouter(exampleroutes.R)
 	})
 
 	cctx, cancel := context.WithCancel(ctx)
@@ -101,4 +101,36 @@ func TestServer(t *testing.T) {
 			),
 		)
 	})
+}
+
+func TestServerStandaloneWithoutMetricReaderContext(t *testing.T) {
+	s := &infrahttp.Server{
+		Addr: "127.0.0.1:0",
+	}
+	s.ApplyRouter(exampleroutes.R)
+
+	Must(t, func() error {
+		return s.Init(context.Background())
+	})
+
+	done := make(chan error, 1)
+	go func() {
+		done <- s.Serve(context.Background())
+	}()
+
+	resp := MustValue(t, func() (*http.Response, error) {
+		return http.Get(s.Endpoint() + "/api/example/v0/orgs")
+	})
+	defer resp.Body.Close()
+
+	Must(t, func() error {
+		return s.Shutdown(context.Background())
+	})
+
+	Then(t, "standalone server 在没有 otel reader 注入时也可启动",
+		Expect(resp.StatusCode, Equal(http.StatusOK)),
+		ExpectDo(func() error {
+			return <-done
+		}, ErrorIs(http.ErrServerClosed)),
+	)
 }

@@ -23,6 +23,10 @@ type worker struct {
 	run  func(ctx context.Context) error
 }
 
+// Agent 管理一组可优雅退出的后台 worker。
+//
+// 它通常作为 configuration.Server 使用：先在 Init 中确定运行身份，
+// 再通过 Host 注册 worker，随后由 Serve / Shutdown 驱动完整生命周期。
 type Agent struct {
 	kind    string
 	done    chan struct{}
@@ -33,6 +37,7 @@ type Agent struct {
 	workers []*worker
 }
 
+// Init 根据当前实例推导 agent kind，并初始化关闭信号。
 func (x *Agent) Init(ctx context.Context) error {
 	if v, ok := configuration.CurrentInstanceFromContext(ctx); ok {
 		if kindGetter, ok := v.(interface{ GetKind() string }); ok {
@@ -50,10 +55,12 @@ func (x *Agent) Init(ctx context.Context) error {
 	return nil
 }
 
+// Disabled 返回当前 agent 是否没有可运行的 worker。
 func (x *Agent) Disabled(ctx context.Context) bool {
 	return len(x.workers) == 0
 }
 
+// Serve 启动所有已注册 worker，并在 Shutdown 时广播取消信号。
 func (x *Agent) Serve(pctx context.Context) error {
 	if x.Disabled(pctx) {
 		return nil
@@ -63,8 +70,6 @@ func (x *Agent) Serve(pctx context.Context) error {
 	if x.serving.Swap(true) {
 		return nil
 	}
-
-	contextInjector := configuration.ContextInjectorFromContext(pctx)
 
 	eg := &errgroup.Group{}
 	for _, w := range x.workers {
@@ -84,7 +89,7 @@ func (x *Agent) Serve(pctx context.Context) error {
 		eg.Go(func() error {
 			defer x.wg.Done()
 
-			c := configuration.ContextInjectorInjectContext(context.Background(), contextInjector)
+			c := configuration.Background(pctx)
 			c = logr.LoggerInjectContext(c, l)
 
 			ctx, cancel := context.WithCancel(c)
@@ -104,6 +109,7 @@ func (x *Agent) Serve(pctx context.Context) error {
 	return eg.Wait()
 }
 
+// Shutdown 停止所有 worker 并等待其退出。
 func (x *Agent) Shutdown(ctx context.Context) error {
 	if x.closed.Swap(true) {
 		return nil
@@ -129,12 +135,12 @@ func (x *Agent) Shutdown(ctx context.Context) error {
 	return nil
 }
 
+// Done 返回 agent 的关闭信号。
 func (x *Agent) Done() <-chan struct{} {
 	return x.done
 }
 
-// Host register worker func to workers
-// never added new one once serving
+// Host 注册一个 worker；开始 Serve 后新增注册会被忽略。
 func (x *Agent) Host(name string, run func(ctx context.Context) error) {
 	if x.serving.Load() {
 		return
@@ -148,7 +154,7 @@ func (x *Agent) Host(name string, run func(ctx context.Context) error) {
 	x.workers = append(x.workers, a)
 }
 
-// Go exec with go func to support it could graceful shutdown
+// Go 在独立 goroutine 中执行动作，并复用日志与上下文注入能力。
 func (x *Agent) Go(ctx context.Context, action func(ctx context.Context) error) {
 	x.wg.Add(1)
 

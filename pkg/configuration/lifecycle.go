@@ -28,6 +28,7 @@ func init() {
 	log = slog.New(slog.NewTextHandler(os.Stdout, opt))
 }
 
+// RunOrServe 依次执行 runner，并在需要时启动 server 生命周期。
 func RunOrServe(ctx context.Context, configurators ...any) error {
 	configuratorServers := make([]Server, 0, len(configurators))
 	configuratorCanShutdowns := make([]CanShutdown, 0, len(configurators))
@@ -43,9 +44,19 @@ func RunOrServe(ctx context.Context, configurators ...any) error {
 	}
 
 	ci := ContextInjectorFromContext(ctx)
+	runtimeCtx := ci.InjectContext(ctx)
+	hasEnabledServer := false
+
+	for _, server := range configuratorServers {
+		if d, ok := server.(CanDisabled); ok && d.Disabled(runtimeCtx) {
+			continue
+		}
+		hasEnabledServer = true
+		break
+	}
 
 	if err := run(
-		ci.InjectContext(ctx),
+		runtimeCtx,
 		func(yield func(Runner) bool) {
 			for _, configurator := range configurators {
 				if x, ok := configurator.(Runner); ok {
@@ -59,7 +70,7 @@ func RunOrServe(ctx context.Context, configurators ...any) error {
 		return err
 	}
 
-	if len(configuratorServers) > 0 {
+	if hasEnabledServer {
 		chStop := make(chan os.Signal)
 
 		signal.Notify(chStop,
@@ -68,7 +79,7 @@ func RunOrServe(ctx context.Context, configurators ...any) error {
 			syscall.SIGILL, syscall.SIGABRT, syscall.SIGFPE, syscall.SIGSEGV,
 		)
 
-		c, cancel := context.WithCancel(ci.InjectContext(ctx))
+		c, cancel := context.WithCancel(runtimeCtx)
 		g, gc := errgroup.WithContext(c)
 
 		g.Go(func() error {
@@ -87,7 +98,7 @@ func RunOrServe(ctx context.Context, configurators ...any) error {
 
 	if len(configuratorCanShutdowns) > 0 {
 		// shutdown as cleanup
-		return Shutdown(ci.InjectContext(ctx), configuratorCanShutdowns...)
+		return Shutdown(runtimeCtx, configuratorCanShutdowns...)
 	}
 
 	return nil
@@ -103,7 +114,7 @@ func run(ctx context.Context, configuratorRunners iter.Seq[Runner]) error {
 		l.Debug("staring")
 
 		if err := runner.Run(ctx); err != nil {
-			return err
+			return wrapLifecycleError("run", runner, err)
 		}
 
 		l.Debug("done")
@@ -133,12 +144,12 @@ func serve(ctx context.Context, stopCh chan os.Signal, configuratorServers iter.
 			go func() {
 				stopCh <- syscall.SIGTERM
 			}()
-			return err
+			return wrapLifecycleError("serve", server, err)
 		})
 
 		if r, ok := server.(PostServeRunner); ok {
 			g.Go(func() error {
-				return r.PostServeRun(ctx)
+				return wrapLifecycleError("post-serve", r, r.PostServeRun(ctx))
 			})
 		}
 	}
@@ -146,6 +157,7 @@ func serve(ctx context.Context, stopCh chan os.Signal, configuratorServers iter.
 	return g.Wait()
 }
 
+// Shutdown 对支持关闭的配置对象执行优雅关闭。
 func Shutdown(c context.Context, configuratorCanShutdowns ...CanShutdown) error {
 	timeout := 10 * time.Second
 
@@ -184,7 +196,7 @@ func Shutdown(c context.Context, configuratorCanShutdowns ...CanShutdown) error 
 			case <-ctx.Done():
 				return ctx.Err()
 			case err := <-done:
-				return err
+				return wrapLifecycleError("shutdown", canShutdown, err)
 			}
 		})
 	}
@@ -192,6 +204,7 @@ func Shutdown(c context.Context, configuratorCanShutdowns ...CanShutdown) error 
 	return g.Wait()
 }
 
+// Init 依次初始化配置对象并串联它们的上下文注入器。
 func Init(ctx context.Context, configurators ...any) error {
 	ctx = ContextInjectorFromContext(ctx).InjectContext(ctx)
 
@@ -216,41 +229,56 @@ func initConfigurator(ctx context.Context, configurator any) (err error) {
 	}
 
 	if c, ok := configurator.(CanInit); ok {
-		return c.Init(CurrentInstanceInjectContext(ctx, configurator))
+		return wrapLifecycleError("init", configurator, c.Init(CurrentInstanceInjectContext(ctx, configurator)))
 	}
 	return nil
 }
 
+func wrapLifecycleError(stage string, target any, err error) error {
+	if err == nil {
+		return nil
+	}
+	return fmt.Errorf("%s %T: %w", stage, target, err)
+}
+
+// Defaulter 表示对象支持设置默认值。
 type Defaulter interface {
 	SetDefaults()
 }
 
+// CanInit 表示对象支持初始化。
 type CanInit interface {
 	Init(ctx context.Context) error
 }
 
+// Runner 表示对象支持单次执行。
 type Runner interface {
 	Run(ctx context.Context) error
 }
 
+// Server 表示对象支持服务生命周期。
 type Server interface {
 	CanShutdown
 
 	Serve(ctx context.Context) error
 }
 
+// PostServeRunner 表示对象在服务启动期间还需要附加运行逻辑。
 type PostServeRunner interface {
 	PostServeRun(ctx context.Context) error
 }
 
+// CanShutdown 表示对象支持关闭。
 type CanShutdown interface {
 	Shutdown(ctx context.Context) error
 }
 
+// WithShutdownTimeout 表示对象可自定义关闭超时。
 type WithShutdownTimeout interface {
 	ShutdownTimeout(ctx context.Context) time.Duration
 }
 
+// CanDisabled 表示对象可按上下文决定是否启用。
 type CanDisabled interface {
 	Disabled(ctx context.Context) bool
 }
