@@ -1,29 +1,36 @@
-# List example entrypoints.
+# 列出示例入口
+[group('meta')]
 default:
-    just --list
+    @just --list
 
-# Run the example server on :8081.
+# 启动示例服务（:8081）
+[group('dev')]
 serve:
     go run ./cmd/example serve -c \
         --log-format=text \
         --server-addr=:8081
 
-# Regenerate example routes and generated outputs.
+# 重新生成示例路由和生成产物
+[group('build')]
 gen:
     go generate ./cmd/example/...
 
-# Dump the example Kubernetes component manifests.
+# 导出 Kubernetes 组件清单
+[group('build')]
 dump-k8s:
     go run ./cmd/example serve --dump-k8s
 
-# Serve the bundled example webapp.
+# 启动示例 WebApp
+[group('dev')]
 webapp:
     go run ./cmd/example webapp --root ./cmd/example/ui/dist --ver=test
 
-# Serve the bundled example webapp without history fallback.
+# 启动示例 WebApp（debug 模式）
+[group('dev')]
 webapp-debug:
     go run ./cmd/example webapp --disable-history-fallback --root ./cmd/example/ui/dist
 
-# Load test the running example API on localhost:8081.
+# 压力测试本地 API（:8081）
+[group('test')]
 hey:
     hey -z 5m http://localhost:8081/api/example/v0/orgs

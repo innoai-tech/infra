@@ -1,51 +1,61 @@
 export INFRA_CLI_DEBUG := "1"
 
-# Install and normalize Go module dependencies.
+# 整理依赖
+[group('env')]
 [no-cd]
 dep:
     go mod tidy
 
-# Update direct and indirect Go dependencies.
+# 更新依赖
+[group('env')]
 [no-cd]
 update:
     go get -u ./...
 
-# Run the default test suite.
+# 运行测试（默认覆盖全部包）
+[group('test')]
 [no-cd]
 test path='./...' *args:
     go test -count=1 -failfast {{ args }} {{ path }}
 
-# Check coverage for the current public core packages.
+# 检查核心包覆盖率
+[group('test')]
 [no-cd]
 cover-core:
     go test -cover ./pkg/appinfo ./pkg/agent ./pkg/cli ./pkg/configuration ./pkg/cron ./pkg/http/webapp
 
-# Apply repository formatting and generated fixes.
+# 格式化
+[group('fmt')]
 [no-cd]
 fmt path='./...':
     go tool fmt {{ path }}
 
-# Check exported docs on public root packages.
+# 检查导出文档
+[group('lint')]
 [no-cd]
 doc-check:
     go tool exported-docs-check
 
-# Regenerate example application outputs.
+# 代码生成（默认全部包）
+[group('build')]
 [no-cd]
 gen path='./...' *args:
     go generate {{ args }} {{ path }}
 
-# Regenerate public root packages and tools.
+# 重新生成公共根包和工具
+[group('build')]
 [no-cd]
 gen-root:
     go generate ./pkg/... ./devpkg/... ./tool/...
 
-# Regenerate the recommended example application.
+# 重新生成示例应用
+[group('build')]
 [no-cd]
 gen-example:
     go generate ./internal/example/...
 
-# Install skill symlinks from go.mod annotated dependencies.
+# 安装 agent skills
+[group('env')]
 [no-cd]
 skills-install:
     go tool skills-install
