@@ -13,13 +13,13 @@ tool (
 require (
 	github.com/innoai-tech/openapi-playground v0.0.0-20251225080706-b73e3d246544
 	// +skill:courier-guideline
-	github.com/octohelm/courier v0.0.0-20260508093754-7951d2aa2fa9
+	github.com/octohelm/courier v0.0.0-20260508105406-b1e2e1a8f50c
 	// +skill:enumeration-guideline
-	github.com/octohelm/enumeration v0.0.0-20260508083658-4717c31ed563
+	github.com/octohelm/enumeration v0.0.0-20260508105338-2e799c70cf82
 	// +skill:gengo-guideline
-	github.com/octohelm/gengo v0.0.0-20260508082215-12ad0e3d1026
+	github.com/octohelm/gengo v0.0.0-20260508104904-5ab1a7f587f6
 	// +skill:testing-guideline
-	github.com/octohelm/x v0.0.0-20260508075008-3bb151cb7bd8
+	github.com/octohelm/x v0.0.0-20260508104609-6b72a870e0d2
 )
 
 require (
