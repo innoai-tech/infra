@@ -37,7 +37,8 @@ func TestWriteMetrics(t *testing.T) {
 			},
 		}
 
-		testingv2.Then(t, "write correct metrics",
+		testingv2.Then(
+			t, "write correct metrics",
 			testingv2.ExpectMustValue(
 				func() (testingv2.Snapshot, error) {
 					b := bytes.NewBuffer(nil)
@@ -75,7 +76,8 @@ func TestWriteMetrics(t *testing.T) {
 			},
 		}
 
-		testingv2.Then(t, "write correct counter metrics",
+		testingv2.Then(
+			t, "write correct counter metrics",
 			testingv2.ExpectMustValue(
 				func() (testingv2.Snapshot, error) {
 					b := bytes.NewBuffer(nil)
@@ -111,7 +113,8 @@ func TestWriteMetrics(t *testing.T) {
 			},
 		}
 
-		testingv2.Then(t, "write correct gauge metrics",
+		testingv2.Then(
+			t, "write correct gauge metrics",
 			testingv2.ExpectMustValue(
 				func() (testingv2.Snapshot, error) {
 					b := bytes.NewBuffer(nil)
@@ -150,7 +153,8 @@ func TestWriteMetrics(t *testing.T) {
 			},
 		}
 
-		testingv2.Then(t, "write correct summary part of exponential histogram",
+		testingv2.Then(
+			t, "write correct summary part of exponential histogram",
 			testingv2.ExpectMustValue(
 				func() (testingv2.Snapshot, error) {
 					b := bytes.NewBuffer(nil)

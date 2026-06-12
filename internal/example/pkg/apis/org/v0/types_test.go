@@ -25,7 +25,8 @@ func TestOrgTypes(t *testing.T) {
 		Total: 1,
 	}
 
-	Then(t, "公开数据类型保持预期字段和值",
+	Then(
+		t, "公开数据类型保持预期字段和值",
 		Expect(detail.Name, Equal("demo")),
 		Expect(detail.Type, Equal(TYPE__GOV)),
 		Expect(list.Total, Equal(1)),

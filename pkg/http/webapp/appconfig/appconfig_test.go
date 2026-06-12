@@ -13,7 +13,8 @@ func TestAppConfig(t *testing.T) {
 			"KEY2": "VALUE2",
 		}
 
-		testingv2.Then(t, "stringify as expect",
+		testingv2.Then(
+			t, "stringify as expect",
 			testingv2.Expect(
 				ac.String(),
 				testingv2.Equal("KEY1=VALUE1,KEY2=VALUE2"),
@@ -21,7 +22,8 @@ func TestAppConfig(t *testing.T) {
 		)
 
 		t.Run("WHEN parse", func(t *testing.T) {
-			testingv2.Then(t, "parsed should be same as given",
+			testingv2.Then(
+				t, "parsed should be same as given",
 				testingv2.Expect(
 					ParseAppConfig(ac.String()),
 					testingv2.Equal(ac),
@@ -37,8 +39,10 @@ func TestAppConfig(t *testing.T) {
 				"XX=Value=1", // should ignore
 			})
 
-			testingv2.Then(t, "loaded should be same as given",
-				testingv2.Expect(e,
+			testingv2.Then(
+				t, "loaded should be same as given",
+				testingv2.Expect(
+					e,
 					testingv2.Equal(ac),
 				),
 			)

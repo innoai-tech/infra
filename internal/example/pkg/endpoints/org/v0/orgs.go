@@ -1,8 +1,9 @@
 package v0
 
 import (
-	apiv0 "github.com/innoai-tech/infra/internal/example/pkg/apis/org/v0"
 	"github.com/octohelm/courier/pkg/courierhttp"
+
+	apiv0 "github.com/innoai-tech/infra/internal/example/pkg/apis/org/v0"
 )
 
 // CreateOrg 定义创建组织接口。

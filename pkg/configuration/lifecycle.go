@@ -73,7 +73,8 @@ func RunOrServe(ctx context.Context, configurators ...any) error {
 	if hasEnabledServer {
 		chStop := make(chan os.Signal)
 
-		signal.Notify(chStop,
+		signal.Notify(
+			chStop,
 			os.Interrupt, os.Kill,
 			syscall.SIGHUP, syscall.SIGINT, syscall.SIGTERM, syscall.SIGQUIT,
 			syscall.SIGILL, syscall.SIGABRT, syscall.SIGFPE, syscall.SIGSEGV,

@@ -39,7 +39,8 @@ func TestApp(t *testing.T) {
 				return cli.Execute(context.Background(), a, []string{"do", "--force", "-o", "build", "src"})
 			})
 
-			Then(t, "arguments and flags should be mapped to the command struct",
+			Then(
+				t, "arguments and flags should be mapped to the command struct",
 				Expect(do.Src, Equal([]string{"src"})),
 				Expect(do.Output, Equal("build")),
 				Expect(do.Force, Be(cmp.True())),

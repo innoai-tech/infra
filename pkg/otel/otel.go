@@ -162,7 +162,8 @@ func (o *Otel) afterInit(ctx context.Context) error {
 			return err
 		}
 
-		tracerOpts = append(tracerOpts,
+		tracerOpts = append(
+			tracerOpts,
 			sdktrace.WithBatcher(
 				otel.IgnoreErrSpanExporter(exporter),
 			),
@@ -180,7 +181,8 @@ func (o *Otel) afterInit(ctx context.Context) error {
 			return err
 		}
 
-		meterOpts = append(meterOpts,
+		meterOpts = append(
+			meterOpts,
 			sdkmetric.WithReader(
 				sdkmetric.NewPeriodicReader(
 					exporter,

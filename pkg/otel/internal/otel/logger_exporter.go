@@ -10,7 +10,6 @@ import (
 	"sync"
 	"sync/atomic"
 
-	cueformat "cuelang.org/go/cue/format"
 	"github.com/fatih/color"
 	"github.com/go-json-experiment/json"
 	"github.com/go-json-experiment/json/jsontext"
@@ -95,7 +94,8 @@ func (e *prettyExporter) print(f io.Writer, r sdklog.Record) error {
 }
 
 func marshal(v any) ([]byte, error) {
-	raw, err := json.Marshal(v,
+	raw, err := json.Marshal(
+		v,
 		json.Deterministic(true),
 		jsontext.AllowInvalidUTF8(true),
 		jsontext.WithIndent("  "),
@@ -107,5 +107,5 @@ func marshal(v any) ([]byte, error) {
 	if len(raw) == 2 && (raw[0] == '[' || raw[0] == '{') {
 		return nil, nil
 	}
-	return cueformat.Source(raw, cueformat.Simplify())
+	return raw, nil
 }

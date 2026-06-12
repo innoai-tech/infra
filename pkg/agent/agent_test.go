@@ -29,7 +29,8 @@ func TestInitUsesKindGetter(t *testing.T) {
 		return a.Init(configuration.CurrentInstanceInjectContext(context.Background(), namedKind{}))
 	})
 
-	Then(t, "Init 优先使用实例暴露的 kind",
+	Then(
+		t, "Init 优先使用实例暴露的 kind",
 		Expect(a.kind, Equal("custom-kind")),
 		Expect(a.Done() == nil, Equal(false)),
 	)
@@ -44,7 +45,8 @@ func TestInitFallsBackToTypeName(t *testing.T) {
 		return a.Init(configuration.CurrentInstanceInjectContext(context.Background(), &fallbackKind{}))
 	})
 
-	Then(t, "未实现 GetKind 时回退到类型名",
+	Then(
+		t, "未实现 GetKind 时回退到类型名",
 		Expect(a.kind, Equal("fallbackKind")),
 	)
 }
@@ -58,13 +60,15 @@ func TestDisabledAndHost(t *testing.T) {
 		return a.Init(context.Background())
 	})
 
-	Then(t, "默认没有 worker 时视为禁用",
+	Then(
+		t, "默认没有 worker 时视为禁用",
 		Expect(a.Disabled(context.Background()), Equal(true)),
 	)
 
 	a.Host("worker", func(ctx context.Context) error { return nil })
 
-	Then(t, "注册 worker 后可运行",
+	Then(
+		t, "注册 worker 后可运行",
 		Expect(a.Disabled(context.Background()), Equal(false)),
 		Expect(len(a.workers), Equal(1)),
 	)
@@ -123,7 +127,8 @@ func TestServeInjectsContextAndShutdownCancels(t *testing.T) {
 
 	state := <-stateCh
 
-	Then(t, "Serve 会注入上下文并在关闭时取消 worker",
+	Then(
+		t, "Serve 会注入上下文并在关闭时取消 worker",
 		Expect(<-serveDone, Equal(error(nil))),
 		Expect(state.value, Equal("v")),
 		Expect(state.cancelled, Equal(true)),
@@ -145,7 +150,8 @@ func TestServeReturnsWorkerError(t *testing.T) {
 		return expected
 	})
 
-	Then(t, "worker 错误会向上传递",
+	Then(
+		t, "worker 错误会向上传递",
 		ExpectDo(func() error {
 			return a.Serve(context.Background())
 		}, ErrorIs(expected)),
@@ -171,7 +177,8 @@ func TestShutdownIdempotent(t *testing.T) {
 		t.Fatalf("done channel should be closed")
 	}
 
-	Then(t, "重复关闭不会报错且关闭信号已发出",
+	Then(
+		t, "重复关闭不会报错且关闭信号已发出",
 		ExpectDo(func() error {
 			return a.Shutdown(context.Background())
 		}),
@@ -197,7 +204,8 @@ func TestGoUsesBackgroundContextInjector(t *testing.T) {
 		return nil
 	})
 
-	Then(t, "Go 会在后台上下文里保留注入值",
+	Then(
+		t, "Go 会在后台上下文里保留注入值",
 		Expect(<-done, Equal("ok")),
 	)
 }

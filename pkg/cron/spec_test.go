@@ -34,7 +34,8 @@ func TestSpecBasics(t *testing.T) {
 	var invalid Spec
 	err := invalid.UnmarshalText([]byte("invalid"))
 
-	Then(t, "Spec 支持零值、@never 和标准 cron 表达式",
+	Then(
+		t, "Spec 支持零值、@never 和标准 cron 表达式",
 		Expect(Spec("").IsZero(), Equal(true)),
 		Expect(never, Equal(Spec("@never"))),
 		Expect(never.Schedule(), Equal(robfigcron.Schedule(nil))),
@@ -55,7 +56,8 @@ func TestSpecTimesInvalidSpec(t *testing.T) {
 		count++
 	}
 
-	Then(t, "非法 spec 不会产生任何触发时间",
+	Then(
+		t, "非法 spec 不会产生任何触发时间",
 		Expect(count, Equal(0)),
 	)
 }
@@ -68,7 +70,8 @@ func TestTimesNilSchedule(t *testing.T) {
 		count++
 	}
 
-	Then(t, "nil schedule 直接返回空序列",
+	Then(
+		t, "nil schedule 直接返回空序列",
 		Expect(count, Equal(0)),
 	)
 }
@@ -85,7 +88,8 @@ func TestTimesYieldStopsSequence(t *testing.T) {
 		break
 	}
 
-	Then(t, "yield 返回 false 时停止继续调度",
+	Then(
+		t, "yield 返回 false 时停止继续调度",
 		Expect(count, Equal(1)),
 	)
 }
@@ -94,6 +98,7 @@ func TestTimesStopsOnContextCancel(t *testing.T) {
 	t.Parallel()
 
 	ctx, cancel := context.WithCancel(context.Background())
+	defer cancel()
 
 	count := 0
 	for range Times(ctx, fixedSchedule{after: time.Millisecond}) {
@@ -101,24 +106,8 @@ func TestTimesStopsOnContextCancel(t *testing.T) {
 		cancel()
 	}
 
-	Then(t, "上下文取消后停止继续调度",
+	Then(
+		t, "上下文取消后停止继续调度",
 		Expect(count, Equal(1)),
-	)
-}
-
-func TestRuntimeDoc(t *testing.T) {
-	t.Parallel()
-
-	var spec Spec
-	doc, ok := (&spec).RuntimeDoc()
-	prefixed, prefixedOK := runtimeDoc(&spec, "prefix: ")
-	_, missingOK := runtimeDoc(struct{}{}, "prefix: ")
-
-	Then(t, "生成的运行时文档 helper 可工作",
-		Expect(ok, Equal(true)),
-		Expect(doc, Equal([]string{})),
-		Expect(prefixedOK, Equal(true)),
-		Expect(prefixed, Equal([]string{})),
-		Expect(missingOK, Equal(false)),
 	)
 }

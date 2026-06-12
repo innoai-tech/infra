@@ -16,7 +16,8 @@ func TestAppString(t *testing.T) {
 		Version: "1.2.3",
 	}
 
-	Then(t, "应用字符串使用 name@version 形式",
+	Then(
+		t, "应用字符串使用 name@version 形式",
 		Expect(app.String(), Equal("infra@1.2.3")),
 	)
 }
@@ -40,7 +41,8 @@ func TestInfoCarriesMetadata(t *testing.T) {
 		},
 	}
 
-	Then(t, "应用和组件元数据可直接组合使用",
+	Then(
+		t, "应用和组件元数据可直接组合使用",
 		Expect(info.App.String(), Equal("infra@1.2.3")),
 		Expect(info.App.ImageNamespace, Equal("ghcr.io/innoai-tech")),
 		Expect(info.Name, Equal("example")),
@@ -58,7 +60,8 @@ func TestInfoInjectableHelpers(t *testing.T) {
 	injected, injectedOK := InfoFromContext(info.InjectContext(context.Background()))
 	_, missing := InfoFromContext(context.Background())
 
-	Then(t, "生成的注入辅助函数可读写上下文",
+	Then(
+		t, "生成的注入辅助函数可读写上下文",
 		Expect(ok, Equal(true)),
 		Expect(missing, Equal(false)),
 		Expect(fromCtx, Equal(info)),
@@ -89,7 +92,8 @@ func TestRuntimeDoc(t *testing.T) {
 	prefixed, prefixedOK := runtimeDoc(&Info{}, "prefix: ")
 	_, helperMissingOK := runtimeDoc(struct{}{}, "prefix: ")
 
-	Then(t, "生成的运行时文档可暴露类型与字段说明",
+	Then(
+		t, "生成的运行时文档可暴露类型与字段说明",
 		Expect(infoOK, Equal(true)),
 		Expect(infoDoc, Equal([]string{"provide app info"})),
 		Expect(appFieldOK, Equal(true)),

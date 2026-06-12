@@ -9,8 +9,10 @@ import (
 	orgdomain "github.com/innoai-tech/infra/internal/example/domain/org"
 )
 
-var _ = orgdomain.Service{}
-var _ = archivedomain.Service{}
+var (
+	_ = orgdomain.Service{}
+	_ = archivedomain.Service{}
+)
 
 var R = courierhttp.GroupRouter("/api/example").With(
 	courierhttp.GroupRouter("/v0").With(

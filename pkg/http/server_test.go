@@ -62,7 +62,8 @@ func TestServer(t *testing.T) {
 			))
 		}
 
-		Then(t, "contains expect metrics",
+		Then(
+			t, "contains expect metrics",
 			Expect(
 				filterMetricsCount(openmetrics.Named("process_cpu_time_total")),
 				Be(cmp.Gte(1)),
@@ -127,7 +128,8 @@ func TestServerStandaloneWithoutMetricReaderContext(t *testing.T) {
 		return s.Shutdown(context.Background())
 	})
 
-	Then(t, "standalone server 在没有 otel reader 注入时也可启动",
+	Then(
+		t, "standalone server 在没有 otel reader 注入时也可启动",
 		Expect(resp.StatusCode, Equal(http.StatusOK)),
 		ExpectDo(func() error {
 			return <-done

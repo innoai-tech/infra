@@ -1,6 +1,8 @@
 package v0
 
-import "time"
+import (
+	"time"
+)
 
 // Info 表示组织的基础信息。
 type Info struct {

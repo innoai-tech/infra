@@ -196,16 +196,19 @@ func TestContextHelpers(t *testing.T) {
 		value: "v",
 	}))
 
-	Then(t, "background 继承当前上下文注入器",
+	Then(
+		t, "background 继承当前上下文注入器",
 		Expect(mustStringValue(ctx.Value(testContextKey("k"))), Equal("v")),
 	)
 
-	ctx = InjectContext(context.Background(),
+	ctx = InjectContext(
+		context.Background(),
 		testInjector{key: testContextKey("a"), value: "1"},
 		testInjector{key: testContextKey("b"), value: "2"},
 	)
 
-	Then(t, "InjectContext 依次注入上下文",
+	Then(
+		t, "InjectContext 依次注入上下文",
 		Expect(mustStringValue(ctx.Value(testContextKey("a"))), Equal("1")),
 		Expect(mustStringValue(ctx.Value(testContextKey("b"))), Equal("2")),
 	)
@@ -221,7 +224,8 @@ func TestComposeContextInjector(t *testing.T) {
 
 	ctx := ci.InjectContext(context.Background())
 
-	Then(t, "组合注入器会跳过被禁用的项",
+	Then(
+		t, "组合注入器会跳过被禁用的项",
 		Expect(mustStringValue(ctx.Value(testContextKey("a"))), Equal("1")),
 		Expect(ctx.Value(testContextKey("b")) == nil, Equal(true)),
 	)
@@ -232,7 +236,8 @@ func TestContextInjectorFromContextFallback(t *testing.T) {
 
 	ctx := ContextInjectorFromContext(context.Background()).InjectContext(context.Background())
 
-	Then(t, "缺省注入器不会修改上下文",
+	Then(
+		t, "缺省注入器不会修改上下文",
 		Expect(ctx == nil, Equal(false)),
 	)
 }
@@ -244,7 +249,8 @@ func TestInjectContextFunc(t *testing.T) {
 		return contextx.WithValue(ctx, testContextKey("fn"), input)
 	}, "ok"))
 
-	Then(t, "函数注入器会把输入写入上下文",
+	Then(
+		t, "函数注入器会把输入写入上下文",
 		Expect(mustStringValue(ctx.Value(testContextKey("fn"))), Equal("ok")),
 	)
 }
@@ -255,7 +261,8 @@ func TestCurrentInstance(t *testing.T) {
 	ctx := CurrentInstanceInjectContext(context.Background(), "x")
 	v, ok := CurrentInstanceFromContext(ctx)
 
-	Then(t, "当前实例可写入并读出",
+	Then(
+		t, "当前实例可写入并读出",
 		Expect(ok, Equal(true)),
 		Expect(mustStringValue(v), Equal("x")),
 	)
@@ -271,7 +278,8 @@ func TestSingletonsFromStruct(t *testing.T) {
 		names = append(names, s.Name)
 	}
 
-	Then(t, "提取命名与匿名 singleton 字段",
+	Then(
+		t, "提取命名与匿名 singleton 字段",
 		Expect(names, Be(cmp.Len[[]string](2))),
 		Expect(names, Equal([]string{"Named", ""})),
 	)
@@ -296,7 +304,8 @@ func TestSingletonsInitAndRunOrServe(t *testing.T) {
 		return list.RunOrServe(ctx)
 	})
 
-	Then(t, "初始化会设置默认值、注入上下文并执行 runner",
+	Then(
+		t, "初始化会设置默认值、注入上下文并执行 runner",
 		Expect(named.defaulted, Equal(true)),
 		Expect(named.inited, Equal(true)),
 		Expect(named.ran, Equal(true)),
@@ -314,7 +323,8 @@ func TestRunOrServeCleanupShutdown(t *testing.T) {
 		return RunOrServe(context.Background(), s)
 	})
 
-	Then(t, "无 server 时会在收尾阶段执行 shutdown",
+	Then(
+		t, "无 server 时会在收尾阶段执行 shutdown",
 		Expect(s.ran, Equal(true)),
 		Expect(s.shutdown, Equal(true)),
 	)
@@ -323,10 +333,12 @@ func TestRunOrServeCleanupShutdown(t *testing.T) {
 func TestShutdownTimeout(t *testing.T) {
 	t.Parallel()
 
-	Then(t, "Shutdown 使用自定义超时并返回上下文错误",
-		ExpectDo(func() error {
-			return Shutdown(context.Background(), timeoutShutdown{})
-		},
+	Then(
+		t, "Shutdown 使用自定义超时并返回上下文错误",
+		ExpectDo(
+			func() error {
+				return Shutdown(context.Background(), timeoutShutdown{})
+			},
 			ErrorIs(context.DeadlineExceeded),
 		),
 	)
@@ -341,7 +353,8 @@ func TestRunOrServeWithServer(t *testing.T) {
 		return RunOrServe(context.Background(), r)
 	})
 
-	Then(t, "存在 server 时会执行 serve post-serve 和 shutdown",
+	Then(
+		t, "存在 server 时会执行 serve post-serve 和 shutdown",
 		Expect(r.served, Equal(true)),
 		Expect(r.postRun, Equal(true)),
 		Expect(r.shutdown, Equal(true)),
@@ -357,7 +370,8 @@ func TestRunOrServeSkipsDisabledServer(t *testing.T) {
 		return RunOrServe(context.Background(), r)
 	})
 
-	Then(t, "禁用的 server 不会进入 serve post-serve 或 shutdown",
+	Then(
+		t, "禁用的 server 不会进入 serve post-serve 或 shutdown",
 		Expect(r.served, Equal(false)),
 		Expect(r.postRun, Equal(false)),
 		Expect(r.shutdown, Equal(false)),
@@ -373,7 +387,8 @@ func TestRunOrServeSkipsDisabledCleanup(t *testing.T) {
 		return RunOrServe(context.Background(), r)
 	})
 
-	Then(t, "禁用的 cleanup 项会运行 runner 但跳过 shutdown",
+	Then(
+		t, "禁用的 cleanup 项会运行 runner 但跳过 shutdown",
 		Expect(r.ran, Equal(true)),
 		Expect(r.shutdown, Equal(false)),
 	)
@@ -401,7 +416,8 @@ func TestSingletonsConfiguratorsAndRuntimeDoc(t *testing.T) {
 	prefixedDoc, prefixedOK := runtimeDoc(&Singleton{}, "prefix: ")
 	_, helperMissingOK := runtimeDoc(struct{}{}, "prefix: ")
 
-	Then(t, "Configurators 支持提前停止，RuntimeDoc 暴露生成文档",
+	Then(
+		t, "Configurators 支持提前停止，RuntimeDoc 暴露生成文档",
 		Expect(configurators, Equal([]any{"a"})),
 		Expect(singletonOK, Equal(true)),
 		Expect(singletonDoc, Equal([]string{})),
@@ -426,7 +442,8 @@ func TestLifecycleErrorsIncludeStageAndType(t *testing.T) {
 	serveErr := RunOrServe(context.Background(), serveErrConfigurator{})
 	shutdownErr := Shutdown(context.Background(), shutdownErrConfigurator{})
 
-	Then(t, "生命周期错误会携带阶段和类型信息，同时保留原始错误",
+	Then(
+		t, "生命周期错误会携带阶段和类型信息，同时保留原始错误",
 		Expect(strings.Contains(initErr.Error(), "init configuration.initErrConfigurator"), Equal(true)),
 		ExpectDo(func() error { return initErr }, ErrorIs(lifecycleErr)),
 		Expect(strings.Contains(runErr.Error(), "run configuration.runErrConfigurator"), Equal(true)),

@@ -4,10 +4,11 @@ import (
 	"context"
 	"net/http"
 
+	"github.com/octohelm/courier/pkg/courierhttp"
+
 	orgdomain "github.com/innoai-tech/infra/internal/example/domain/org"
 	apiv0 "github.com/innoai-tech/infra/internal/example/pkg/apis/org/v0"
 	endpointv0 "github.com/innoai-tech/infra/internal/example/pkg/endpoints/org/v0"
-	"github.com/octohelm/courier/pkg/courierhttp"
 )
 
 type CreateOrg struct {

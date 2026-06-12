@@ -11,7 +11,8 @@ func TestOpt(t *testing.T) {
 		o := (&opt{}).build(WithBaseHref("/"))
 
 		t.Run("without header X-App-Base-Href", func(t *testing.T) {
-			Then(t, "base href keep static",
+			Then(
+				t, "base href keep static",
 				Expect(
 					o.resolveBaseHref(""),
 					Equal("/"),
@@ -20,7 +21,8 @@ func TestOpt(t *testing.T) {
 		})
 
 		t.Run("with header X-App-Base-Href", func(t *testing.T) {
-			Then(t, "base href use header value",
+			Then(
+				t, "base href use header value",
 				Expect(
 					o.resolveBaseHref("/clusters/test/x-app/"),
 					Equal("/clusters/test/x-app/"),
@@ -33,7 +35,8 @@ func TestOpt(t *testing.T) {
 		o := (&opt{}).build(WithBaseHref("/base/"))
 
 		t.Run("without header X-App-Base-Href", func(t *testing.T) {
-			Then(t, "base href keep static",
+			Then(
+				t, "base href keep static",
 				Expect(
 					o.resolveBaseHref(""),
 					Equal("/base/"),
@@ -42,7 +45,8 @@ func TestOpt(t *testing.T) {
 		})
 
 		t.Run("with header X-App-Base-Href", func(t *testing.T) {
-			Then(t, "base href use header value",
+			Then(
+				t, "base href use header value",
 				Expect(
 					o.resolveBaseHref("/clusters/test/x-app/"),
 					Equal("/clusters/test/x-app/base/"),

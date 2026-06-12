@@ -15,12 +15,13 @@ import (
 	"testing"
 	"time"
 
+	. "github.com/octohelm/x/testing/v2"
+
 	exampleroutes "github.com/innoai-tech/infra/internal/example/cmd/example/routes"
 	"github.com/innoai-tech/infra/internal/example/cmd/example/ui"
 	apiv0 "github.com/innoai-tech/infra/internal/example/pkg/apis/org/v0"
 	"github.com/innoai-tech/infra/pkg/appinfo"
 	"github.com/innoai-tech/infra/pkg/cli"
-	. "github.com/octohelm/x/testing/v2"
 )
 
 func TestServeCommandRoundTrip(t *testing.T) {
@@ -78,7 +79,8 @@ func TestServeCommandRoundTrip(t *testing.T) {
 
 	serveErr := <-serveDone
 
-	Then(t, "Serve 命令可完整承载 API、压缩包下载和 UI fallback",
+	Then(
+		t, "Serve 命令可完整承载 API、压缩包下载和 UI fallback",
 		Expect(orgsResp.StatusCode, Equal(http.StatusOK)),
 		Expect(list.Total, Equal(1)),
 		Expect(list.Data[0].Name, Equal("demo")),
@@ -125,7 +127,8 @@ func TestWebappCommandRoundTrip(t *testing.T) {
 
 	serveErr := <-serveDone
 
-	Then(t, "Webapp 命令可独立承载打包产物",
+	Then(
+		t, "Webapp 命令可独立承载打包产物",
 		Expect(resp.StatusCode, Equal(http.StatusOK)),
 		Expect(strings.Contains(body, `<title>KubePkg Agent</title>`), Equal(true)),
 		Expect(strings.Contains(body, `<div id="root"></div>`), Equal(true)),
@@ -152,7 +155,8 @@ func TestAppDumpK8sEntry(t *testing.T) {
 		return os.ReadFile(filepath.Join(tmp, "cuepkg", "component", "example", "server.cue"))
 	}))
 
-	Then(t, "CLI 入口已正确挂载 serve 命令和 dump-k8s 能力",
+	Then(
+		t, "CLI 入口已正确挂载 serve 命令和 dump-k8s 能力",
 		Expect(strings.Contains(raw, `ghcr.io/octohelm/example`), Equal(true)),
 		Expect(strings.Contains(raw, `"serve"`), Equal(true)),
 	)

@@ -10,9 +10,10 @@ import (
 func TestArchiveEndpoint(t *testing.T) {
 	t.Parallel()
 
-	tpe := reflect.TypeOf(ArchiveZip{})
+	tpe := reflect.TypeFor[ArchiveZip]()
 
-	Then(t, "archive endpoint 保持 zip 下载路径",
+	Then(
+		t, "archive endpoint 保持 zip 下载路径",
 		Expect(tpe.Field(0).Tag.Get("path"), Equal("/archive/zip")),
 	)
 }

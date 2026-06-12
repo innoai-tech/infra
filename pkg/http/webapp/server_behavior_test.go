@@ -14,8 +14,9 @@ import (
 	"testing/fstest"
 	"time"
 
-	"github.com/innoai-tech/infra/pkg/http/basehref"
 	. "github.com/octohelm/x/testing/v2"
+
+	"github.com/innoai-tech/infra/pkg/http/basehref"
 )
 
 func TestServerSetDefaults(t *testing.T) {
@@ -24,7 +25,8 @@ func TestServerSetDefaults(t *testing.T) {
 	s := &Server{}
 	s.SetDefaults()
 
-	Then(t, "SetDefaults 会补齐基础默认值",
+	Then(
+		t, "SetDefaults 会补齐基础默认值",
 		Expect(s.BaseHref, Equal("/")),
 		Expect(s.Addr, Equal(":80")),
 		Expect(s.Env, Equal("prod")),
@@ -59,7 +61,8 @@ func TestServerInitFromRoot(t *testing.T) {
 
 	body := rr.Body.String()
 
-	Then(t, "Init 会装配可用的 handler 并替换占位符",
+	Then(
+		t, "Init 会装配可用的 handler 并替换占位符",
 		Expect(s.svc != nil, Equal(true)),
 		Expect(rr.Code, Equal(http.StatusOK)),
 		Expect(strings.Contains(body, "hello dev 1.2.3 /base/"), Equal(true)),
@@ -76,7 +79,8 @@ func TestServerInitMissingIndex(t *testing.T) {
 
 	err := s.Init(context.Background())
 
-	Then(t, "缺少 index.html 时返回清晰错误",
+	Then(
+		t, "缺少 index.html 时返回清晰错误",
 		Expect(err == nil, Equal(false)),
 		Expect(strings.Contains(err.Error(), "index.html not found"), Equal(true)),
 	)
@@ -87,7 +91,8 @@ func TestServeWithoutInitIsNoop(t *testing.T) {
 
 	s := &Server{}
 
-	Then(t, "未初始化时 Serve 直接返回",
+	Then(
+		t, "未初始化时 Serve 直接返回",
 		ExpectDo(func() error {
 			return s.Serve(context.Background())
 		}),
@@ -146,7 +151,8 @@ func TestServerBindFSInitRuntimeDocAndShutdown(t *testing.T) {
 
 	serveErr := <-serveDone
 
-	Then(t, "BindFS 与真实 Serve/Shutdown 回路可正常工作",
+	Then(
+		t, "BindFS 与真实 Serve/Shutdown 回路可正常工作",
 		Expect(string(body), Equal("ok")),
 		Expect(errors.Is(serveErr, http.ErrServerClosed), Equal(true)),
 		Expect(envOK, Equal(true)),
@@ -175,7 +181,8 @@ func TestServeFSRootHTML(t *testing.T) {
 
 	h.ServeHTTP(rr, req)
 
-	Then(t, "根路径返回 html 并写入安全头",
+	Then(
+		t, "根路径返回 html 并写入安全头",
 		Expect(rr.Code, Equal(http.StatusOK)),
 		Expect(rr.Header().Get("Content-Type"), Equal("text/html; charset=utf-8")),
 		Expect(rr.Header().Get("X-Frame-Options"), Equal("sameorigin")),
@@ -200,7 +207,8 @@ func TestServeFSDisableCSP(t *testing.T) {
 
 	h.ServeHTTP(rr, req)
 
-	Then(t, "关闭 CSP 后不再注入 X-Frame-Options",
+	Then(
+		t, "关闭 CSP 后不再注入 X-Frame-Options",
 		Expect(rr.Header().Get("X-Frame-Options"), Equal("")),
 	)
 }
@@ -222,7 +230,8 @@ func TestServeFSBaseHrefRedirectAndHeaderResolution(t *testing.T) {
 	rr := httptest.NewRecorder()
 	h.ServeHTTP(rr, req)
 
-	Then(t, "base href 会处理重定向并拼接代理前缀",
+	Then(
+		t, "base href 会处理重定向并拼接代理前缀",
 		Expect(redirectResp.Code, Equal(http.StatusFound)),
 		Expect(redirectResp.Header().Get("Location"), Equal("/console/assets/app.js")),
 		Expect(strings.Contains(rr.Body.String(), "base=/clusters/demo/console/"), Equal(true)),
@@ -246,7 +255,8 @@ func TestServeFSStaticAssets(t *testing.T) {
 	jsonResp := httptest.NewRecorder()
 	h.ServeHTTP(jsonResp, jsonReq)
 
-	Then(t, "静态资源会按扩展名返回并设置缓存头",
+	Then(
+		t, "静态资源会按扩展名返回并设置缓存头",
 		Expect(jsResp.Code, Equal(http.StatusOK)),
 		Expect(strings.Contains(jsResp.Header().Get("Content-Type"), "javascript"), Equal(true)),
 		Expect(jsResp.Header().Get("Cache-Control"), Equal("max-age=2592000")),
@@ -282,7 +292,8 @@ func TestServeFSHistoryFallbackSwitch(t *testing.T) {
 	missingResp := httptest.NewRecorder()
 	withoutFallback.ServeHTTP(missingResp, missingReq)
 
-	Then(t, "history fallback 可切换为显式 html 查找模式",
+	Then(
+		t, "history fallback 可切换为显式 html 查找模式",
 		Expect(fallbackResp.Code, Equal(http.StatusOK)),
 		Expect(fallbackResp.Body.String(), Equal("root")),
 		Expect(docsResp.Body.String(), Equal("doc html")),
@@ -301,7 +312,8 @@ func TestServeFSRejectsNonGet(t *testing.T) {
 	rr := httptest.NewRecorder()
 	h.ServeHTTP(rr, req)
 
-	Then(t, "非 GET 请求直接返回 204",
+	Then(
+		t, "非 GET 请求直接返回 204",
 		Expect(rr.Code, Equal(http.StatusNoContent)),
 	)
 }

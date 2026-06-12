@@ -1,61 +1,52 @@
-export INFRA_CLI_DEBUG := "1"
+# 透传 go 命令
+[group("runtime")]
+[no-cd]
+go *args:
+    @go {{ args }}
 
 # 整理依赖
-[group('env')]
+[group("env")]
 [no-cd]
 dep:
     go mod tidy
 
 # 更新依赖
-[group('env')]
+[group("env")]
 [no-cd]
 update:
     go get -u ./...
 
-# 运行测试（默认覆盖全部包）
-[group('test')]
+# 编译
+[group("build")]
+[no-cd]
+build path='./...' *args:
+    go build {{ args }} {{ path }}
+
+# 运行测试
+[group("test")]
 [no-cd]
 test path='./...' *args:
     go test -count=1 -failfast {{ args }} {{ path }}
 
-# 检查核心包覆盖率
-[group('test')]
-[no-cd]
-cover-core:
-    go test -cover ./pkg/appinfo ./pkg/agent ./pkg/cli ./pkg/configuration ./pkg/cron ./pkg/http/webapp
-
 # 格式化
-[group('fmt')]
+[group("fmt")]
 [no-cd]
-fmt path='./...':
-    go tool fmt {{ path }}
+fmt path='./...' *args:
+    go tool fmt {{ args }} {{ path }}
 
-# 检查导出文档
-[group('lint')]
-[no-cd]
-doc-check:
-    go tool exported-docs-check
-
-# 代码生成（默认全部包）
-[group('build')]
+# 代码生成
+[group("build")]
 [no-cd]
 gen path='./...' *args:
-    go generate {{ args }} {{ path }}
-
-# 重新生成公共根包和工具
-[group('build')]
-[no-cd]
-gen-root:
-    go generate ./pkg/... ./devpkg/... ./tool/...
-
-# 重新生成示例应用
-[group('build')]
-[no-cd]
-gen-example:
-    go generate ./internal/example/...
+    go tool gen {{ path }} {{ args }}
 
 # 安装 agent skills
-[group('env')]
+[group("env")]
 [no-cd]
 skills-install:
     go tool skills-install
+
+# 列出所有可用命令
+[group("meta")]
+default:
+    @just --list

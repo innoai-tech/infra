@@ -3,6 +3,8 @@
 // +gengo:runtimedoc
 package v0
 
-import "github.com/octohelm/courier/pkg/courier"
+import (
+	"github.com/octohelm/courier/pkg/courier"
+)
 
 var R = courier.NewRouter()

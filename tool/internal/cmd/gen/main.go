@@ -2,10 +2,9 @@ package main
 
 import (
 	"context"
-	"os"
+	"flag"
 
 	"github.com/octohelm/gengo/pkg/gengo"
-
 	"github.com/octohelm/x/logr"
 	"github.com/octohelm/x/logr/slog"
 )
@@ -20,18 +19,11 @@ import (
 )
 
 func main() {
-	cwd, err := os.Getwd()
-	if err != nil {
-		panic(err)
-	}
+	flag.Parse()
 
-	c, err := gengo.NewContext(&gengo.GeneratorArgs{
-		Entrypoint: []string{
-			cwd,
-		},
-		Globals: map[string][]string{
-			"gengo:runtimedoc": {},
-		},
+	c, err := gengo.NewExecutor(&gengo.GeneratorArgs{
+		Entrypoint:         flag.Args(),
+		Globals:            map[string][]string{},
 		OutputFileBaseName: "zz_generated",
 	})
 	if err != nil {

@@ -8,8 +8,6 @@ import (
 	"path"
 	"strings"
 
-	cueformat "cuelang.org/go/cue/format"
-
 	"github.com/octohelm/gengo/pkg/camelcase"
 	"github.com/octohelm/gengo/pkg/gengo"
 	"github.com/octohelm/x/slices"
@@ -35,7 +33,8 @@ func (c *C) dumpK8sConfiguration(ctx context.Context, dest string) error {
 
 	b := bytes.NewBuffer(nil)
 
-	_, _ = fmt.Fprintf(b, `
+	_, _ = fmt.Fprintf(
+		b, `
 package %s
 
 import (
@@ -177,10 +176,5 @@ config: %q: string | *%q
 		return err
 	}
 
-	data, err := cueformat.Source(b.Bytes(), cueformat.Simplify())
-	if err != nil {
-		return err
-	}
-
-	return os.WriteFile(path.Join(dest, fmt.Sprintf("%s.cue", componentName)), data, 0o600)
+	return os.WriteFile(path.Join(dest, fmt.Sprintf("%s.cue", componentName)), b.Bytes(), 0o600)
 }

@@ -20,7 +20,8 @@ func TestNewTextFile(t *testing.T) {
 		return io.ReadAll(file.Contents)
 	})
 
-	Then(t, "创建带文本内容的文件项",
+	Then(
+		t, "创建带文本内容的文件项",
 		Expect(file.Name, Equal("readme.md")),
 		Expect(string(content), Equal("hello")),
 	)
@@ -58,7 +59,8 @@ func TestZipFileUpgrade(t *testing.T) {
 		contents[f.Name] = string(raw)
 	}
 
-	Then(t, "写出 zip 响应头和压缩内容",
+	Then(
+		t, "写出 zip 响应头和压缩内容",
 		Expect(recorder.Code, Equal(200)),
 		Expect(recorder.Header().Get("Content-Type"), Equal("application/zip")),
 		Expect(recorder.Header().Get("Content-Disposition"), Equal(`attachment; filename="bundle.zip"`)),

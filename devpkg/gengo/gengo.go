@@ -18,11 +18,8 @@ func (g *Gengo) Run(ctx context.Context) error {
 	c, err := gengo.NewExecutor(&gengo.GeneratorArgs{
 		Entrypoint:         g.Entrypoint,
 		OutputFileBaseName: "zz_generated",
-		All:                g.All,
-		Force:              g.Force,
-		Globals: map[string][]string{
-			"gengo:runtimedoc": {},
-		},
+		Globals:            map[string][]string{},
+		NoCache:            g.All,
 	})
 	if err != nil {
 		return err

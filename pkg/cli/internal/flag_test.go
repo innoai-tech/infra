@@ -30,7 +30,8 @@ func TestReflect(t *testing.T) {
 			m.Value().Elem().FieldByName("Name").SetString("aa")
 		}
 
-		Then(t, "map element should be mutated",
+		Then(
+			t, "map element should be mutated",
 			Expect(x.Map["A"].Name, Equal("aa")),
 		)
 
@@ -50,7 +51,8 @@ func TestFlagVar(t *testing.T) {
 
 			Must(t, func() error { return v.Set("1") })
 
-			Then(t, "it should contain one element",
+			Then(
+				t, "it should contain one element",
 				Expect(v.Value.Interface().([]string), Equal([]string{"1"})),
 			)
 		})
@@ -63,7 +65,8 @@ func TestFlagVar(t *testing.T) {
 
 			Must(t, func() error { return v.Set("1,2,3") })
 
-			Then(t, "it should parse into a slice",
+			Then(
+				t, "it should parse into a slice",
 				Expect(v.Value.Interface().([]string), Equal([]string{"1", "2", "3"})),
 			)
 		})
@@ -76,7 +79,8 @@ func TestFlagVar(t *testing.T) {
 
 			Must(t, func() error { return v.Set(`"1,1","2,2",3`) })
 
-			Then(t, "it should respect quotes and ignore escaped commas",
+			Then(
+				t, "it should respect quotes and ignore escaped commas",
 				Expect(v.Value.Interface().([]string), Equal([]string{"1,1", "2,2", "3"})),
 			)
 		})

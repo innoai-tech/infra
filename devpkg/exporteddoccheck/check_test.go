@@ -42,7 +42,8 @@ func MissingFunc() {}
 		t.Fatalf("CheckDir() error = %v", err)
 	}
 
-	Then(t, "CheckDir 返回缺失导出注释的顶层声明",
+	Then(
+		t, "CheckDir 返回缺失导出注释的顶层声明",
 		Expect(findings, Equal([]Finding{
 			{File: filepath.Join(dir, "sample.go"), Line: 6, Kind: "type", Name: "MissingType"},
 			{File: filepath.Join(dir, "sample.go"), Line: 11, Kind: "var", Name: "MissingValue"},
@@ -87,7 +88,8 @@ type Hidden struct{}
 		t.Fatalf("CheckPackages() error = %v", err)
 	}
 
-	Then(t, "CheckPackages 跳过 generated 和 internal 目录",
+	Then(
+		t, "CheckPackages 跳过 generated 和 internal 目录",
 		Expect(findings, Equal([]Finding{
 			{File: filepath.Join(root, "pkg", "alpha", "alpha.go"), Line: 2, Kind: "type", Name: "Missing"},
 		})),

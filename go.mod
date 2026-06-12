@@ -17,13 +17,12 @@ require (
 	// +skill:enumeration-guideline
 	github.com/octohelm/enumeration v0.0.0-20260508105338-2e799c70cf82
 	// +skill:gengo-guideline
-	github.com/octohelm/gengo v0.0.0-20260508104904-5ab1a7f587f6
+	github.com/octohelm/gengo v0.0.0-20260609052221-02da451b2cd4
 	// +skill:testing-guideline
 	github.com/octohelm/x v0.0.0-20260508104609-6b72a870e0d2
 )
 
 require (
-	cuelang.org/go v0.16.1
 	github.com/andybalholm/brotli v1.2.1
 	github.com/davecgh/go-spew v1.1.2-0.20180830191138-d8f796af33cc
 	github.com/fatih/color v1.19.0
@@ -54,7 +53,6 @@ require (
 require (
 	github.com/cenkalti/backoff/v5 v5.0.3 // indirect
 	github.com/cespare/xxhash/v2 v2.3.0 // indirect
-	github.com/cockroachdb/apd/v3 v3.2.3 // indirect
 	github.com/ebitengine/purego v0.10.0 // indirect
 	github.com/go-logr/logr v1.4.3 // indirect
 	github.com/go-logr/stdr v1.2.2 // indirect

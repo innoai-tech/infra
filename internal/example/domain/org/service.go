@@ -5,8 +5,9 @@ import (
 	"errors"
 	"net/http"
 
-	apiv0 "github.com/innoai-tech/infra/internal/example/pkg/apis/org/v0"
 	"github.com/octohelm/courier/pkg/statuserror"
+
+	apiv0 "github.com/innoai-tech/infra/internal/example/pkg/apis/org/v0"
 )
 
 type Service struct{}
