@@ -57,6 +57,7 @@ func normalizeKeyValues(keysAndValues []any) []log.KeyValue {
 	return keyValues
 }
 
+// LogValue 将 OpenTelemetry log.Value 转换为普通 Go 值。
 func LogValue(v log.Value) any {
 	switch v.Kind() {
 	case log.KindBool:
@@ -87,6 +88,7 @@ func LogValue(v log.Value) any {
 	}
 }
 
+// LogAnyValue 将任意 Go 值转换为 OpenTelemetry log.Value。
 func LogAnyValue(value any) log.Value {
 	switch v := value.(type) {
 	case time.Time:

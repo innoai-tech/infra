@@ -8,4 +8,5 @@ import (
 
 var TracerProviderContext = contextx.New[TracerProvider]()
 
+// TracerProvider 是对 OpenTelemetry trace.TracerProvider 的类型别名。
 type TracerProvider = trace.TracerProvider

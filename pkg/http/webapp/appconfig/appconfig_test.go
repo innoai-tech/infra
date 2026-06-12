@@ -36,7 +36,7 @@ func TestAppConfig(t *testing.T) {
 			e.LoadFromEnviron([]string{
 				"APP_CONFIG__KEY1=VALUE1",
 				"APP_CONFIG__KEY2=VALUE2",
-				"XX=Value=1", // should ignore
+				"XX=Value=1", // 应忽略
 			})
 
 			testingv2.Then(

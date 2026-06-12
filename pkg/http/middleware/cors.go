@@ -7,8 +7,9 @@ import (
 	"strings"
 )
 
-// copy from https://github.com/gorilla/handlers/blob/master/cors.go
+// 源自 github.com/gorilla/handlers 的 CORS 实现。
 
+// DefaultCORS 创建使用默认宽松策略的 CORS 中间件。
 func DefaultCORS(opts ...CORSOption) func(http.Handler) http.Handler {
 	return CORS(
 		append([]CORSOption{
@@ -35,7 +36,7 @@ func DefaultCORS(opts ...CORSOption) func(http.Handler) http.Handler {
 				"WWW-Authenticate",
 				"Location",
 				"X-Requested-With",
-				"X-RateLimit-Limit", // follow https://developer.github.com/v3/rate_limit/
+				"X-RateLimit-Limit", // 遵循 GitHub API 速率限制规范
 				"X-RateLimit-Remaining",
 				"X-RateLimit-Reset",
 			}),
@@ -44,7 +45,7 @@ func DefaultCORS(opts ...CORSOption) func(http.Handler) http.Handler {
 	)
 }
 
-// CORSOption represents a functional option for configuring the CORS middleware.
+// CORSOption 表示用于配置 CORS 中间件的函数选项。
 type CORSOption func(*cors) error
 
 type cors struct {
@@ -60,7 +61,7 @@ type cors struct {
 	optionStatusCode       int
 }
 
-// OriginValidator takes an origin string and returns whether or not that origin is allowed.
+// OriginValidator 接收一个 origin 字符串，返回该 origin 是否被允许。
 type OriginValidator func(string) bool
 
 var (
@@ -169,24 +170,7 @@ func (ch *cors) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 	ch.h.ServeHTTP(w, r)
 }
 
-// CORS provides Cross-Origin Resource Sharing middleware.
-// Example:
-//
-//	import (
-//	    "net/http"
-//
-//	    "github.com/gorilla/handlers"
-//	    "github.com/gorilla/mux"
-//	)
-//
-//	func main() {
-//	    r := mux.NewRouter()
-//	    r.HandleFunc("/users", UserEndpoint)
-//	    r.HandleFunc("/projects", ProjectEndpoint)
-//
-//	    // Apply the CORS middleware to our top-level router, with the defaults.
-//	    http.ListenAndServe(":8000", handlers.CORS()(r))
-//	}
+// CORS 提供跨域资源共享中间件。
 func CORS(opts ...CORSOption) func(http.Handler) http.Handler {
 	return func(h http.Handler) http.Handler {
 		ch := parseCORSOptions(opts...)
@@ -210,16 +194,12 @@ func parseCORSOptions(opts ...CORSOption) *cors {
 	return ch
 }
 
-//
-// Functional options for configuring CORS.
-//
+// CORS 的函数选项配置。
 
-// AllowedHeaders adds the provided headers to the list of allowed headers in a
-// CORS request.
-// This is an append operation so the headers Accept, Accept-Language,
-// and Content-Language are always allowed.
-// Content-Type must be explicitly declared if accepting Content-Types other than
-// application/x-www-form-urlencoded, multipart/form-data, or text/plain.
+// AllowedHeaders 将给定头部追加到 CORS 请求的允许头部列表中。
+// 这是一个追加操作，Accept、Accept-Language 和 Content-Language 始终被允许。
+// 如需接收 application/x-www-form-urlencoded、multipart/form-data 或 text/plain
+// 以外的 Content-Type，则必须显式声明 Content-Type。
 func AllowedHeaders(headers []string) CORSOption {
 	return func(ch *cors) error {
 		for _, v := range append(defaultCorsHeaders, headers...) {
@@ -237,10 +217,8 @@ func AllowedHeaders(headers []string) CORSOption {
 	}
 }
 
-// AllowedMethods can be used to explicitly allow methods in the
-// Access-Control-Allow-Methods header.
-// This is a replacement operation so you must also
-// pass GET, HEAD, and POST if you wish to support those methods.
+// AllowedMethods 用于在 Access-Control-Allow-Methods 头部中显式允许指定方法。
+// 这是一个替换操作，因此如需支持 GET、HEAD 和 POST 方法，也必须一并传入。
 func AllowedMethods(methods []string) CORSOption {
 	return func(ch *cors) error {
 		ch.allowedMethods = []string{}
@@ -259,9 +237,8 @@ func AllowedMethods(methods []string) CORSOption {
 	}
 }
 
-// AllowedOrigins sets the allowed origins for CORS requests, as used in the
-// 'Allow-Access-Control-Origin' HTTP header.
-// Note: Passing in a []string{"*"} will allow any domain.
+// AllowedOrigins 设置 CORS 请求的允许来源，对应 'Access-Control-Allow-Origin' HTTP 头部。
+// 注意：传入 []string{"*"} 将允许任意域名。
 func AllowedOrigins(origins []string) CORSOption {
 	return func(ch *cors) error {
 		if slices.Contains(origins, CorsOriginMatchAll) {
@@ -274,8 +251,7 @@ func AllowedOrigins(origins []string) CORSOption {
 	}
 }
 
-// AllowedOriginValidator sets a function for evaluating allowed origins in CORS requests, represented by the
-// 'Allow-Access-Control-Origin' HTTP header.
+// AllowedOriginValidator 设置校验 CORS 请求来源的函数，对应 'Access-Control-Allow-Origin' HTTP 头部。
 func AllowedOriginValidator(fn OriginValidator) CORSOption {
 	return func(ch *cors) error {
 		ch.allowedOriginValidator = fn
@@ -283,11 +259,10 @@ func AllowedOriginValidator(fn OriginValidator) CORSOption {
 	}
 }
 
-// OptionStatusCode sets a custom status code on the OPTIONS requests.
-// Default behaviour sets it to 200 to reflect best practices. This is option is not mandatory
-// and can be used if you need a custom status code (i.e 204).
+// OptionStatusCode 设置 OPTIONS 请求的自定义状态码。
+// 默认行为遵循最佳实践设为 200。此选项非必选，可用于设置自定义状态码（如 204）。
 //
-// More informations on the spec:
+// 规范详见：
 // https://fetch.spec.whatwg.org/#cors-preflight-fetch
 func OptionStatusCode(code int) CORSOption {
 	return func(ch *cors) error {
@@ -296,8 +271,7 @@ func OptionStatusCode(code int) CORSOption {
 	}
 }
 
-// ExposedHeaders can be used to specify headers that are available
-// and will not be stripped out by the user-agent.
+// ExposedHeaders 指定对客户端可见且不会被 user-agent 过滤掉的响应头部。
 func ExposedHeaders(headers []string) CORSOption {
 	return func(ch *cors) error {
 		ch.exposedHeaders = []string{}
@@ -316,12 +290,10 @@ func ExposedHeaders(headers []string) CORSOption {
 	}
 }
 
-// MaxAge determines the maximum age (in seconds) between preflight requests. A
-// maximum of 10 minutes is allowed. An age above this value will default to 10
-// minutes.
+// MaxAge 决定预检请求之间的最大缓存时间（秒）。最大允许 10 分钟，超过该值将默认使用 10 分钟。
 func MaxAge(age int) CORSOption {
 	return func(ch *cors) error {
-		// Maximum of 10 minutes.
+		// 最长 10 分钟。
 		if age > 600 {
 			age = 600
 		}
@@ -331,9 +303,8 @@ func MaxAge(age int) CORSOption {
 	}
 }
 
-// IgnoreOptions causes the CORS middleware to ignore OPTIONS requests, instead
-// passing them through to the next handler. This is useful when your application
-// or framework has a pre-existing mechanism for responding to OPTIONS requests.
+// IgnoreOptions 使 CORS 中间件忽略 OPTIONS 请求，将其透传给下一个处理器。
+// 适用于应用或框架已有处理 OPTIONS 请求的机制时。
 func IgnoreOptions() CORSOption {
 	return func(ch *cors) error {
 		ch.ignoreOptions = true
@@ -341,8 +312,7 @@ func IgnoreOptions() CORSOption {
 	}
 }
 
-// AllowCredentials can be used to specify that the user agent may pass
-// authentication details along with the request.
+// AllowCredentials 指定允许 user-agent 随请求传递认证凭据。
 func AllowCredentials() CORSOption {
 	return func(ch *cors) error {
 		ch.allowCredentials = true

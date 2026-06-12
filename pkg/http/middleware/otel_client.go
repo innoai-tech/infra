@@ -18,6 +18,7 @@ import (
 	"github.com/innoai-tech/infra/pkg/http/middleware/metrichttp"
 )
 
+// NewLogRoundTripper 创建一个带日志记录的 HTTP 客户端传输中间件。
 func NewLogRoundTripper() func(roundTripper http.RoundTripper) http.RoundTripper {
 	return func(roundTripper http.RoundTripper) http.RoundTripper {
 		return &LogRoundTripper{
@@ -26,16 +27,18 @@ func NewLogRoundTripper() func(roundTripper http.RoundTripper) http.RoundTripper
 	}
 }
 
+// LogRoundTripper 包装 http.RoundTripper，为每次请求添加日志、B3 传播和指标记录。
 type LogRoundTripper struct {
 	nextRoundTripper http.RoundTripper
 }
 
+// RoundTrip 执行 HTTP 请求并记录日志与指标。
 func (rt *LogRoundTripper) RoundTrip(req *http.Request) (*http.Response, error) {
 	startedAt := time.Now()
 
 	ctx := req.Context()
 
-	// inject b3 form context
+	// 从上下文注入 b3 传播头
 	b3.New().Inject(ctx, propagation.HeaderCarrier(req.Header))
 
 	ctx, log := logr.Start(ctx, "Request")

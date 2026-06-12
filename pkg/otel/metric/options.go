@@ -11,6 +11,7 @@ import (
 
 var metricViews = syncx.Map[string, []View]{}
 
+// GetMetricViewsOption 收集所有已注册的指标视图选项并返回 OTel 配置选项。
 func GetMetricViewsOption() sdkmetric.Option {
 	views := make([]sdkmetric.View, 0)
 
@@ -31,7 +32,7 @@ func newOption(name string, optFuncs ...OptionFunc) *option {
 		optFuncs[i](o)
 	}
 
-	// records views
+	// 记录 views
 	if len(o.Views) > 0 {
 		metricViews.Store(name, o.Views)
 	}
@@ -47,26 +48,31 @@ func (o *option) metric() Metric {
 	return o.Metric
 }
 
+// OptionFunc 用于配置指标选项的函数类型。
 type OptionFunc = func(o *option)
 
+// WithUnit 设置指标单位。
 func WithUnit(unit string) OptionFunc {
 	return func(o *option) {
 		o.Unit = unit
 	}
 }
 
+// WithDescription 设置指标描述。
 func WithDescription(description string) OptionFunc {
 	return func(o *option) {
 		o.Description = description
 	}
 }
 
+// WithView 注册一个自定义指标视图。
 func WithView(view func(m Metric) View) OptionFunc {
 	return func(o *option) {
 		o.Views = append(o.Views, view(o.Metric))
 	}
 }
 
+// WithAggregation 为指标注册一个特定的聚合策略。
 func WithAggregation(aggregation sdkmetric.Aggregation) OptionFunc {
 	return WithView(func(m Metric) View {
 		return View{
@@ -83,6 +89,7 @@ func WithAggregation(aggregation sdkmetric.Aggregation) OptionFunc {
 	})
 }
 
+// WithAggregationFunc 为给定类型和周期的指标注册聚合视图。
 func WithAggregationFunc(typ string, d time.Duration) OptionFunc {
 	return WithView(func(m Metric) View {
 		return View{

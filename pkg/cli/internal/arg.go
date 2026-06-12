@@ -9,17 +9,21 @@ import (
 	encodingx "github.com/octohelm/x/encoding"
 )
 
+// Arg 表示一个命令行位置参数。
 type Arg struct {
 	Name  string
 	Value reflect.Value
 }
 
+// HasVariadic 返回该位置参数是否为变长参数。
 func (as Arg) HasVariadic() bool {
 	return as.Value.Kind() == reflect.Slice
 }
 
+// Args 表示一组命令行位置参数。
 type Args []*Arg
 
+// String 返回参数的显示名称。
 func (as Args) String() string {
 	s := strings.Builder{}
 
@@ -38,6 +42,7 @@ func (as Args) String() string {
 	return s.String()
 }
 
+// Validate 校验并设置位置参数的值。
 func (as Args) Validate(args []string) error {
 	for i, a := range as {
 		if len(args) < i {

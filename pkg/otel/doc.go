@@ -9,5 +9,5 @@
 //   - 定义业务级 metric 名称和采样策略
 //   - 替代上层服务的日志语义设计
 //
-//go:generate go tool gen .
+// +gengo:runtimedoc
 package otel

@@ -15,6 +15,10 @@ func (CreateOrg) ResponseContent() any {
 	return nil
 }
 
+func (CreateOrg) ResponseData() *courier.NoContent {
+	return new(courier.NoContent)
+}
+
 func init() {
 	R.Register(courier.NewRouter(&DeleteOrg{}))
 }
@@ -23,11 +27,19 @@ func (DeleteOrg) ResponseContent() any {
 	return nil
 }
 
+func (DeleteOrg) ResponseData() *courier.NoContent {
+	return new(courier.NoContent)
+}
+
 func init() {
 	R.Register(courier.NewRouter(&GetOrg{}))
 }
 
 func (GetOrg) ResponseContent() any {
+	return new(orgv0.Detail)
+}
+
+func (GetOrg) ResponseData() *orgv0.Detail {
 	return new(orgv0.Detail)
 }
 
@@ -40,5 +52,9 @@ func (ListOrg) ResponseStatusCode() int {
 }
 
 func (ListOrg) ResponseContent() any {
+	return new(orgv0.DataList)
+}
+
+func (ListOrg) ResponseData() *orgv0.DataList {
 	return new(orgv0.DataList)
 }

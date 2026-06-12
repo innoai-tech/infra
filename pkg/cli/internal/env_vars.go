@@ -5,6 +5,7 @@ import (
 	"unicode"
 )
 
+// EnvVarsFromEnviron 从环境变量键值对列表中构建 EnvVars。
 func EnvVarsFromEnviron(environ []string) EnvVars {
 	envVars := EnvVars{}
 	for _, kv := range environ {
@@ -14,12 +15,15 @@ func EnvVarsFromEnviron(environ []string) EnvVars {
 	return envVars
 }
 
+// EnvVars 表示环境变量的键值映射。
 type EnvVars map[string]string
 
+// Add 添加或覆盖一个环境变量。
 func (envVars EnvVars) Add(key, value string) {
 	envVars[toUpperDigit(key)] = value
 }
 
+// Get 获取指定环境变量的值。
 func (envVars EnvVars) Get(envVar string) (string, bool) {
 	v, ok := envVars[toUpperDigit(envVar)]
 	return v, ok

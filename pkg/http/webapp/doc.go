@@ -10,5 +10,5 @@
 //   - 定义前端路由、页面结构或业务状态
 //   - 替代普通 HTTP API routes 的组织方式
 //
-//go:generate go tool gen .
+
 package webapp

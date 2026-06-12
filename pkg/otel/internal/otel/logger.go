@@ -12,6 +12,7 @@ import (
 	"github.com/octohelm/x/logr"
 )
 
+// NewLogger 根据上下文和启用级别创建带 OpenTelemetry 集成的日志记录器。
 func NewLogger(ctx context.Context, levelEnabled logr.Level) logr.Logger {
 	return &logger{
 		spanContext: spanContext{

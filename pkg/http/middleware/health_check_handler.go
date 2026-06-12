@@ -4,6 +4,7 @@ import (
 	"net/http"
 )
 
+// HealthCheckHandler 创建健康检查中间件，对根路径的 HEAD/GET 请求返回 204。
 func HealthCheckHandler() func(handler http.Handler) http.Handler {
 	return func(handler http.Handler) http.Handler {
 		return &healthCheckHandler{

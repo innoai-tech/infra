@@ -17,7 +17,7 @@ require (
 	// +skill:enumeration-guideline
 	github.com/octohelm/enumeration v0.0.0-20260508105338-2e799c70cf82
 	// +skill:gengo-guideline
-	github.com/octohelm/gengo v0.0.0-20260609052221-02da451b2cd4
+	github.com/octohelm/gengo v0.0.0-20260613032157-199560f30822
 	// +skill:testing-guideline
 	github.com/octohelm/x v0.0.0-20260508104609-6b72a870e0d2
 )
@@ -46,8 +46,8 @@ require (
 	go.opentelemetry.io/otel/sdk/log v0.19.0
 	go.opentelemetry.io/otel/sdk/metric v1.43.0
 	go.opentelemetry.io/otel/trace v1.43.0
-	golang.org/x/net v0.53.0
-	golang.org/x/sync v0.20.0
+	golang.org/x/net v0.56.0
+	golang.org/x/sync v0.21.0
 )
 
 require (
@@ -73,10 +73,10 @@ require (
 	github.com/yusufpapurcu/wmi v1.2.4 // indirect
 	go.opentelemetry.io/auto/sdk v1.2.1 // indirect
 	go.opentelemetry.io/proto/otlp v1.10.0 // indirect
-	golang.org/x/mod v0.35.0 // indirect
-	golang.org/x/sys v0.43.0 // indirect
-	golang.org/x/text v0.36.0 // indirect
-	golang.org/x/tools v0.44.0 // indirect
+	golang.org/x/mod v0.37.0 // indirect
+	golang.org/x/sys v0.46.0 // indirect
+	golang.org/x/text v0.38.0 // indirect
+	golang.org/x/tools v0.46.0 // indirect
 	google.golang.org/genproto/googleapis/api v0.0.0-20260420184626-e10c466a9529 // indirect
 	google.golang.org/genproto/googleapis/rpc v0.0.0-20260420184626-e10c466a9529 // indirect
 	google.golang.org/grpc v1.80.0 // indirect

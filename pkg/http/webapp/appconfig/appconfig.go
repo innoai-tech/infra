@@ -5,6 +5,7 @@ import (
 	"strings"
 )
 
+// ParseAppConfig 从字符串解析应用配置键值对。
 func ParseAppConfig(s string) AppConfig {
 	parts := strings.Split(s, ",")
 
@@ -27,10 +28,13 @@ func ParseAppConfig(s string) AppConfig {
 	return c
 }
 
+// AppConfig 表示前端应用运行时的键值配置。
 type AppConfig map[string]string
 
+// EnvVarPrefix 是环境变量注入 AppConfig 时使用的前缀。
 const EnvVarPrefix = "APP_CONFIG__"
 
+// LoadFromEnviron 从环境变量键值对中加载配置。
 func (c AppConfig) LoadFromEnviron(kv []string) {
 	for i := range kv {
 		keyValue := strings.SplitN(kv[i], "=", 2)
@@ -41,6 +45,7 @@ func (c AppConfig) LoadFromEnviron(kv []string) {
 	}
 }
 
+// String 返回按键排序后的配置字符串表示。
 func (c AppConfig) String() string {
 	keys := make([]string, 0)
 

@@ -66,7 +66,7 @@ func (x *Agent) Serve(pctx context.Context) error {
 		return nil
 	}
 
-	// run once
+	// 仅执行一次
 	if x.serving.Swap(true) {
 		return nil
 	}
@@ -115,12 +115,12 @@ func (x *Agent) Shutdown(ctx context.Context) error {
 		return nil
 	}
 
-	// close to stop all observable
+	// 关闭信号，通知所有可观察对象停止
 	close(x.done)
 	done := make(chan struct{})
 
 	go func() {
-		// graceful shutdown
+		// 优雅关闭
 		x.wg.Wait()
 
 		close(done)
@@ -159,7 +159,7 @@ func (x *Agent) Go(ctx context.Context, action func(ctx context.Context) error) 
 	x.wg.Add(1)
 
 	go func() {
-		// pick first to get agent/worker scope
+		// 取首个日志实例以获取 agent/worker 作用域
 		l := logr.FromContext(ctx)
 
 		if !agentNotHandlePanic {

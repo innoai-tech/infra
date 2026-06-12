@@ -8,6 +8,7 @@ import (
 	"unicode"
 )
 
+// Parse 解析 OpenMetrics 文本格式的原始数据，返回 MetricFamilySet。
 func Parse(raw []byte) (MetricFamilySet, error) {
 	lines := bytes.Lines(raw)
 
@@ -25,7 +26,7 @@ func Parse(raw []byte) (MetricFamilySet, error) {
 				continue
 			}
 
-			action := parts[1] // HELP or TYPE
+			action := parts[1] // 如 HELP 或 TYPE
 			name := parts[2]
 
 			if sets[name] == nil {

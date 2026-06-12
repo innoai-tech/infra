@@ -21,6 +21,7 @@ type openapiView struct {
 	views sync.Map
 }
 
+// openapiView 实现了 OpenAPI 查看视图的升级处理。
 func (v *openapiView) Upgrade(w http.ResponseWriter, r *http.Request) error {
 	basePath := strings.Split(r.URL.Path, "/_view/")[0]
 
@@ -34,7 +35,7 @@ func (v *openapiView) Upgrade(w http.ResponseWriter, r *http.Request) error {
 		)
 	}))
 
-	// openapi playground should ignore HeaderAppBaseHref
+	// openapi playground 应忽略 HeaderAppBaseHref
 	r.Header.Del(basehref.HeaderAppBaseHref)
 
 	getHandler.(func() http.Handler)().ServeHTTP(w, r)

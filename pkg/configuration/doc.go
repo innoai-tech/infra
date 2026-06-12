@@ -8,6 +8,4 @@
 // 它不负责：
 //   - 决定具体业务对象如何拆分
 //   - 替代上层命令或服务的入口组织
-//
-//go:generate go tool gen .
 package configuration

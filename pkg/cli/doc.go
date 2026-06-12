@@ -9,5 +9,5 @@
 //   - 定义业务 API 契约和领域逻辑
 //   - 替代应用自己的命令分层设计
 //
-//go:generate go tool gen .
+
 package cli

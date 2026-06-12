@@ -10,6 +10,7 @@ var App = cli.NewApp(
 	"example",
 	"1.0.0",
 	cli.WithImageNamespace("ghcr.io/octohelm"),
+	cli.WithDeployPreset(true),
 )
 
 func main() {

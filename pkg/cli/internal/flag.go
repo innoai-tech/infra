@@ -13,6 +13,7 @@ import (
 	encodingx "github.com/octohelm/x/encoding"
 )
 
+// FlagVar 表示一个命令行 flag 绑定到 struct 字段的映射。
 type FlagVar struct {
 	Name       string
 	Alias      string
@@ -29,6 +30,7 @@ type FlagVar struct {
 	changed bool
 }
 
+// FromEnvVars 从环境变量中设置 flag 的值。
 func (f *FlagVar) FromEnvVars(vars EnvVars) error {
 	if v, ok := vars.Get(f.EnvVar); ok {
 		if err := f.Set(v); err != nil {
@@ -38,6 +40,7 @@ func (f *FlagVar) FromEnvVars(vars EnvVars) error {
 	return nil
 }
 
+// Apply 将 flag 注册到 pflag.FlagSet。
 func (f *FlagVar) Apply(flags *pflag.FlagSet) {
 	ff := flags.VarPF(f, f.Name, f.Alias, f.Usage())
 
@@ -52,6 +55,7 @@ func (f *FlagVar) Apply(flags *pflag.FlagSet) {
 	}
 }
 
+// String 返回 flag 值的字符串表示。
 func (f *FlagVar) String() string {
 	if strings.HasSuffix(f.Type(), "Slice") {
 		return "[" + f.DefaultValue() + "]"
@@ -60,6 +64,7 @@ func (f *FlagVar) String() string {
 	return f.DefaultValue()
 }
 
+// DefaultValue 返回 flag 的默认值字符串。
 func (f *FlagVar) DefaultValue() string {
 	b := &strings.Builder{}
 
@@ -79,6 +84,7 @@ func (f *FlagVar) DefaultValue() string {
 	return b.String()
 }
 
+// Type 返回 flag 值的类型名称。
 func (f *FlagVar) Type() string {
 	if _, ok := f.Value.Interface().(encoding.TextMarshaler); ok {
 		return "string"
@@ -105,6 +111,7 @@ func (f *FlagVar) typ(t reflect.Type) string {
 	return t.Kind().String()
 }
 
+// Set 从字符串解析并设置 flag 的值。
 func (f *FlagVar) Set(s string) error {
 	if f.Value.Kind() == reflect.Slice {
 		if s == "" && !f.Required {
@@ -143,7 +150,7 @@ func (f *FlagVar) Set(s string) error {
 }
 
 func (f *FlagVar) unmarshalText(target any, text []byte) error {
-	// skip unmarshal if optional
+	// 若为可选参数且值为空则跳过解析
 	if len(text) == 0 {
 		if !f.Required {
 			return nil
@@ -152,6 +159,7 @@ func (f *FlagVar) unmarshalText(target any, text []byte) error {
 	return encodingx.UnmarshalText(target, text)
 }
 
+// Usage 返回 flag 的使用说明字符串。
 func (f *FlagVar) Usage() string {
 	s := strings.Builder{}
 
@@ -179,6 +187,7 @@ func (f *FlagVar) Usage() string {
 	return s.String()
 }
 
+// Info 返回 flag 的环境变量名和当前值。
 func (f *FlagVar) Info() string {
 	if s, ok := f.Value.Interface().(interface{ SecurityString() string }); ok {
 		return fmt.Sprintf("%s = %s", f.EnvVar, s.SecurityString())

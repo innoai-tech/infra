@@ -21,6 +21,7 @@ var MeterProviderContext = contextx.New[MeterProvider](contextx.WithDefaultsFunc
 	return noop.NewMeterProvider()
 }))
 
+// Meter 从上下文中获取 OpenTelemetry Meter 实例。
 func Meter(ctx context.Context) metric.Meter {
 	return MeterProviderContext.From(ctx).Meter("")
 }

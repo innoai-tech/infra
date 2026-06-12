@@ -31,10 +31,10 @@ import (
 
 // +gengo:injectable
 type Server struct {
-	// Listen addr
-	Addr string `flag:",omitempty,expose=http"`
-	// Enable debug mode
-	EnableDebug bool `flag:",omitempty"`
+	// 监听地址
+	Addr string `flag:",omtizero,expose=http"`
+	// 启用调试模式
+	EnableDebug bool `flag:",omtizero"`
 
 	corsOptions []middleware.CORSOption
 
@@ -178,7 +178,7 @@ func (s *Server) afterInit(ctx context.Context) error {
 		Handler:           h2c.NewHandler(handler.ApplyMiddlewares(globalHandlers...)(r), &http2.Server{}),
 	}
 
-	// for listen waiting
+	// 等待监听就绪
 	s.ready.Add(1)
 
 	return nil

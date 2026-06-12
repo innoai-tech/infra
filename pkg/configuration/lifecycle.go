@@ -71,7 +71,7 @@ func RunOrServe(ctx context.Context, configurators ...any) error {
 	}
 
 	if hasEnabledServer {
-		chStop := make(chan os.Signal)
+		chStop := make(chan os.Signal, 1)
 
 		signal.Notify(
 			chStop,
@@ -98,7 +98,7 @@ func RunOrServe(ctx context.Context, configurators ...any) error {
 	}
 
 	if len(configuratorCanShutdowns) > 0 {
-		// shutdown as cleanup
+		// 关闭并清理
 		return Shutdown(runtimeCtx, configuratorCanShutdowns...)
 	}
 

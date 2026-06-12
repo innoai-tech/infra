@@ -394,46 +394,6 @@ func TestRunOrServeSkipsDisabledCleanup(t *testing.T) {
 	)
 }
 
-func TestSingletonsConfiguratorsAndRuntimeDoc(t *testing.T) {
-	t.Parallel()
-
-	list := Singletons{
-		{Name: "A", Configurator: "a"},
-		{Name: "B", Configurator: "b"},
-	}
-
-	configurators := make([]any, 0, 1)
-	for configurator := range list.Configurators() {
-		configurators = append(configurators, configurator)
-		break
-	}
-
-	singletonDoc, singletonOK := (&Singleton{}).RuntimeDoc()
-	nameDoc, nameOK := (&Singleton{}).RuntimeDoc("Name")
-	configuratorDoc, configuratorOK := (&Singleton{}).RuntimeDoc("Configurator")
-	_, singletonMissingOK := (&Singleton{}).RuntimeDoc("missing")
-	listDoc, listOK := (&Singletons{}).RuntimeDoc()
-	prefixedDoc, prefixedOK := runtimeDoc(&Singleton{}, "prefix: ")
-	_, helperMissingOK := runtimeDoc(struct{}{}, "prefix: ")
-
-	Then(
-		t, "Configurators 支持提前停止，RuntimeDoc 暴露生成文档",
-		Expect(configurators, Equal([]any{"a"})),
-		Expect(singletonOK, Equal(true)),
-		Expect(singletonDoc, Equal([]string{})),
-		Expect(nameOK, Equal(true)),
-		Expect(nameDoc, Equal([]string{})),
-		Expect(configuratorOK, Equal(true)),
-		Expect(configuratorDoc, Equal([]string{})),
-		Expect(singletonMissingOK, Equal(false)),
-		Expect(listOK, Equal(true)),
-		Expect(listDoc, Equal([]string{})),
-		Expect(prefixedOK, Equal(true)),
-		Expect(prefixedDoc, Equal([]string{})),
-		Expect(helperMissingOK, Equal(false)),
-	)
-}
-
 func TestLifecycleErrorsIncludeStageAndType(t *testing.T) {
 	t.Parallel()
 

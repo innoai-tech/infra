@@ -6,6 +6,7 @@ import (
 	"strings"
 )
 
+// PProfHandler 创建 pprof 调试中间件，在启用时挂载 /.sys/debug/pprof 路径。
 func PProfHandler(enabled bool) func(handler http.Handler) http.Handler {
 	return func(handler http.Handler) http.Handler {
 		return &pprofHandler{
@@ -36,7 +37,7 @@ func (h *pprofHandler) ServeHTTP(rw http.ResponseWriter, req *http.Request) {
 			pprof.Trace(rw, req)
 			return
 		default:
-			// trim /.sys for make pprof.Index work
+			// 去掉 /.sys 前缀以让 pprof.Index 正常工作
 			req.URL.Path = req.URL.Path[len("/.sys"):]
 			pprof.Index(rw, req)
 			return

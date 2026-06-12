@@ -17,12 +17,19 @@ import (
 )
 
 // AppOptionFunc 用于修改应用级元数据。
-type AppOptionFunc = func(*appinfo.App)
+type AppOptionFunc = func(*app)
 
 // WithImageNamespace 设置应用镜像命名空间。
 func WithImageNamespace(imageNamespace string) AppOptionFunc {
-	return func(a *appinfo.App) {
-		a.ImageNamespace = imageNamespace
+	return func(a *app) {
+		a.a.ImageNamespace = imageNamespace
+	}
+}
+
+// WithDeployPreset 启用 deploy-preset 导出，替代 dump-k8s。
+func WithDeployPreset(v bool) AppOptionFunc {
+	return func(a *app) {
+		a.deployPreset = v
 	}
 }
 
@@ -44,26 +51,29 @@ func NewApp(name string, version string, fns ...AppOptionFunc) Command {
 	}
 
 	for i := range fns {
-		fns[i](a.a)
+		fns[i](a)
 	}
 
 	return a
 }
 
+// ParseArgs 解析命令行参数。
 func (a *app) ParseArgs(args []string) {
 	a.root = a.newFrom(a, nil)
 	a.root.SetArgs(args)
 }
 
+// ExecuteContext 在给定上下文中执行命令。
 func (a *app) ExecuteContext(ctx context.Context) error {
 	return a.root.ExecuteContext(ctx)
 }
 
 type app struct {
 	C
-	a       *appinfo.App
-	root    *cobra.Command
-	version string
+	a            *appinfo.App
+	root         *cobra.Command
+	version      string
+	deployPreset bool
 }
 
 func (a *app) newFrom(cc Command, parent Command) *cobra.Command {
@@ -85,12 +95,17 @@ func (a *app) newFrom(cc Command, parent Command) *cobra.Command {
 	}
 
 	dumpK8s := false
+	dumpDeployPreset := false
 	showConfiguration := false
 
-	cmd.Flags().BoolVarP(&showConfiguration, "list-configuration", "c", os.Getenv("ENV") == "DEV", "show configuration")
+	cmd.Flags().BoolVarP(&showConfiguration, "list-configuration", "c", os.Getenv("ENV") == "DEV", "显示配置信息")
 
 	if c.info.Component != nil {
-		cmd.Flags().BoolVarP(&dumpK8s, "dump-k8s", "", false, "dump k8s component")
+		if a.deployPreset {
+			cmd.Flags().BoolVarP(&dumpDeployPreset, "deploy-preset", "", false, "导出部署预设为 Go 源码")
+		} else {
+			cmd.Flags().BoolVarP(&dumpK8s, "dump-k8s", "", false, "导出 k8s 组件配置（已弃用，请使用 --deploy-preset）")
+		}
 	}
 
 	cmd.RunE = func(cmd *cobra.Command, args []string) error {
@@ -102,6 +117,10 @@ func (a *app) newFrom(cc Command, parent Command) *cobra.Command {
 
 		if dumpK8s {
 			return c.dumpK8sConfiguration(ctx, "./cuepkg/component")
+		}
+
+		if dumpDeployPreset {
+			return c.dumpDeployPreset(ctx, "./deploy")
 		}
 
 		envVars := internal.EnvVarsFromEnviron(os.Environ())
@@ -201,6 +220,7 @@ func (a *app) bindCommandFromStruct(c *C, rv reflect.Value, flags *pflag.FlagSet
 	}
 
 	c.singletons = configuration.SingletonsFromStruct(rv)
+
 	for _, s := range c.singletons {
 		addConfigurator(c, flags, s.Configurator, s.Name, a.info.Name)
 	}

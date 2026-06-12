@@ -15,10 +15,10 @@ serve:
 gen:
     go generate ./cmd/example/...
 
-# 导出 Kubernetes 组件清单
+# 导出部署设置
 [group('build')]
-dump-k8s:
-    go run ./cmd/example serve --dump-k8s
+deploy-preset:
+    go run ./cmd/example serve --deploy-preset
 
 # 启动示例 WebApp
 [group('dev')]

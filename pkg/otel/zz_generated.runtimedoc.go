@@ -6,15 +6,15 @@ func (v *Otel) RuntimeDoc(names ...string) ([]string, bool) {
 		switch names[0] {
 		case "LogLevel":
 			return []string{
-				"Log level",
+				"日志级别",
 			}, true
 		case "LogFormat":
 			return []string{
-				"Log format",
+				"日志格式",
 			}, true
 		case "TraceCollectorEndpoint":
 			return []string{
-				"When set, will collect traces",
+				"设置后将启用 trace 采集",
 			}, true
 		case "MetricCollectorEndpoint":
 			return []string{}, true

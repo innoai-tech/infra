@@ -14,10 +14,12 @@ import (
 	syncx "github.com/octohelm/x/sync"
 )
 
+// ContentType 是 OpenMetrics 文本格式的 HTTP Content-Type 值。
 const (
 	ContentType = "application/openmetrics-text; version=1.0.0; charset=utf-8"
 )
 
+// WriteResourceMetrics 将 ResourceMetrics 以 OpenMetrics 文本格式写入 io.Writer。
 func WriteResourceMetrics(w io.Writer, metrics *metricdata.ResourceMetrics) error {
 	translationStrategy := otlptranslator.UnderscoreEscapingWithSuffixes
 	ow := &openMetricsWriter{

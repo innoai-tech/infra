@@ -120,11 +120,6 @@ func TestServerBindFSInitRuntimeDocAndShutdown(t *testing.T) {
 		return s.Init(context.Background())
 	})
 
-	envDoc, envOK := s.RuntimeDoc("Env")
-	var optFn OptFunc
-	optDoc, optOK := (&optFn).RuntimeDoc()
-	prefixedDoc, prefixedOK := runtimeDoc(s, "prefix: ", "Env")
-
 	serveDone := make(chan error, 1)
 	go func() {
 		serveDone <- s.Serve(context.Background())
@@ -155,12 +150,6 @@ func TestServerBindFSInitRuntimeDocAndShutdown(t *testing.T) {
 		t, "BindFS 与真实 Serve/Shutdown 回路可正常工作",
 		Expect(string(body), Equal("ok")),
 		Expect(errors.Is(serveErr, http.ErrServerClosed), Equal(true)),
-		Expect(envOK, Equal(true)),
-		Expect(envDoc, Equal([]string{"app env name"})),
-		Expect(optOK, Equal(true)),
-		Expect(optDoc, Equal([]string{})),
-		Expect(prefixedOK, Equal(true)),
-		Expect(prefixedDoc, Equal([]string{"prefix: app env name"})),
 	)
 }
 

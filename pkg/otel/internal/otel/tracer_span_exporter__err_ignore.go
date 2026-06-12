@@ -6,6 +6,7 @@ import (
 	sdktrace "go.opentelemetry.io/otel/sdk/trace"
 )
 
+// IgnoreErrSpanExporter 包装 SpanExporter，忽略导出错误。
 func IgnoreErrSpanExporter(spanExporter sdktrace.SpanExporter) sdktrace.SpanExporter {
 	return &errIgnoreExporter{
 		SpanExporter: spanExporter,

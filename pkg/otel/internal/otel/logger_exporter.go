@@ -17,6 +17,7 @@ import (
 	sdklog "go.opentelemetry.io/otel/sdk/log"
 )
 
+// SlogExporter 根据日志格式返回对应的 OpenTelemetry 日志导出器。
 func SlogExporter(format LogFormat) sdklog.Exporter {
 	switch format {
 	case LogFormatJSON:
@@ -103,7 +104,7 @@ func marshal(v any) ([]byte, error) {
 	if err != nil {
 		return nil, err
 	}
-	// skip [] {}
+	// 跳过空 [] 和 {}
 	if len(raw) == 2 && (raw[0] == '[' || raw[0] == '{') {
 		return nil, nil
 	}

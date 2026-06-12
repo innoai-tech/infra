@@ -21,7 +21,6 @@ import (
 	"github.com/innoai-tech/infra/internal/example/cmd/example/ui"
 	apiv0 "github.com/innoai-tech/infra/internal/example/pkg/apis/org/v0"
 	"github.com/innoai-tech/infra/pkg/appinfo"
-	"github.com/innoai-tech/infra/pkg/cli"
 )
 
 func TestServeCommandRoundTrip(t *testing.T) {
@@ -133,32 +132,6 @@ func TestWebappCommandRoundTrip(t *testing.T) {
 		Expect(strings.Contains(body, `<title>KubePkg Agent</title>`), Equal(true)),
 		Expect(strings.Contains(body, `<div id="root"></div>`), Equal(true)),
 		Expect(errors.Is(serveErr, http.ErrServerClosed), Equal(true)),
-	)
-}
-
-func TestAppDumpK8sEntry(t *testing.T) {
-	wd := MustValue(t, os.Getwd)
-	tmp := t.TempDir()
-
-	Must(t, func() error {
-		return os.Chdir(tmp)
-	})
-	defer func() {
-		_ = os.Chdir(wd)
-	}()
-
-	Must(t, func() error {
-		return cli.Execute(context.Background(), App, []string{"serve", "--dump-k8s"})
-	})
-
-	raw := string(MustValue(t, func() ([]byte, error) {
-		return os.ReadFile(filepath.Join(tmp, "cuepkg", "component", "example", "server.cue"))
-	}))
-
-	Then(
-		t, "CLI 入口已正确挂载 serve 命令和 dump-k8s 能力",
-		Expect(strings.Contains(raw, `ghcr.io/octohelm/example`), Equal(true)),
-		Expect(strings.Contains(raw, `"serve"`), Equal(true)),
 	)
 }
 

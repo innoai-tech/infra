@@ -10,12 +10,12 @@ import (
 	"github.com/felixge/httpsnoop"
 )
 
-// HandlerLevel gzip compresses HTTP responses with specified compression level
-// for clients that support it via the 'Accept-Encoding' header.
+// HandlerLevel 根据指定压缩级别对 HTTP 响应进行压缩，
+// 仅对通过 'Accept-Encoding' 头部声明支持的客户端生效。
 //
-// The compression level should be gzip.DefaultCompression, gzip.NoCompression,
-// or any integer value between gzip.BestSpeed and gzip.BestCompression inclusive.
-// gzip.DefaultCompression is used in case of invalid compression level.
+// 压缩级别应为 gzip.DefaultCompression、gzip.NoCompression，
+// 或介于 gzip.BestSpeed 与 gzip.BestCompression 之间的任意整数值。
+// 若传入无效级别，则默认使用 gzip.DefaultCompression。
 func HandlerLevel(level int) func(h http.Handler) http.Handler {
 	if level < gzip.DefaultCompression || level > gzip.BestCompression {
 		level = gzip.DefaultCompression
@@ -28,7 +28,7 @@ func HandlerLevel(level int) func(h http.Handler) http.Handler {
 
 	return func(h http.Handler) http.Handler {
 		return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
-			// detect what encoding to use
+			// 检测应使用的编码
 			var encoding string
 			for curEnc := range strings.SplitSeq(r.Header.Get(acceptEncoding), ",") {
 				curEnc = strings.TrimSpace(curEnc)
@@ -37,8 +37,7 @@ func HandlerLevel(level int) func(h http.Handler) http.Handler {
 				}
 			}
 
-			// if we weren't able to identify an encoding we're familiar with, pass on the
-			// request to the handler and return
+			// 未识别到支持的编码，将请求透传给处理器并返回
 			if encoding == "" {
 				h.ServeHTTP(w, r)
 				return
@@ -49,10 +48,10 @@ func HandlerLevel(level int) func(h http.Handler) http.Handler {
 				return
 			}
 
-			// always add Accept-Encoding to Vary to prevent intermediate caches corruption
+			// 始终将 Accept-Encoding 加入 Vary，防止中间缓存污染
 			w.Header().Add("Vary", acceptEncoding)
 
-			// wrap the ResponseWriter with the writer for the chosen encoding
+			// 用选定编码的 writer 包装 ResponseWriter
 			var encWriter io.WriteCloser
 			switch encoding {
 			case gzipEncoding:
@@ -124,11 +123,11 @@ type flusher interface {
 }
 
 func (w *compressResponseWriter) Flush() {
-	// Flush compressed data if compressor supports it.
+	// 若压缩器支持，刷新压缩数据。
 	if f, ok := w.compressor.(flusher); ok {
 		_ = f.Flush()
 	}
-	// Flush HTTP response.
+	// 刷新 HTTP 响应。
 	if f, ok := w.w.(http.Flusher); ok {
 		f.Flush()
 	}

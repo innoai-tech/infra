@@ -4,8 +4,10 @@ import (
 	"iter"
 )
 
+// MetricFamilySet 是按名称索引的指标族集合。
 type MetricFamilySet map[string]*MetricFamily
 
+// Metrics 返回指标族集合中所有指标的迭代器。
 func (s MetricFamilySet) Metrics() iter.Seq[*Metric] {
 	return func(yield func(*Metric) bool) {
 		for _, mf := range s {
@@ -18,6 +20,7 @@ func (s MetricFamilySet) Metrics() iter.Seq[*Metric] {
 	}
 }
 
+// MetricFamily 表示一组同类型、同名称但不同标签的指标。
 type MetricFamily struct {
 	Type        string
 	Name        string
@@ -25,12 +28,14 @@ type MetricFamily struct {
 	Metrics     []*Metric
 }
 
+// Metric 表示单个 OpenMetrics 指标数据点。
 type Metric struct {
 	Name   string
 	Labels map[string]string
 	Value  string
 }
 
+// All 组合多个指标过滤器，返回同时满足所有条件的过滤器。
 func All(filters ...func(m *Metric) bool) func(m *Metric) bool {
 	return func(m *Metric) bool {
 		if len(filters) == 0 {
@@ -47,12 +52,14 @@ func All(filters ...func(m *Metric) bool) func(m *Metric) bool {
 	}
 }
 
+// Named 创建一个按名称匹配指标的过滤器。
 func Named(name string) func(m *Metric) bool {
 	return func(m *Metric) bool {
 		return m.Name == name
 	}
 }
 
+// Labeled 创建一个按标签键值匹配指标的过滤器。
 func Labeled(key string, value string) func(m *Metric) bool {
 	return func(m *Metric) bool {
 		if m.Labels == nil {
@@ -63,6 +70,7 @@ func Labeled(key string, value string) func(m *Metric) bool {
 	}
 }
 
+// ExistsLabel 创建一个按标签键存在性匹配指标的过滤器。
 func ExistsLabel(key string) func(m *Metric) bool {
 	return func(m *Metric) bool {
 		if m.Labels == nil {

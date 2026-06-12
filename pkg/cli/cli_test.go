@@ -31,7 +31,7 @@ func (runtimeDocValue) RuntimeDoc(names ...string) ([]string, bool) {
 }
 
 type nestedFlags struct {
-	Name string `flag:",omitempty"`
+	Name string `flag:",omtizero"`
 }
 
 type testChild struct {
@@ -45,7 +45,7 @@ type CollectArgs struct {
 }
 
 type CollectFlags struct {
-	Mode  string `flag:",omitempty" alias:"m"`
+	Mode  string `flag:",omtizero" alias:"m"`
 	Force bool   `flag:",omitzero"`
 }
 
@@ -65,7 +65,7 @@ type executable struct {
 type ExecSingleton struct {
 	inited bool
 	ran    bool
-	Value  string `flag:",omitempty"`
+	Value  string `flag:",omtizero"`
 }
 
 func (s *ExecSingleton) Init(ctx context.Context) error {
@@ -84,8 +84,8 @@ type execCommand struct {
 }
 
 type ListConfigOptions struct {
-	Mode   string `flag:",omitempty"`
-	Secret string `flag:",omitempty,secret"`
+	Mode   string `flag:",omtizero"`
+	Secret string `flag:",omtizero,secret"`
 }
 
 func (o *ListConfigOptions) InjectContext(ctx context.Context) context.Context {
@@ -98,7 +98,7 @@ type listConfigCommand struct {
 }
 
 type DumpComponentServer struct {
-	Addr string `flag:",omitempty,expose=http"`
+	Addr string `flag:",omtizero,expose=http"`
 }
 
 func (s *DumpComponentServer) InjectContext(ctx context.Context) context.Context {

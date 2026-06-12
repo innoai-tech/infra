@@ -5,12 +5,14 @@ import (
 	"strings"
 )
 
+// Tag 表示 struct tag 中解析出的名值对信息。
 type Tag struct {
 	Name string
 
 	url.Values
 }
 
+// ParseTag 解析逗号分隔的名值对标签字符串。
 func ParseTag(v string) *Tag {
 	parts := strings.Split(v, ",")
 	t := &Tag{

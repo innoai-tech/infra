@@ -10,5 +10,5 @@
 //   - 替代上层命令、server 或 domain service 的职责划分
 //   - 提供跨进程任务队列或分布式调度能力
 //
-//go:generate go tool gen .
+// +gengo:runtimedoc
 package agent

@@ -50,15 +50,15 @@ const (
 
 // +gengo:injectable
 type Otel struct {
-	// Log level
-	LogLevel LogLevel `flag:",omitempty"`
-	// Log format
-	LogFormat LogFormat `flag:",omitempty"`
-	// When set, will collect traces
-	TraceCollectorEndpoint string `flag:",omitempty"`
+	// 日志级别
+	LogLevel LogLevel `flag:",omtizero"`
+	// 日志格式
+	LogFormat LogFormat `flag:",omtizero"`
+	// 设置后将启用 trace 采集
+	TraceCollectorEndpoint string `flag:",omtizero"`
 
-	MetricCollectorEndpoint      string `flag:",omitempty"`
-	MetricCollectIntervalSeconds int    `flag:",omitempty"`
+	MetricCollectorEndpoint      string `flag:",omtizero"`
+	MetricCollectIntervalSeconds int    `flag:",omtizero"`
 
 	tracerProvider *sdktrace.TracerProvider
 	loggerProvider *sdklog.LoggerProvider

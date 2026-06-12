@@ -25,6 +25,7 @@ import (
 	"github.com/innoai-tech/infra/pkg/otel/openmetrics"
 )
 
+// MetricHandler 创建指标导出 HTTP 中间件，在 /.sys/metrics 路径暴露 OpenMetrics 格式指标。
 func MetricHandler(metricReader sdkmetric.Reader) func(handler http.Handler) http.Handler {
 	h := http.HandlerFunc(func(rw http.ResponseWriter, r *http.Request) {
 		metrics := &metricdata.ResourceMetrics{}
@@ -78,6 +79,7 @@ func httpRouteAttrs(statusCode int, info *courierhttp.OperationInfo, req *http.R
 	}
 }
 
+// LogAndMetricHandler 创建日志记录与指标统计的 HTTP 中间件。
 func LogAndMetricHandler() func(handler http.Handler) http.Handler {
 	return func(nextHandler http.Handler) http.Handler {
 		return http.HandlerFunc(func(rw http.ResponseWriter, req *http.Request) {

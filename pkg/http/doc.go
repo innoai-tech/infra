@@ -10,5 +10,5 @@
 //   - 承载业务实现逻辑
 //   - 替代上层应用的 routes 组织策略
 //
-//go:generate go tool gen .
+// +gengo:runtime
 package http

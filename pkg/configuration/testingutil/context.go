@@ -11,12 +11,14 @@ import (
 	"github.com/innoai-tech/infra/pkg/configuration"
 )
 
+// BuildContext 创建并初始化测试上下文，返回注入后的 context 和配置对象指针。
 func BuildContext[T any](t TB, initial func(c *T)) (context.Context, *T) {
 	c := new(T)
 	initial(c)
 	return NewContext(t, c), c
 }
 
+// NewContext 基于已有配置对象创建测试上下文，并自动启动服务和管理清理。
 func NewContext[T any](t TB, v *T) context.Context {
 	tmp := t.TempDir()
 	t.Cleanup(func() {

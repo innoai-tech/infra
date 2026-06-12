@@ -29,7 +29,7 @@ func init() {
 }
 
 type Serve struct {
-	cli.C `component:"server"`
+	cli.C `component:"example"`
 	otel.Otel
 	Server infrahttp.Server
 
