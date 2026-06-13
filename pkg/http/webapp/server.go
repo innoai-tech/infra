@@ -31,22 +31,22 @@ import (
 
 // Server 承载前端构建产物并暴露静态站点服务。
 type Server struct {
-	// 应用环境名称
-	Env string `flag:",omtizero"`
-	// 应用展示版本
-	Ver string `flag:",omtizero"`
-	// 站点基础路径
-	BaseHref string `flag:",omtizero"`
-	// 前端运行时配置
-	Config string `flag:",omtizero"`
-	// 禁用 history fallback，仅用于纯静态页面
-	DisableHistoryFallback bool `flag:",omtizero"`
-	// 禁用 Content-Security-Policy
-	DisableCSP bool `flag:",omtizero"`
-	// 文件系统中托管的应用根目录
-	Root string `flag:",omtizero"`
-	// Webapp 监听地址
-	Addr string `flag:",omtizero,expose=http"`
+	// Env 应用环境名称
+	Env string `flag:",omitzero"`
+	// Ver 应用展示版本
+	Ver string `flag:",omitzero"`
+	// BaseHref 站点基础路径
+	BaseHref string `flag:",omitzero"`
+	// Config 前端运行时配置
+	Config string `flag:",omitzero"`
+	// DisableHistoryFallback 禁用 history fallback，仅用于纯静态页面
+	DisableHistoryFallback bool `flag:",omitzero"`
+	// DisableCSP 禁用 Content-Security-Policy
+	DisableCSP bool `flag:",omitzero"`
+	// Root 文件系统中托管的应用根目录
+	Root string `flag:",omitzero"`
+	// Addr Webapp 监听地址
+	Addr string `flag:",omitzero,expose=http"`
 
 	fs fs.FS
 

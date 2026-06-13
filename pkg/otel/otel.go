@@ -48,17 +48,20 @@ const (
 	LogFormatJSON = otel.LogFormatJSON
 )
 
+// Otel 提供日志、trace 和 metric 的统一装配入口。
 // +gengo:injectable
 type Otel struct {
-	// 日志级别
-	LogLevel LogLevel `flag:",omtizero"`
-	// 日志格式
-	LogFormat LogFormat `flag:",omtizero"`
-	// 设置后将启用 trace 采集
-	TraceCollectorEndpoint string `flag:",omtizero"`
+	// LogLevel 日志级别
+	LogLevel LogLevel `flag:",omitzero"`
+	// LogFormat 日志格式
+	LogFormat LogFormat `flag:",omitzero"`
+	// TraceCollectorEndpoint 设置后将启用 trace 采集
+	TraceCollectorEndpoint string `flag:",omitzero"`
 
-	MetricCollectorEndpoint      string `flag:",omtizero"`
-	MetricCollectIntervalSeconds int    `flag:",omtizero"`
+	// MetricCollectorEndpoint 指标采集器地址
+	MetricCollectorEndpoint      string `flag:",omitzero"`
+	// MetricCollectIntervalSeconds 指标采集间隔（秒）
+	MetricCollectIntervalSeconds int    `flag:",omitzero"`
 
 	tracerProvider *sdktrace.TracerProvider
 	loggerProvider *sdklog.LoggerProvider

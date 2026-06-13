@@ -22,16 +22,23 @@ func (s MetricFamilySet) Metrics() iter.Seq[*Metric] {
 
 // MetricFamily 表示一组同类型、同名称但不同标签的指标。
 type MetricFamily struct {
+	// Type 指标类型，如 counter、gauge、histogram
 	Type        string
+	// Name 指标族名称
 	Name        string
+	// Description 指标描述
 	Description string
+	// Metrics 指标数据点列表
 	Metrics     []*Metric
 }
 
 // Metric 表示单个 OpenMetrics 指标数据点。
 type Metric struct {
+	// Name 指标名称
 	Name   string
+	// Labels 标签键值对
 	Labels map[string]string
+	// Value 指标值
 	Value  string
 }
 

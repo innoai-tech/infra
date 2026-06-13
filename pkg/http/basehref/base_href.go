@@ -14,8 +14,11 @@ const (
 
 // BaseHref 描述请求的基础 URL 信息，包含协议、主机和基础路径。
 type BaseHref struct {
+	// Schema 协议，如 http 或 https
 	Schema   string
+	// Host 主机地址
 	Host     string
+	// BasePath 基础路径
 	BasePath string
 }
 

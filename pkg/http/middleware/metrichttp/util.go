@@ -1,5 +1,6 @@
 package metrichttp
 
+// DurationHistogramBoundaries 定义 HTTP 请求耗时直方图的桶边界（秒）。
 var DurationHistogramBoundaries = []float64{
 	0,
 	0.005,
@@ -19,11 +20,15 @@ var DurationHistogramBoundaries = []float64{
 }
 
 const (
-	B   = 1
+	// B 表示 1 字节。
+	B = 1
+	// KiB 表示 1024 字节。
 	KiB = 1024 * B
+	// MiB 表示 1024 * 1024 字节。
 	MiB = 1024 * KiB
 )
 
+// SizeHistogramBoundaries 定义 HTTP 请求/响应体大小的直方图桶边界（字节）。
 var SizeHistogramBoundaries = []float64{
 	512 * B,
 	1 * KiB,

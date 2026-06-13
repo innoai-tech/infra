@@ -11,7 +11,9 @@ import (
 
 // Arg 表示一个命令行位置参数。
 type Arg struct {
+	// Name 参数名称
 	Name  string
+	// Value 参数值反射
 	Value reflect.Value
 }
 

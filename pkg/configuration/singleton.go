@@ -65,7 +65,9 @@ func (w *singletonWalker) walk(rv reflect.Value) {
 
 // Singleton 表示一个可参与配置生命周期的对象。
 type Singleton struct {
+	// Name 配置对象名称
 	Name         string
+	// Configurator 配置对象实例
 	Configurator any
 }
 

@@ -155,15 +155,6 @@ func collectFlagsFromConfigurator(c *C, flags *pflag.FlagSet, rv reflect.Value, 
 		doc := parentDoc
 
 		if docer != nil {
-			if lines, ok := docer.RuntimeDoc(); ok {
-				if d := strings.Join(lines, "\n"); d != "" {
-					if doc != "" {
-						doc += ": \n"
-					}
-					doc += d
-				}
-			}
-
 			if lines, ok := docer.RuntimeDoc(ft.Name); ok {
 				if d := strings.Join(lines, "\n"); d != "" {
 					if doc != "" {

@@ -114,9 +114,16 @@ func (c *C) dumpDeployPreset(ctx context.Context, dest string) error {
 				}
 			}
 
+			value := f.DefaultValue()
+			if f.Required {
+				value = ""
+			} else {
+				w.line("%s", "// +optional")
+			}
+
 			w.line("%q: {", f.EnvVar)
 			w.depth++
-			w.line("Value: %q,", f.DefaultValue())
+			w.line("Value: %q,", value)
 			w.depth--
 			w.line("},")
 		}

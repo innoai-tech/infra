@@ -12,6 +12,7 @@ func Preset() *deploy.Container {
 			"serve",
 		},
 		Ports: map[string]deploy.Port{
+			// 监听地址
 			"http": {
 				Port:              80,
 				Protocol:          "TCP",
@@ -22,26 +23,36 @@ func Preset() *deploy.Container {
 		},
 		Env: map[string]deploy.EnvVar{
 			// 日志级别
+			// +optional
 			"EXAMPLE_LOG_LEVEL": {
 				Value: "info",
 			},
 			// 日志格式
+			// +optional
 			"EXAMPLE_LOG_FORMAT": {
 				Value: "json",
 			},
 			// 设置后将启用 trace 采集
+			// +optional
 			"EXAMPLE_TRACE_COLLECTOR_ENDPOINT": {
 				Value: "",
 			},
+			// 指标采集器地址
+			// +optional
 			"EXAMPLE_METRIC_COLLECTOR_ENDPOINT": {
 				Value: "",
 			},
+			// 指标采集间隔（秒）
+			// +optional
 			"EXAMPLE_METRIC_COLLECT_INTERVAL_SECONDS": {
 				Value: "0",
 			},
+			// 启用调试模式
+			// +optional
 			"EXAMPLE_SERVER_ENABLE_DEBUG": {
 				Value: "false",
 			},
+			// 监听地址
 			"EXAMPLE_SERVER_ADDR": {
 				ValueRef: `:{{ .Ports["http"].Port }}`,
 			},

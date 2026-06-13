@@ -29,12 +29,13 @@ import (
 	otelmetric "github.com/innoai-tech/infra/pkg/otel/metric"
 )
 
+// Server 提供基于 courier 的 HTTP 服务装配能力。
 // +gengo:injectable
 type Server struct {
-	// 监听地址
-	Addr string `flag:",omtizero,expose=http"`
-	// 启用调试模式
-	EnableDebug bool `flag:",omtizero"`
+	// Addr 监听地址
+	Addr string `flag:",omitzero,expose=http"`
+	// EnableDebug 启用调试模式
+	EnableDebug bool `flag:",omitzero"`
 
 	corsOptions []middleware.CORSOption
 

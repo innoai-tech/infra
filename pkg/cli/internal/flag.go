@@ -15,16 +15,26 @@ import (
 
 // FlagVar 表示一个命令行 flag 绑定到 struct 字段的映射。
 type FlagVar struct {
-	Name       string
-	Alias      string
-	Required   bool
-	EnvVar     string
-	Desc       string
-	Value      reflect.Value
+	// Name flag 名称
+	Name string
+	// Alias flag 别名
+	Alias string
+	// Required 是否必填
+	Required bool
+	// EnvVar 环境变量名
+	EnvVar string
+	// Desc 描述
+	Desc string
+	// Value 绑定的值反射
+	Value reflect.Value
+	// EnumValues 允许枚举值
 	EnumValues []any
 
+	// Secret 是否为敏感值
 	Secret bool
+	// Expose 端口暴露标识
 	Expose string
+	// Volume 是否为卷挂载
 	Volume bool
 
 	changed bool
@@ -172,7 +182,7 @@ func (f *FlagVar) Usage() string {
 			if i > 0 {
 				s.WriteString(", ")
 			}
-			s.WriteString(fmt.Sprintf("%v", f.EnumValues[i]))
+			fmt.Fprintf(&s, "%v", f.EnumValues[i])
 		}
 
 		s.WriteString(")")

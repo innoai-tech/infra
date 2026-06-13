@@ -7,6 +7,7 @@ import (
 )
 
 var (
+	// ServerDuration 记录入站 HTTP 请求的耗时。
 	ServerDuration = metric.NewFloat64Histogram(
 		"http.server.duration",
 		metric.WithUnit("s"),
@@ -16,11 +17,13 @@ var (
 		}),
 	)
 
+	// ServerActiveRequest 记录当前正在进行中的 HTTP 请求并发数。
 	ServerActiveRequest = metric.NewInt64Counter(
 		"http.server.active_requests",
 		metric.WithDescription("Measures the number of concurrent HTTP requests that are currently in-flight"),
 	)
 
+	// ServerRequestSize 记录入站 HTTP 请求的请求体大小。
 	ServerRequestSize = metric.NewInt64Histogram(
 		"http.server.request.size",
 		metric.WithUnit("By"),
@@ -30,6 +33,7 @@ var (
 		}),
 	)
 
+	// ServerResponseSize 记录入站 HTTP 请求的响应体大小。
 	ServerResponseSize = metric.NewInt64Histogram(
 		"http.server.response.size",
 		metric.WithUnit("By"),

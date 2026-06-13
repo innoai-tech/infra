@@ -31,7 +31,7 @@ func (runtimeDocValue) RuntimeDoc(names ...string) ([]string, bool) {
 }
 
 type nestedFlags struct {
-	Name string `flag:",omtizero"`
+	Name string `flag:",omitzero"`
 }
 
 type testChild struct {
@@ -45,7 +45,7 @@ type CollectArgs struct {
 }
 
 type CollectFlags struct {
-	Mode  string `flag:",omtizero" alias:"m"`
+	Mode  string `flag:",omitzero" alias:"m"`
 	Force bool   `flag:",omitzero"`
 }
 
@@ -65,7 +65,7 @@ type executable struct {
 type ExecSingleton struct {
 	inited bool
 	ran    bool
-	Value  string `flag:",omtizero"`
+	Value  string `flag:",omitzero"`
 }
 
 func (s *ExecSingleton) Init(ctx context.Context) error {
@@ -84,8 +84,8 @@ type execCommand struct {
 }
 
 type ListConfigOptions struct {
-	Mode   string `flag:",omtizero"`
-	Secret string `flag:",omtizero,secret"`
+	Mode   string `flag:",omitzero"`
+	Secret string `flag:",omitzero,secret"`
 }
 
 func (o *ListConfigOptions) InjectContext(ctx context.Context) context.Context {
@@ -98,7 +98,7 @@ type listConfigCommand struct {
 }
 
 type DumpComponentServer struct {
-	Addr string `flag:",omtizero,expose=http"`
+	Addr string `flag:",omitzero,expose=http"`
 }
 
 func (s *DumpComponentServer) InjectContext(ctx context.Context) context.Context {
@@ -198,7 +198,6 @@ func TestCollectFlagsFromConfigurator(t *testing.T) {
 		Expect(c.flagVars[0].Name, Equal("mode")),
 		Expect(c.flagVars[0].Alias, Equal("m")),
 		Expect(c.flagVars[0].EnvVar, Equal("APP_MODE")),
-		Expect(c.flagVars[0].Desc, Equal("root desc")),
 		Expect(flags.Lookup("mode") != nil, Equal(true)),
 		Expect(flags.Lookup("force") != nil, Equal(true)),
 	)

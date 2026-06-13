@@ -9,13 +9,13 @@ type Info struct {
 	// 组织名称
 	Name string `json:"name" validate:"@string[0,5]"`
 	// 组织类型
-	Type Type `json:"type,omtizero"`
+	Type Type `json:"type,omitzero"`
 }
 
 // Detail 表示组织详情。
 type Detail struct {
 	Info
-	CreatedAt *time.Time `json:"createdAt,omtizero"`
+	CreatedAt *time.Time `json:"createdAt,omitzero"`
 }
 
 // DataList 表示组织列表响应体。

@@ -7,9 +7,9 @@ import (
 	"strings"
 )
 
-// 源自 github.com/gorilla/handlers 的 CORS 实现。
-
 // DefaultCORS 创建使用默认宽松策略的 CORS 中间件。
+//
+// 源自 github.com/gorilla/handlers 的 CORS 实现。
 func DefaultCORS(opts ...CORSOption) func(http.Handler) http.Handler {
 	return CORS(
 		append([]CORSOption{
@@ -70,19 +70,32 @@ var (
 	defaultCorsHeaders          = []string{"Accept", "Accept-Language", "Content-Language", "Origin"}
 )
 
+// CORS 相关的 HTTP 头部常量。
 const (
-	CorsOptionMethod           string = "OPTIONS"
-	CorsAllowOriginHeader      string = "Access-Control-Allow-Origin"
-	CorsExposeHeadersHeader    string = "Access-Control-Expose-Headers"
-	CorsMaxAgeHeader           string = "Access-Control-Max-Age"
-	CorsAllowMethodsHeader     string = "Access-Control-Allow-Methods"
-	CorsAllowHeadersHeader     string = "Access-Control-Allow-Headers"
+	// CorsOptionMethod 表示 CORS 预检请求的方法名。
+	CorsOptionMethod string = "OPTIONS"
+	// CorsAllowOriginHeader 表示允许的来源头部名。
+	CorsAllowOriginHeader string = "Access-Control-Allow-Origin"
+	// CorsExposeHeadersHeader 表示暴露的头部名。
+	CorsExposeHeadersHeader string = "Access-Control-Expose-Headers"
+	// CorsMaxAgeHeader 表示预检请求缓存时间头部名。
+	CorsMaxAgeHeader string = "Access-Control-Max-Age"
+	// CorsAllowMethodsHeader 表示允许的方法头部名。
+	CorsAllowMethodsHeader string = "Access-Control-Allow-Methods"
+	// CorsAllowHeadersHeader 表示允许的请求头部名。
+	CorsAllowHeadersHeader string = "Access-Control-Allow-Headers"
+	// CorsAllowCredentialsHeader 表示允许凭证的头部名。
 	CorsAllowCredentialsHeader string = "Access-Control-Allow-Credentials"
-	CorsRequestMethodHeader    string = "Access-Control-Request-Method"
-	CorsRequestHeadersHeader   string = "Access-Control-Request-Headers"
-	CorsOriginHeader           string = "Origin"
-	CorsVaryHeader             string = "Vary"
-	CorsOriginMatchAll         string = "*"
+	// CorsRequestMethodHeader 表示请求的方法头部名。
+	CorsRequestMethodHeader string = "Access-Control-Request-Method"
+	// CorsRequestHeadersHeader 表示请求的头部名。
+	CorsRequestHeadersHeader string = "Access-Control-Request-Headers"
+	// CorsOriginHeader 表示来源头部名。
+	CorsOriginHeader string = "Origin"
+	// CorsVaryHeader 表示 Vary 头部名。
+	CorsVaryHeader string = "Vary"
+	// CorsOriginMatchAll 表示允许所有来源的通配符。
+	CorsOriginMatchAll string = "*"
 )
 
 func (ch *cors) ServeHTTP(w http.ResponseWriter, r *http.Request) {

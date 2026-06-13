@@ -7,6 +7,7 @@ import (
 
 // Tag 表示 struct tag 中解析出的名值对信息。
 type Tag struct {
+	// Name 标签名
 	Name string
 
 	url.Values

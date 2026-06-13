@@ -22,6 +22,7 @@ type LogProcessor = sdklog.Processor
 // LogRecord 是对 sdklog.Record 的公开别名。
 type LogRecord = sdklog.Record
 
+// LogProcessorRegistry 提供动态日志处理器注册能力。
 // +gengo:injectable:provider
 type LogProcessorRegistry interface {
 	RegisterLogProcessor(p sdklog.Processor)

@@ -11,16 +11,23 @@ import (
 // 组件名和镜像命名空间等基础信息。
 // +gengo:injectable:provider
 type Info struct {
+	// App 关联的应用元数据
 	App       *App
+	// Name 命令或组件名称
 	Name      string
+	// Desc 描述信息
 	Desc      string
+	// Component 关联的组件信息
 	Component *Component
 }
 
 // App 描述应用级元数据。
 type App struct {
+	// Name 应用名称
 	Name           string
+	// Version 版本号
 	Version        string
+	// ImageNamespace 镜像命名空间
 	ImageNamespace string
 }
 
@@ -31,6 +38,8 @@ func (a App) String() string {
 
 // Component 描述当前运行单元及其附加选项。
 type Component struct {
+	// Name 组件名称
 	Name    string
+	// Options 组件选项
 	Options url.Values
 }
