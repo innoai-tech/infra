@@ -7,7 +7,7 @@ go *args:
 # 整理依赖
 [group("env")]
 [no-cd]
-dep:
+dep: && skills-install
     go mod tidy
 
 # 更新依赖

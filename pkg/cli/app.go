@@ -137,6 +137,14 @@ func (a *app) newFrom(cc Command, parent Command) *cobra.Command {
 			}
 		}
 
+		for i := range c.flagVars {
+			f := c.flagVars[i]
+
+			if f.Required && f.Value.IsZero() {
+				return fmt.Errorf("缺失必填配置 ${%s}, 可通过环境变量或 --%s 设置", f.EnvVar, f.Name)
+			}
+		}
+
 		singletons := append(
 			configuration.Singletons{{
 				Configurator: &c.info,
