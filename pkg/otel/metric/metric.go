@@ -6,18 +6,18 @@ import (
 
 type Metric struct {
 	// Name 指标名称
-	Name        string
+	Name string
 	// Unit 指标单位
-	Unit        string
+	Unit string
 	// Description 指标描述
 	Description string
 	// Views 关联的视图列表
-	Views       []View
+	Views []View
 }
 
 type View struct {
 	// Instrument 仪器配置
 	Instrument sdkmetric.Instrument
 	// Stream 流配置
-	Stream     sdkmetric.Stream
+	Stream sdkmetric.Stream
 }

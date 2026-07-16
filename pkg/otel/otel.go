@@ -59,9 +59,9 @@ type Otel struct {
 	TraceCollectorEndpoint string `flag:",omitzero"`
 
 	// MetricCollectorEndpoint 指标采集器地址
-	MetricCollectorEndpoint      string `flag:",omitzero"`
+	MetricCollectorEndpoint string `flag:",omitzero"`
 	// MetricCollectIntervalSeconds 指标采集间隔（秒）
-	MetricCollectIntervalSeconds int    `flag:",omitzero"`
+	MetricCollectIntervalSeconds int `flag:",omitzero"`
 
 	tracerProvider *sdktrace.TracerProvider
 	loggerProvider *sdklog.LoggerProvider

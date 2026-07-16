@@ -12,9 +12,13 @@ import (
 // Arg 表示一个命令行位置参数。
 type Arg struct {
 	// Name 参数名称
-	Name  string
+	Name string
 	// Value 参数值反射
 	Value reflect.Value
+
+	// Interspersed 表示遇到此位置参数时是否允许 flags 穿插解析。
+	// 为 false 时，遇到第一个非 flag 参数即停止 flag 解析，后续全部归为位置参数。
+	Interspersed bool
 }
 
 // HasVariadic 返回该位置参数是否为变长参数。

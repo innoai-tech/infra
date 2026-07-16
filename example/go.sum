@@ -59,8 +59,6 @@ github.com/mattn/go-isatty v0.0.22 h1:j8l17JJ9i6VGPUFUYoTUKPSgKe/83EYU2zBC7YNKMw
 github.com/mattn/go-isatty v0.0.22/go.mod h1:ZXfXG4SQHsB/w3ZeOYbR0PrPwLy+n6xiMrJlRFqopa4=
 github.com/octohelm/courier v0.0.0-20260709015711-0580ba3784c9 h1:tExFQ/82qYvqZdRd40RNAEghI0H6Qt94icL0jDMzF2o=
 github.com/octohelm/courier v0.0.0-20260709015711-0580ba3784c9/go.mod h1:ii54YATCjtmJDBvnjNRiFk3Y4Iuw09zHYr85GVKjd0o=
-github.com/octohelm/enumeration v0.0.0-20260508105338-2e799c70cf82 h1:SlFG0Lzfuj8oWq4r/c0BxpL7Ot/GlwnMi6GSK8F29cA=
-github.com/octohelm/enumeration v0.0.0-20260508105338-2e799c70cf82/go.mod h1:P3PfoQVyTvvgsW4d7RLWLa/aYvuuhBiv5mU4bebRcMU=
 github.com/octohelm/gengo v0.0.0-20260716031312-6b811036a70b h1:WI7N9pML5CG1Kz38rGePRzNmV1aSnXklLdN/o0OPbNw=
 github.com/octohelm/gengo v0.0.0-20260716031312-6b811036a70b/go.mod h1:AG1OKM+nn+x0hBVD0rRsQroV7CQHIkEbDf3+vCpmS8A=
 github.com/octohelm/x v0.0.0-20260508104609-6b72a870e0d2 h1:LxqawVVW/F3HhhYG/ZkIsNTmmscEY6GlvBiqpmCf8pQ=
@@ -71,8 +69,6 @@ github.com/power-devops/perfstat v0.0.0-20240221224432-82ca36839d55 h1:o4JXh1EVt
 github.com/power-devops/perfstat v0.0.0-20240221224432-82ca36839d55/go.mod h1:OmDBASR4679mdNQnz2pUhc2G8CO2JrUAVFDRBDP/hJE=
 github.com/prometheus/otlptranslator v1.0.0 h1:s0LJW/iN9dkIH+EnhiD3BlkkP5QVIUVEoIwkU+A6qos=
 github.com/prometheus/otlptranslator v1.0.0/go.mod h1:vRYWnXvI6aWGpsdY/mOT/cbeVRBlPWtBNDb7kGR3uKM=
-github.com/robfig/cron/v3 v3.0.1 h1:WdRxkvbJztn8LMz/QEvLN5sBU+xKpSqwwUO1Pjr4qDs=
-github.com/robfig/cron/v3 v3.0.1/go.mod h1:eQICP3HwyT7UooqI/z+Ov+PtYAWygg1TEWWzGIFLtro=
 github.com/rogpeppe/go-internal v1.14.1 h1:UQB4HGPB6osV0SQTLymcB4TgvyWu6ZyliaW0tI/otEQ=
 github.com/rogpeppe/go-internal v1.14.1/go.mod h1:MaRKkUm5W0goXpeCfT7UZI6fk/L7L7so1lCWt35ZSgc=
 github.com/russross/blackfriday/v2 v2.1.0/go.mod h1:+Rmxgy9KzJVeS9/2gXHxylqXiyQDYRxCVz55jmeOWTM=

@@ -8,21 +8,21 @@ import (
 // Port 描述一个容器端口。
 type Port struct {
 	// Port 容器端口号
-	Port              int
+	Port int
 	// Protocol 默认 "TCP"
-	Protocol          string
+	Protocol string
 	// Endpoint 服务入口路径
-	Endpoint          string
+	Endpoint string
 	// ReadinessEndpoint 就绪探针路径
 	ReadinessEndpoint string
 	// LivenessEndpoint 存活探针路径
-	LivenessEndpoint  string
+	LivenessEndpoint string
 }
 
 // EnvVar 描述一个环境变量配置，支持静态值和模板引用。
 type EnvVar struct {
 	// Value 静态值
-	Value    string
+	Value string
 	// ValueRef Go template，以 Container 为数据上下文
 	ValueRef string
 }
@@ -49,13 +49,13 @@ type Container struct {
 	// ImageName 镜像名，如 "ghcr.io/octohelm/example"
 	ImageName string
 	// Version 版本号，如 "1.0.0"
-	Version   string
+	Version string
 	// Command 入口命令
-	Command   []string
+	Command []string
 	// Args 命令参数
-	Args      []string
+	Args []string
 	// Ports 暴露端口，key 为端口名
-	Ports     map[string]Port
+	Ports map[string]Port
 	// Env 环境变量，key 为变量名
-	Env       map[string]EnvVar
+	Env map[string]EnvVar
 }

@@ -112,8 +112,9 @@ func collectFlagsFromConfigurator(c *C, flags *pflag.FlagSet, rv reflect.Value, 
 			}
 
 			a := &internal.Arg{
-				Name:  argName,
-				Value: fv,
+				Name:         argName,
+				Value:        fv,
+				Interspersed: tt.Has("interspersed"),
 			}
 
 			c.args = append(c.args, a)

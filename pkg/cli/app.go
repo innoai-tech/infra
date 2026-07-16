@@ -86,6 +86,13 @@ func (a *app) newFrom(cc Command, parent Command) *cobra.Command {
 
 	a.bindCommand(cmd, c, cc)
 
+	for _, arg := range c.args {
+		if arg.Interspersed {
+			cmd.Flags().SetInterspersed(false)
+			break
+		}
+	}
+
 	if parent != nil {
 		c.cmdPath = append(parent.Cmd().cmdPath, c.info.Name)
 	}

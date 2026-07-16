@@ -20,9 +20,9 @@ const (
 	// ErrorLevel 表示仅输出 error 级别日志。
 	ErrorLevel LogLevel = "error"
 	// WarnLevel 表示输出 warn 及以上级别日志。
-	WarnLevel  LogLevel = "warn"
+	WarnLevel LogLevel = "warn"
 	// InfoLevel 表示输出 info 及以上级别日志。
-	InfoLevel  LogLevel = "info"
+	InfoLevel LogLevel = "info"
 	// DebugLevel 表示输出 debug 及以上级别日志。
 	DebugLevel LogLevel = "debug"
 )

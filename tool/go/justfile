@@ -1,52 +1,42 @@
-# 透传 go 命令
-[group("runtime")]
-[no-cd]
-go *args:
-    @go {{ args }}
+devkit := "go run " + clean(join(module_directory(), "./cmd/devkit"))
+
+[group('meta')]
+default:
+    @just --list
 
 # 整理依赖
 [group("env")]
 [no-cd]
 dep: && skills-install
-    go mod tidy
+    {{ devkit }} workrun go mod tidy
+    go work sync
 
 # 更新依赖
 [group("env")]
 [no-cd]
 update:
-    go get -u ./...
-
-# 编译
-[group("build")]
-[no-cd]
-build path='./...' *args:
-    go build {{ args }} {{ path }}
+    {{ devkit }} workrun go get -u ./...
 
 # 运行测试
 [group("test")]
 [no-cd]
 test path='./...' *args:
-    go test -count=1 -failfast {{ args }} {{ path }}
+    {{ devkit }} workrun -C={{ path }} go test -count=1 -failfast {{ args }} {}
 
 # 格式化
 [group("fmt")]
 [no-cd]
-fmt path='./...' *args:
-    go tool fmt {{ args }} {{ path }}
+fmt path='./...' *args="-l -w":
+    {{ devkit }} workrun -C={{ path }} {{ devkit }} fmt {{ args }} {}
 
 # 代码生成
 [group("build")]
 [no-cd]
 gen path='./...' *args:
-    go tool gen {{ path }} {{ args }}
+    {{ devkit }} workrun -C={{ path }} {{ devkit }} gen {{ args }} {}
 
 # 安装 agent skills
 [group("env")]
 [no-cd]
 skills-install:
-    go tool skills-install
-
-# 列出所有可用命令
-[group("meta")]
-default:
-    @just --list
+    {{ devkit }} skills-install

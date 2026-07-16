@@ -1,28 +1,8 @@
 package gengo
 
 import (
-	"context"
-
 	"github.com/octohelm/gengo/pkg/gengo"
 )
 
-type Gengo struct {
-	Entrypoint []string `arg:""`
-	// generate for all packages
-	All bool `flag:",omitzero" alias:"a"`
-	// force generate without cache
-	Force bool `flag:",omitzero"`
-}
-
-func (g *Gengo) Run(ctx context.Context) error {
-	c, err := gengo.NewExecutor(&gengo.GeneratorArgs{
-		Entrypoint:         g.Entrypoint,
-		OutputFileBaseName: "zz_generated",
-		Globals:            map[string][]string{},
-		NoCache:            g.All,
-	})
-	if err != nil {
-		return err
-	}
-	return c.Execute(ctx, gengo.GetRegisteredGenerators()...)
-}
+//go:fix inline
+type Gengo = gengo.Project
