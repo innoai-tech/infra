@@ -112,7 +112,7 @@ func (r *Runner) Run(ctx context.Context) error {
 		}
 
 		if err := rr.Exec(ctx, resolveArgs(r.Args, t.Pattern)); err != nil {
-			rr.Errorf("%v\n", err)
+			return err
 		}
 	}
 
