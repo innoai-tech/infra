@@ -9,6 +9,7 @@ import (
 	"time"
 
 	"github.com/go-json-experiment/json/jsontext"
+	"go.opentelemetry.io/otel/attribute"
 	"go.opentelemetry.io/otel/log"
 	sdklog "go.opentelemetry.io/otel/sdk/log"
 )
@@ -51,7 +52,7 @@ func (e *jsonExporter) print(w io.Writer, r sdklog.Record) error {
 		return err
 	}
 
-	written := map[string]bool{}
+	written := map[attribute.Key]bool{}
 
 	for attr := range r.WalkAttributes {
 		if written[attr.Key] {
@@ -68,7 +69,7 @@ func (e *jsonExporter) print(w io.Writer, r sdklog.Record) error {
 	for _, attr := range res.Attributes() {
 		switch attr.Key {
 		case "service.name", "service.version":
-			if err := e.keyValueTo(enc, string(attr.Key), attr.Value.AsInterface()); err != nil {
+			if err := e.keyValueTo(enc, attr.Key, attr.Value.AsInterface()); err != nil {
 				return err
 			}
 		}
@@ -94,7 +95,7 @@ func (e *jsonExporter) print(w io.Writer, r sdklog.Record) error {
 	return err
 }
 
-func (e *jsonExporter) keyValueTo(enc *jsontext.Encoder, key string, value any) error {
+func (e *jsonExporter) keyValueTo(enc *jsontext.Encoder, key attribute.Key, value any) error {
 	if err := writeJSONValue(enc, key); err != nil {
 		return err
 	}

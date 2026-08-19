@@ -6,7 +6,7 @@ import (
 	"path"
 	"runtime"
 
-	"go.opentelemetry.io/otel/log"
+	"go.opentelemetry.io/otel/attribute"
 )
 
 // GetSource 获取调用栈的源码位置信息。
@@ -26,9 +26,9 @@ func GetSource(skip int) Source {
 type Source slog.Source
 
 // AsKeyValues 将源码位置转换为 OpenTelemetry 日志键值对。
-func (s Source) AsKeyValues() []log.KeyValue {
-	return []log.KeyValue{
-		log.String("source.func", s.Function),
-		log.String("source.file", fmt.Sprintf("%s:%d", path.Base(s.File), s.Line)),
+func (s Source) AsKeyValues() []attribute.KeyValue {
+	return []attribute.KeyValue{
+		attribute.String("source.func", s.Function),
+		attribute.String("source.file", fmt.Sprintf("%s:%d", path.Base(s.File), s.Line)),
 	}
 }

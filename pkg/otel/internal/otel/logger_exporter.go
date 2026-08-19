@@ -13,6 +13,7 @@ import (
 	"github.com/fatih/color"
 	"github.com/go-json-experiment/json"
 	"github.com/go-json-experiment/json/jsontext"
+	"go.opentelemetry.io/otel/attribute"
 	"go.opentelemetry.io/otel/log"
 	sdklog "go.opentelemetry.io/otel/sdk/log"
 )
@@ -69,7 +70,7 @@ func (e *prettyExporter) print(f io.Writer, r sdklog.Record) error {
 
 	_, _ = fmt.Fprint(w, r.Body().AsString())
 
-	attrs := map[string]any{}
+	attrs := map[attribute.Key]any{}
 
 	if name := r.InstrumentationScope().Name; name != "" {
 		attrs["trace.span.name"] = name

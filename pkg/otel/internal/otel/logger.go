@@ -5,6 +5,7 @@ import (
 	"fmt"
 	"time"
 
+	"go.opentelemetry.io/otel/attribute"
 	"go.opentelemetry.io/otel/codes"
 	"go.opentelemetry.io/otel/log"
 	"go.opentelemetry.io/otel/trace"
@@ -30,7 +31,7 @@ type logger struct {
 	spanContext
 	loggerContext
 
-	keyValues []log.KeyValue
+	keyValues []attribute.KeyValue
 }
 
 func (t *logger) WithValues(keyAndValues ...any) logr.Logger {
@@ -125,7 +126,7 @@ func (lc *loggerContext) getLogger() log.Logger {
 	return lc.logger
 }
 
-func (lc *loggerContext) emit(level logr.Level, msg fmt.Stringer, keyValues []log.KeyValue) {
+func (lc *loggerContext) emit(level logr.Level, msg fmt.Stringer, keyValues []attribute.KeyValue) {
 	var rec log.Record
 
 	switch level {
@@ -146,20 +147,20 @@ func (lc *loggerContext) emit(level logr.Level, msg fmt.Stringer, keyValues []lo
 	}
 
 	if !lc.startedAt.IsZero() {
-		rec.AddAttributes(log.String("cost", time.Since(lc.startedAt).String()))
+		rec.AddAttributes(attribute.String("cost", time.Since(lc.startedAt).String()))
 	}
 
 	if lc.parentID.IsValid() {
-		rec.AddAttributes(log.String("trace.parent.span.id", lc.parentID.String()))
+		rec.AddAttributes(attribute.String("trace.parent.span.id", lc.parentID.String()))
 	}
 
 	rec.SetTimestamp(time.Now())
-	rec.SetBody(log.StringValue(msg.String()))
+	rec.SetBody(attribute.StringValue(msg.String()))
 
 	lc.getLogger().Emit(lc.ctx, rec)
 }
 
-func (l *loggerContext) info(level logr.Level, msg fmt.Stringer, keyValues []log.KeyValue) {
+func (l *loggerContext) info(level logr.Level, msg fmt.Stringer, keyValues []attribute.KeyValue) {
 	if level > l.enabled {
 		return
 	}
@@ -167,7 +168,7 @@ func (l *loggerContext) info(level logr.Level, msg fmt.Stringer, keyValues []log
 	l.emit(level, msg, keyValues)
 }
 
-func (l *loggerContext) error(level logr.Level, err error, keyValues []log.KeyValue, postDo func(err error)) {
+func (l *loggerContext) error(level logr.Level, err error, keyValues []attribute.KeyValue, postDo func(err error)) {
 	if level > l.enabled {
 		return
 	}

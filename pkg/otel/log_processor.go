@@ -4,15 +4,15 @@ import (
 	"context"
 	"sync"
 
-	"go.opentelemetry.io/otel/log"
+	"go.opentelemetry.io/otel/attribute"
 	sdklog "go.opentelemetry.io/otel/sdk/log"
 	"golang.org/x/sync/errgroup"
 
 	"github.com/innoai-tech/infra/pkg/otel/internal/otel"
 )
 
-// LogValue 将 OpenTelemetry log.Value 转换为普通 Go 值。
-func LogValue(v log.Value) any {
+// LogValue 将 OpenTelemetry attribute.Value 转换为普通 Go 值。
+func LogValue(v attribute.Value) any {
 	return otel.LogValue(v)
 }
 

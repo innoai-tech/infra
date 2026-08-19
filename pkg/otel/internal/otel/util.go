@@ -6,46 +6,37 @@ import (
 	"time"
 
 	"go.opentelemetry.io/otel/attribute"
-	"go.opentelemetry.io/otel/log"
 
 	"github.com/octohelm/x/slices"
 )
 
-func normalizeKeyValues(keysAndValues []any) []log.KeyValue {
-	keyValues := make([]log.KeyValue, 0, len(keysAndValues))
+func normalizeKeyValues(keysAndValues []any) []attribute.KeyValue {
+	keyValues := make([]attribute.KeyValue, 0, len(keysAndValues))
 
 	for i := 0; i < len(keysAndValues); i++ {
 		switch x := keysAndValues[i].(type) {
 		case []slog.Attr:
-			keyValues = append(keyValues, slices.Map(x, func(e slog.Attr) log.KeyValue {
-				return log.KeyValue{
-					Key:   e.Key,
+			keyValues = append(keyValues, slices.Map(x, func(e slog.Attr) attribute.KeyValue {
+				return attribute.KeyValue{
+					Key:   attribute.Key(e.Key),
 					Value: LogAnyValue(e.Value.Any()),
 				}
 			})...)
 		case slog.Attr:
-			keyValues = append(keyValues, log.KeyValue{
-				Key:   x.Key,
+			keyValues = append(keyValues, attribute.KeyValue{
+				Key:   attribute.Key(x.Key),
 				Value: LogAnyValue(x.Value.Any()),
 			})
 		case []attribute.KeyValue:
-			keyValues = append(keyValues, slices.Map(x, func(e attribute.KeyValue) log.KeyValue {
-				return log.KeyValue{
-					Key:   string(e.Key),
-					Value: LogAnyValue(e.Value.AsInterface()),
-				}
-			})...)
+			keyValues = append(keyValues, x...)
 		case attribute.KeyValue:
-			keyValues = append(keyValues, log.KeyValue{
-				Key:   string(x.Key),
-				Value: LogAnyValue(x.Value.AsInterface()),
-			})
+			keyValues = append(keyValues, x)
 		case string:
 			// "key", value
 			if i+1 < len(keysAndValues) {
 				i++
-				keyValues = append(keyValues, log.KeyValue{
-					Key:   x,
+				keyValues = append(keyValues, attribute.KeyValue{
+					Key:   attribute.Key(x),
 					Value: LogAnyValue(keysAndValues[i]),
 				})
 			}
@@ -57,30 +48,38 @@ func normalizeKeyValues(keysAndValues []any) []log.KeyValue {
 	return keyValues
 }
 
-// LogValue 将 OpenTelemetry log.Value 转换为普通 Go 值。
-func LogValue(v log.Value) any {
-	switch v.Kind() {
-	case log.KindBool:
+// LogValue 将 OpenTelemetry attribute.Value 转换为普通 Go 值。
+func LogValue(v attribute.Value) any {
+	switch v.Type() {
+	case attribute.BOOL:
 		return v.AsBool()
-	case log.KindFloat64:
+	case attribute.BOOLSLICE:
+		return v.AsBoolSlice()
+	case attribute.FLOAT64:
 		return v.AsFloat64()
-	case log.KindInt64:
+	case attribute.FLOAT64SLICE:
+		return v.AsFloat64Slice()
+	case attribute.INT64:
 		return v.AsInt64()
-	case log.KindString:
+	case attribute.INT64SLICE:
+		return v.AsInt64Slice()
+	case attribute.STRING:
 		return v.AsString()
-	case log.KindBytes:
-		return v.AsBytes()
-	case log.KindSlice:
+	case attribute.STRINGSLICE:
+		return v.AsStringSlice()
+	case attribute.BYTESLICE:
+		return v.AsByteSlice()
+	case attribute.SLICE:
 		list := v.AsSlice()
 		values := make([]any, len(list))
 		for i := range list {
 			values[i] = LogValue(list[i])
 		}
 		return values
-	case log.KindMap:
+	case attribute.MAP:
 		values := map[string]any{}
 		for _, k := range v.AsMap() {
-			values[k.Key] = LogValue(k.Value)
+			values[string(k.Key)] = LogValue(k.Value)
 		}
 		return values
 	default:
@@ -88,62 +87,88 @@ func LogValue(v log.Value) any {
 	}
 }
 
-// LogAnyValue 将任意 Go 值转换为 OpenTelemetry log.Value。
-func LogAnyValue(value any) log.Value {
+// LogAnyValue 将任意 Go 值转换为 OpenTelemetry attribute.Value。
+func LogAnyValue(value any) attribute.Value {
 	switch v := value.(type) {
 	case time.Time:
-		return log.StringValue(slog.TimeValue(v).String())
+		return attribute.StringValue(slog.TimeValue(v).String())
 	case time.Duration:
-		return log.StringValue(slog.DurationValue(v).String())
+		return attribute.StringValue(slog.DurationValue(v).String())
 	case fmt.Stringer:
-		return log.StringValue(v.String())
+		return attribute.StringValue(v.String())
 	case []byte:
-		return log.BytesValue(v)
+		return attribute.ByteSliceValue(v)
+	case []string:
+		return attribute.StringSliceValue(v)
+	case []bool:
+		return attribute.BoolSliceValue(v)
+	case []int:
+		return attribute.IntSliceValue(v)
+	case []int8:
+		return attribute.Int64SliceValue(slices.Map(v, func(e int8) int64 { return int64(e) }))
+	case []int16:
+		return attribute.Int64SliceValue(slices.Map(v, func(e int16) int64 { return int64(e) }))
+	case []int32:
+		return attribute.Int64SliceValue(slices.Map(v, func(e int32) int64 { return int64(e) }))
+	case []int64:
+		return attribute.Int64SliceValue(v)
+	case []uint:
+		return attribute.Int64SliceValue(slices.Map(v, func(e uint) int64 { return int64(e) }))
+	case []uint16:
+		return attribute.Int64SliceValue(slices.Map(v, func(e uint16) int64 { return int64(e) }))
+	case []uint32:
+		return attribute.Int64SliceValue(slices.Map(v, func(e uint32) int64 { return int64(e) }))
+	case []uint64:
+		return attribute.Int64SliceValue(slices.Map(v, func(e uint64) int64 { return int64(e) }))
+	case []float32:
+		return attribute.Float64SliceValue(slices.Map(v, func(e float32) float64 { return float64(e) }))
+	case []float64:
+		return attribute.Float64SliceValue(v)
 	case string:
-		return log.StringValue(v)
+		return attribute.StringValue(v)
 	case uint:
-		return log.Int64Value(int64(v))
+		return attribute.Int64Value(int64(v))
 	case uint8:
-		return log.Int64Value(int64(v))
+		return attribute.Int64Value(int64(v))
 	case uint16:
-		return log.Int64Value(int64(v))
+		return attribute.Int64Value(int64(v))
 	case uint32:
-		return log.Int64Value(int64(v))
+		return attribute.Int64Value(int64(v))
 	case int:
-		return log.Int64Value(int64(v))
+		return attribute.Int64Value(int64(v))
 	case int8:
-		return log.Int64Value(int64(v))
+		return attribute.Int64Value(int64(v))
 	case int16:
-		return log.Int64Value(int64(v))
+		return attribute.Int64Value(int64(v))
 	case int32:
-		return log.Int64Value(int64(v))
+		return attribute.Int64Value(int64(v))
 	case int64:
-		return log.Int64Value(v)
+		return attribute.Int64Value(v)
 	case float32:
-		return log.Float64Value(float64(v))
+		return attribute.Float64Value(float64(v))
 	case float64:
-		return log.Float64Value(v)
+		return attribute.Float64Value(v)
 	case bool:
-		return log.BoolValue(v)
+		return attribute.BoolValue(v)
 	case []any:
-		list := make([]log.Value, len(v))
+		list := make([]attribute.Value, len(v))
 		for i, item := range v {
 			list[i] = LogAnyValue(item)
 		}
-		return log.SliceValue(list...)
+		return attribute.SliceValue(list...)
 	case map[string]any:
-		keyValues := make([]log.KeyValue, 0, len(v))
+		keyValues := make([]attribute.KeyValue, 0, len(v))
 		for k, item := range v {
-			keyValues = append(keyValues, log.KeyValue{
-				Key:   k,
+			keyValues = append(keyValues, attribute.KeyValue{
+				Key:   attribute.Key(k),
 				Value: LogAnyValue(item),
 			})
 		}
-		return log.MapValue(keyValues...)
+		return attribute.MapValue(keyValues...)
 	default:
 		if x, ok := v.(interface{ Unwrap() any }); ok {
 			return LogAnyValue(x.Unwrap())
 		}
-		return log.StringValue(slog.AnyValue(v).String())
+		return attribute.StringValue(slog.AnyValue(v).String())
 	}
 }
