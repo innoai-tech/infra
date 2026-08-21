@@ -11,8 +11,8 @@ import (
 	"sync/atomic"
 
 	"github.com/fatih/color"
-	"github.com/go-json-experiment/json"
-	"github.com/go-json-experiment/json/jsontext"
+	"encoding/json/v2"
+	"encoding/json/jsontext"
 	"go.opentelemetry.io/otel/attribute"
 	"go.opentelemetry.io/otel/log"
 	sdklog "go.opentelemetry.io/otel/sdk/log"

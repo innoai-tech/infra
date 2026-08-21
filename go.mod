@@ -1,26 +1,22 @@
 module github.com/innoai-tech/infra
 
-go 1.26.5
+go 1.27.0
 
 // +gengo:import:group=0_controlled
-require (
-	github.com/innoai-tech/openapi-playground v0.0.0-20251225080706-b73e3d246544
-	// +skill:courier-guideline
-	github.com/octohelm/courier v0.0.0-20260709015711-0580ba3784c9
-	// +skill:enumeration-guideline
-	github.com/octohelm/enumeration v0.0.0-20260508105338-2e799c70cf82
-	// +skill:gengo-guideline
-	github.com/octohelm/gengo v0.0.0-20260730025754-c2d1e5db8dc2
-	// +skill:testing-guideline
-	github.com/octohelm/x v0.0.0-20260508104609-6b72a870e0d2
-)
-
 require (
 	github.com/andybalholm/brotli v1.2.2
 	github.com/davecgh/go-spew v1.1.2-0.20180830191138-d8f796af33cc
 	github.com/fatih/color v1.19.0
 	github.com/felixge/httpsnoop v1.1.0
-	github.com/go-json-experiment/json v0.0.0-20260623181947-01eb4420fa68
+	github.com/innoai-tech/openapi-playground v0.0.0-20260820092409-32accd873e1b
+	// +skill:courier-guideline
+	github.com/octohelm/courier v0.0.0-20260821055841-599d41f49f0b
+	// +skill:enumeration-guideline
+	github.com/octohelm/enumeration v0.0.0-20260508105338-2e799c70cf82
+	// +skill:gengo-guideline
+	github.com/octohelm/gengo v0.0.0-20260821034500-ef88841eb5e4
+	// +skill:testing-guideline
+	github.com/octohelm/x v0.0.0-20260821032215-38f48df07f8c
 	github.com/prometheus/otlptranslator v1.0.0
 	github.com/robfig/cron/v3 v3.0.1
 	github.com/spf13/cobra v1.10.2
@@ -69,10 +65,10 @@ require (
 	golang.org/x/sys v0.47.0 // indirect
 	golang.org/x/text v0.41.0 // indirect
 	golang.org/x/tools v0.49.0 // indirect
-	google.golang.org/genproto/googleapis/api v0.0.0-20260818201246-1b0934165a6f // indirect
-	google.golang.org/genproto/googleapis/rpc v0.0.0-20260818201246-1b0934165a6f // indirect
-	google.golang.org/grpc v1.83.0 // indirect
+	google.golang.org/genproto/googleapis/api v0.0.0-20260819154853-08b0e4226688 // indirect
+	google.golang.org/genproto/googleapis/rpc v0.0.0-20260819154853-08b0e4226688 // indirect
+	google.golang.org/grpc v1.83.1 // indirect
 	google.golang.org/protobuf v1.36.12 // indirect
-	k8s.io/apimachinery v0.36.3 // indirect
+	k8s.io/apimachinery v0.36.4 // indirect
 	mvdan.cc/gofumpt v0.11.0 // indirect
 )

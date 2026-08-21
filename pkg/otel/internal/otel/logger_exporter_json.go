@@ -8,7 +8,7 @@ import (
 	"os"
 	"time"
 
-	"github.com/go-json-experiment/json/jsontext"
+	"encoding/json/jsontext"
 	"go.opentelemetry.io/otel/attribute"
 	"go.opentelemetry.io/otel/log"
 	sdklog "go.opentelemetry.io/otel/sdk/log"
