@@ -96,7 +96,7 @@ func (e *jsonExporter) print(w io.Writer, r sdklog.Record) error {
 }
 
 func (e *jsonExporter) keyValueTo(enc *jsontext.Encoder, key attribute.Key, value any) error {
-	if err := writeJSONValue(enc, key); err != nil {
+	if err := writeJSONValue(enc, string(key)); err != nil {
 		return err
 	}
 	return writeJSONValue(enc, value)
